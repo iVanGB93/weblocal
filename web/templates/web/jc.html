@@ -1,0 +1,27 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container marketing">
+  <hr class="featurette-divider">
+    <div class="row featurette">
+      <div class="col-md-8 order-md-2">
+        <h2>Joven Club.</h2>
+        <p class="lead">Para acceder a la red Joven Club debe tener una cuenta activada en el JC de la Habana Vieja y tener activo el servicio en la red local. Para mas información escribir al Yanky.</p>
+      </div>
+      <div class="col-md-4 order-md-1">
+        <img src="{% static 'web/jc/jovenclub.jpg' %}" class="img-fluid" alt="Responsive image" width="300" height="300"> 
+      </div>
+    </div>  
+    <hr class="featurette-divider">
+    <div class="row featurette">
+        <div class="col-md-8">
+            <h2>Para activar el servicio local entre al Portal del Usuario:</h2>           
+        </div>        
+        <div class="col-md-4">
+            <a href="https://qbared.com/portal/"><button class="btn btn-primary">Portal</button></a>
+        </div>
+    </div>
+</div>
+<hr class="featurette-divider">
+</div>
+{% endblock content %}

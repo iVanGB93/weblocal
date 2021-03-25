@@ -1,0 +1,42 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block content %}
+<div style="padding:20px">
+    <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark" style="background-image: url('{% static 'web/noticias/main.jpg' %}');">
+        <div class="col-md-6 px-0" style="text-shadow: 0 0 3px black, 0 0 8px red; text-align: center;">
+        <h1 class="display-5 fst-italic">Información Importante</h1>
+        <p class="lead my-3">Aquí encontrarás las últimas noticias sobre la Red.</p>      
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-md-6">
+        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+            <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-primary">Sorteo</strong>
+            <h3 class="mb-0">Puedes ganar 200 coins</h3>
+            <div class="mb-1 text-muted">Viernes, 30 de abril</div>
+            <p class="card-text mb-auto">Se va a realizar un sorteo en el que puedes participar y tener la oportunidad de ganar 200 coins para el servicio que desees.</p>
+            <a href="{% url 'sorteo:index' %}" class="stretched-link">detalles...</a>
+            </div>
+            <div class="col-auto d-none d-lg-block">
+                <img src="{% static 'web/noticias/sorteo.png' %}" width="250" class="img-fluid" alt="Responsive image">
+            </div>
+        </div>
+        </div>
+        <div class="col-md-6">
+        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+            <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-success">Emby</strong>
+            <h3 class="mb-0">Mejora del emby</h3>
+            <div class="mb-1 text-muted">Abril</div>
+            <p class="mb-auto">Se va a instalar otro disco de 4 teras al servidor del emby para incrementar su contenido.</p>
+            <a href="#" class="stretched-link">detalles pronto...</a>
+            </div>
+            <div class="col-auto d-none d-lg-block">
+                <img src="{% static 'web/emby.png' %}" width="250" class="img-fluid" alt="Responsive image">
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

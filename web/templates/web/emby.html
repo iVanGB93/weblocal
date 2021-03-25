@@ -1,0 +1,37 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container marketing">
+<hr class="featurette-divider">
+    <div class="row featurette">
+      <div class="col-md-8 order-md-2">
+        <h2>Emby.</h2>
+        <p class="lead">Emby es un servidor multimedia desde el cual puedes visualizar contenido en tus dispositivos mediante stream directo.</p>
+      </div>
+      <div class="col-md-4 order-md-1">
+        <img src="{% static 'web/embymain.png' %}" class="img-fluid" alt="Responsive image" width="300" height="300"> 
+      </div>
+    </div>
+<hr class="featurette-divider">   
+    <div class="row featurette">
+        <div class="col-md-10">
+            <h2>Entre al emby desde el siguiente link:</h2>        
+        </div>
+        <div class="col-md-2">
+            <a href="http://172.16.0.10:8096">
+                <button class="btn btn-primary">media.qbared.com</button>
+            </a>
+        </div>
+    </div>
+<hr class="featurette-divider">
+    <div class="row featurette">
+        <div class="col-md-8">
+            <h2>Para crear su cuenta en el Portal del Usuario:</h2>           
+        </div>        
+        <div class="col-md-4">
+            <a href="https://qbared.com/portal/"><button class="btn btn-primary">Portal</button></a>
+        </div>
+    </div>
+</div>
+<hr class="featurette-divider">
+{% endblock content %}

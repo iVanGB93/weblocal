@@ -1,0 +1,7 @@
+/env
+/frontend
+
+*.ini
+*.pyc
+
+__pycache__

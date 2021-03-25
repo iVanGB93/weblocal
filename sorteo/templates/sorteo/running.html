@@ -1,0 +1,77 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block content %}
+<div class="row align-items-center" style="padding: 30px">
+    {% if message %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>        
+    {% endif %}
+    <div class="col">
+        <h1>Participantes</h1>        
+        <ul id="participants-list" class="list-group">
+        </ul>
+    </div>
+    <div class="col">
+        <h1>Seleccionado:</h1>
+        <h1 id="app">{{ text }}</h1>
+        <div>
+            {% if usuario.is_staff %}
+            <button id="roll-button">
+                Empezar
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col">
+        <h1>200</h1>        
+        <img src="" alt="coins"/>
+    </div>
+
+    <script src="{% static 'sorteo/reconnecting-websocket.js' %}"></script> 
+    <script>
+        var socket = new ReconnectingWebSocket('ws://127.0.0.1/ws/sorteo/running/');
+        socket.onopen = function(e) {
+            socket.send(JSON.stringify({
+                'command': 'participants'
+            }))
+        }
+        socket.onmessage = function(e){
+            var data = JSON.parse(e.data);
+            if (data['command'] === 'participants') {
+                var list = document.getElementById("participants-list");
+                while (list.firstChild) {
+                    list.removeChild(list.firstChild);
+                }
+                var participants = data['participants']
+                var participants = participants.map(participants => {
+                    var parListTag = document.createElement('li');
+                    if (participants['eliminado']) {
+                        var delTag = document.createElement('del');
+                        delTag.textContent = participants['usuario'] + " " + participants['servicio'] + " " + participants['code'];
+                        parListTag.appendChild(delTag);
+                    } else {
+                        var pTag = document.createElement('p');
+                        pTag.textContent = participants['usuario'] + " " + participants['servicio'] + " " + participants['code'];
+                        parListTag.appendChild(pTag);
+                    }                    
+                    document.querySelector('#participants-list').appendChild(parListTag);
+                })                
+            } else {
+                document.querySelector('#app').innerText = data.code;
+                socket.send(JSON.stringify({
+                    'command': 'participants'
+                }))
+            }
+        }
+        socket.onclose = function(e) {
+            console.error('socket cerrado');
+        }
+        document.querySelector('#roll-button').onclick = function(e) {
+            socket.send(JSON.stringify({
+                'command': 'roll'
+            }))
+        }        
+    </script>
+</div>
+{% endblock content %}

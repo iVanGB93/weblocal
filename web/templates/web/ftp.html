@@ -1,0 +1,82 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container marketing">
+<hr class="featurette-divider">
+    <div class="row featurette">
+      <div class="col-md-8 order-md-2">
+        <h4>FileZilla.</h4>
+        <p class="lead">FileZilla es un software de transferencia de archivos sobre el protocolo ftp, permite a los usuarios la descarga de ficheros desde el servidor. Los usuarios deben usar un software cliente de FileZilla, para conectarse a un servidor FileZilla, una vez conectados pueden copiar a su ordenador el contenido del servidor.</p>
+      </div>
+      <div class="col-md-4 order-md-1" style="text-align: center;">
+        <img src="{% static 'web/FTP/ftp.png' %}" class="img-fluid" alt="Responsive image" style="height: 200px;"> 
+      </div>
+    </div>
+<hr class="featurette-divider">   
+    <div class="row featurette">
+        <div class="col-md-8">
+            <h2>Primero descargar la aplicacion e instalar.</h2> 
+        </div>
+        <div class="col-md-4">
+            <p>Windows 64bits:
+                <a style="float: right" href="{% static 'web/FTP/FileZilla.3.37.4.x64.exe' %}">
+                    <button class="btn btn-primary">Descargar</button>
+                </a>                
+            </p><br>
+            <p>Windows 32bits:
+                <a style="float: right" href="{% static 'web/FTP/FileZilla_3.41.2_win32.exe' %}">
+                    <button class="btn btn-primary">Descargar</button>
+                </a>
+            </p>
+          </div>
+    </div>
+<hr class="featurette-divider">
+<div class="row featurette">
+    <div class="col-md-8">
+        <h2>Como conectar:</h2>
+        <ol>
+            <li>Dirección: ftp.qbared.com</li>
+            <li>Usuario: Su nombre de usuario</li>
+            <li>Conexión rápida</li>                
+        </ol>
+        <h4>*En contraseña se escribe su contraseña.</h4>         
+    </div> 
+    <div class="col-md-4">
+        <img src="{% static 'web/FTP/ftppasos.png' %}" class="img-fluid" alt="Responsive image" width="300" height="300">         
+    </div>          
+</div>
+<hr class="featurette-divider">
+    <div class="row featurette">
+        <div class="col-md-9">
+            <h2>Tambien puedes conectar al servidor directo desde del navegador.</h2>            
+        </div>   
+        <div class="col-md-3">
+            <a href="ftp://ftp.qbared.com">
+                <button class="btn btn-primary">ftp.qbared.com</button>
+            </a>
+            <p class="text-muted">Escribe su usario y contraseña cuando se lo pida.</p>
+        </div>     
+    </div>
+<hr class="featurette-divider">
+    <div class="row featurette">
+      <div class="col-md-8 order-md-1">
+        <h4 >Ayuda!!!</h4>
+        <p class="lead">En el video se explica como utilizarlo.</p>
+      </div>
+      <div class="col-md-4 order-md-2" >
+        <img src="" class="img-fluid" alt="Pronto"> 
+      </div>
+    </div>
+<hr class="featurette-divider">
+    <div class="row featurette">
+        <div class="col-md-8">
+            <h2>Para crear su cuenta en el Portal del Usuario:</h2>           
+        </div>        
+        <div class="col-md-4">
+            <a href="https://qbared.com/portal/"><button class="btn btn-primary">Portal</button></a>
+        </div>
+    </div>
+</div>
+<hr class="featurette-divider">
+</div>
+{% endblock content %}
