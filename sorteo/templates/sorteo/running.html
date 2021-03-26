@@ -30,7 +30,7 @@
 
     <script src="{% static 'sorteo/reconnecting-websocket.js' %}"></script> 
     <script>
-        var socket = new ReconnectingWebSocket('ws://172.20.24.6:8001/ws/sorteo/running/');
+        var socket = new ReconnectingWebSocket('ws://172.20.24.2:8000/ws/sorteo/running/');
         socket.onopen = function(e) {
             socket.send(JSON.stringify({
                 'command': 'participants'

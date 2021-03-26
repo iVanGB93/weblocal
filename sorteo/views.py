@@ -24,18 +24,47 @@ def index(request):
                         }
                         return render(request, 'sorteo/index.html', content)
                     else:
-                        participacion = Sorteo(usuario=oper.usuario, code=code, servicio=oper.servicio)
-                        participacion.save()
-                        usuario = User.objects.get(username=oper.usuario)
-                        send_mail('Sorteo QbaRed', f'Usted esta participando en el sorteo de QbaRed con el código {code}, obtenido por el servicio {oper.servicio}. Suerte!!!', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
-                        send_mail('Sorteo QbaRed', f'Se registro {usuario.username} con  el código {code}, obtenido por el servicio {oper.servicio}.', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
-                        form = CodeForm()
-                        content = {
-                            'form': form,
-                            'message': 'Se ha agregado su participación',
-                            'success': 'success'
-                        }
-                        return render(request, 'sorteo/index.html', content)               
+                        if oper.tipo == "PAGO":
+                            if oper.servicio == "internetHoras":
+                                if oper.cantidad >= 100: 
+                                    participacion = Sorteo(usuario=oper.usuario, code=code, servicio=oper.servicio)
+                                    participacion.save()
+                                    usuario = User.objects.get(username=oper.usuario)
+                                    send_mail('Sorteo QbaRed', f'Usted esta participando en el sorteo de QbaRed con el código {code}, obtenido por el servicio {oper.servicio}. Suerte!!!', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                                    send_mail('Sorteo QbaRed', f'Se registro {usuario.username} con  el código {code}, obtenido por el servicio {oper.servicio}.', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+                                    form = CodeForm()
+                                    content = {
+                                        'form': form,
+                                        'message': 'Se ha agregado su participación',
+                                        'success': 'success'
+                                    }
+                                    return render(request, 'sorteo/index.html', content)
+                                else:
+                                    form = CodeForm()
+                                    content = {
+                                        'form': form,
+                                        'message': 'Código solo de pago de 10 horas o más'
+                                    }
+                                    return render(request, 'sorteo/index.html', content)                           
+                            participacion = Sorteo(usuario=oper.usuario, code=code, servicio=oper.servicio)
+                            participacion.save()
+                            usuario = User.objects.get(username=oper.usuario)
+                            send_mail('Sorteo QbaRed', f'Usted esta participando en el sorteo de QbaRed con el código {code}, obtenido por el servicio {oper.servicio}. Suerte!!!', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                            send_mail('Sorteo QbaRed', f'Se registro {usuario.username} con  el código {code}, obtenido por el servicio {oper.servicio}.', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+                            form = CodeForm()
+                            content = {
+                                'form': form,
+                                'message': 'Se ha agregado su participación',
+                                'success': 'success'
+                            }
+                            return render(request, 'sorteo/index.html', content)
+                        else:
+                            form = CodeForm()
+                            content = {
+                                'form': form,
+                                'message': 'Código no es de algún pago'
+                            }
+                            return render(request, 'sorteo/index.html', content)             
                 else:
                     form = CodeForm()
                     content = {

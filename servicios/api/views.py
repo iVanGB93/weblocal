@@ -27,6 +27,8 @@ def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
     nuevaOper = Oper(tipo='PAGO', usuario=userinst, servicio=servicio, cantidad=cantidad)
     nuevaOper.save()
+    code = nuevaOper.code
+    return code
 
 #FILEZILLA
 user_xml_fmt = '''
@@ -132,7 +134,7 @@ class InternetView(APIView):
                 for line in stdout:
                     if "no such item" in line:
                         stdin, stdout, stderr = client.exec_command(f'/ip hotspot user add name={ usuario.username } password={ pwd } profile="1mb_para_PC2" limit-uptime={ horas }')
-                crearOper(usuario.username, 'internetHoras', cantidad)
+                code = crearOper(usuario.username, 'internetHoras', cantidad)
                 crearLog(usuario.username, "ActivacionLOG.txt", f'Se actualizó correctamente el usuario: { usuario.username } en el Mikrotik con { horas} horas.')
                 client.close()
                 if profile.coins >= cantidad:
@@ -144,7 +146,7 @@ class InternetView(APIView):
                 servicio.int_horas = datos['int_horas']
                 servicio.int_time = None
                 servicio.save()
-                send_mail('Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                send_mail('Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{code}". Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
                 return Response(status=status.HTTP_200_OK)
             except:                
                 crearLog("ERROR CON MIKROTIK", "ActivacionLOG.txt", f'Problema en la conexion con el mikrotik del usuario: { usuario.username }.')
