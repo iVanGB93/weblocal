@@ -10,6 +10,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -84,10 +86,13 @@ CHANNEL_LAYERS = {
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': config('DB_NAME'),
-        'HOST': config('DB_HOST'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD')        
+        "CLIENT": {
+           "name": 'paginalocal',
+           "host": '127.0.0.1',
+           #"username": config('DB_USER'),
+           #"password": config('DB_PASSWORD'),
+           #"authMechanism": "SCRAM-SHA-1",
+        },     
     }
 }
 # Password validation

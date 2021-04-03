@@ -32,7 +32,7 @@
         </div>
     </div>
     <div style="margin-top: 15px;">
-        <form action="{% url 'sorteo:index' %}" method="post" class="col-md-2 offset-md-5" style="background-color: rgb(211, 211, 228); padding: 15px; border-style: solid; border-width: 5px; color: black;">
+        <form id="myform" action="{% url 'sorteo:index' %}" method="post" class="col-md-2 offset-md-5" style="background-color: rgb(211, 211, 228); padding: 15px; border-style: solid; border-width: 5px; color: black;">
             {% if message %}
                 {% if success %}
                     <div class="alert alert-success" role="alert">
@@ -50,13 +50,30 @@
             <br><br>
             {{ field }}
             <br>
-            <button type="submit" class="btn btn-primary mb-3">Enviar</button>
+            <button id="boton" type="submit" class="btn btn-primary mb-3">
+                <span
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                    id="spinner"
+                    style='display:none'                   
+                ></span>
+                Enviar
+            </button>
             {% endfor %}
         </form>    
         <br><br>
         <a href="{% url 'sorteo:running' %}">
-            <button type="submit" class="btn btn-primary mb-3">Vamos al sorteo!!!</button>
-        </a>
+            <button type="submit" class="btn btn-success mb-3">               
+                Vamos al sorteo!!!
+            </button>
+        </a>        
     </div>
 </div>
+<script>
+    const myform = document.getElementById("myform");
+    myform.addEventListener("submit", (e) => {       
+        document.getElementById('spinner').style.display = '';        
+    });
+</script>
 {% endblock content %}

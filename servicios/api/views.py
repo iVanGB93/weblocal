@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import datetime, timedelta
+from decouple import config
 import xml.etree.ElementTree
 import paramiko
 import subprocess
@@ -124,40 +125,44 @@ class InternetView(APIView):
             pwd = datos['contra']
             horas = datos['int_horas']
             horas = f'{horas}:00:00'
-            cantidad = datos['cantidad']          
+            cantidad = datos['cantidad']
+            if profile.coins >= cantidad:
+                profile.coins = profile.coins - cantidad
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)         
             client = paramiko.SSHClient()
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             try:
-                client.connect('172.16.0.1', username='Servidor', password='serverpro2021')
-                stdin, stdout, stderr = client.exec_command(f'/ip hotspot user set { usuario.username } password={ pwd } profile="1mb_para_PC2" limit-uptime={ horas } disable=no')
+                client.connect(config('MK1_IP'), username=config('MK1_USER'), password=config('MK1_PASSWORD'))
+                perfil = config('INTERNET_PERFIL_HORAS')
+                stdin, stdout, stderr = client.exec_command(f'/ip hotspot user set { usuario.username } password={ pwd } profile={ perfil } limit-uptime={ horas } disable=no')
                 stdin, stdout, stderr = client.exec_command(f'/ip hotspot user reset-counters { usuario.username }')
                 for line in stdout:
                     if "no such item" in line:
-                        stdin, stdout, stderr = client.exec_command(f'/ip hotspot user add name={ usuario.username } password={ pwd } profile="1mb_para_PC2" limit-uptime={ horas }')
+                        stdin, stdout, stderr = client.exec_command(f'/ip hotspot user add name={ usuario.username } password={ pwd } profile={ perfil } limit-uptime={ horas }')
                 code = crearOper(usuario.username, 'internetHoras', cantidad)
                 crearLog(usuario.username, "ActivacionLOG.txt", f'Se actualizó correctamente el usuario: { usuario.username } en el Mikrotik con { horas} horas.')
-                client.close()
-                if profile.coins >= cantidad:
-                    profile.coins = profile.coins - cantidad
-                    profile.save()
-                else:
-                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                client.close()                               
                 servicio.internet = True
                 servicio.int_horas = datos['int_horas']
                 servicio.int_time = None
                 servicio.save()
-                send_mail('Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{code}". Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                profile.save() 
+                send_mail('Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
                 return Response(status=status.HTTP_200_OK)
             except:                
                 crearLog("ERROR CON MIKROTIK", "ActivacionLOG.txt", f'Problema en la conexion con el mikrotik del usuario: { usuario.username }.')
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         elif 'servicio' in request.data:
             pwd = datos['contra'] 
-            perfil = datos['perfil']                                      
+            if datos['perfil'] == '1mb_para_PC2':
+                perfil = config('INTERNET_PERFIL_SEMANAL')
+            elif datos['perfil'] == 'LOCAL_1m':
+                perfil = config('INTERNET_PERFIL_MENSUAL_PORTAL')                                    
             client = paramiko.SSHClient()
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             try:
-                client.connect('172.16.0.1', username='Servidor', password='serverpro2021')
+                client.connect(config('MK1_IP'), username=config('MK1_USER'), password=config('MK1_PASSWORD'))
                 stdin, stdout, stderr = client.exec_command(f'/ip hotspot user set { usuario.username } disable="no" password={ pwd } profile={ perfil } limit-uptime=0')
                 for line in stdout:                
                     if "no such item" in line:
@@ -174,7 +179,7 @@ class InternetView(APIView):
                 if profile.coins >= 300:
                     profile.coins = profile.coins - 300
                     profile.save()
-                    crearOper(usuario.username, datos['servicio'], 300)
+                    code = crearOper(usuario.username, datos['servicio'], 300)
                 else:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
             elif datos['servicio'] == 'internetMensual':                
@@ -182,11 +187,11 @@ class InternetView(APIView):
                 if profile.coins >= 200:
                     profile.coins = profile.coins - 200
                     profile.save()
-                    crearOper(usuario.username, datos['servicio'], 200)
+                    code = crearOper(usuario.username, datos['servicio'], 200)
                 else:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
             servicio.save()
-            send_mail('Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+            send_mail('Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
             return Response(status=status.HTTP_200_OK)            
         elif 'int_auto' in request.data:                                                     
             servicio.int_auto = datos['int_auto']
@@ -194,7 +199,7 @@ class InternetView(APIView):
             return Response(status=status.HTTP_200_OK)
         else:                                                    
             servicio.internet = datos['internet']
-            send_mail('Internet desactivado', 'Se ha desactivado su acceso a Internet, terminaro su tiempo y no se ha renovado su suscripcion. Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])        
+            send_mail('Internet desactivado', 'Se ha desactivado su acceso a Internet, terminaro su tiempo y no se ha renovado su suscripcion. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])        
             servicio.save()
             return Response(status=status.HTTP_200_OK)
 
@@ -210,10 +215,10 @@ class JovenClubView(APIView):
             client = paramiko.SSHClient()
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             try:
-                client.connect('172.16.0.9', username='Servidor', password='serverpro2021')
+                client.connect(config('MK2_IP'), username=config('MK2_USER'), password=config('MK2_PASSWORD'))
                 stdin, stdout, stderr = client.exec_command(f'/ip firewall address-list set [find comment={usuario.username}] disable=no')
                 client.close()                              
-                crearOper(usuario.username, "Joven-Club", 100)
+                code = crearOper(usuario.username, "Joven-Club", 100)
                 crearLog(usuario.username, "ActivacionLOG.txt", f'Se activó correctamente el usuario: { usuario.username } al Mikrotik Joven-Club.')
                 if profile.coins >= 100:
                     profile.coins = profile.coins - 100
@@ -223,7 +228,7 @@ class JovenClubView(APIView):
                 servicio.jc = True
                 servicio.jc_time = timezone.now() + timedelta(days=30)
                 servicio.save()
-                send_mail('Pago confirmado', 'Gracias por utilizar nuestro servicio de Joven Club, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                send_mail('Pago confirmado', f'Gracias por utilizar nuestro servicio de Joven Club, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
                 return Response(status=status.HTTP_200_OK)
             except:
                 crearLog("ERROR CON MIKROTIK", "ActivacionLOG.txt", f'Problema en la conexion con el mikrotik JC del usuario: { usuario.username }.') 
@@ -234,7 +239,7 @@ class JovenClubView(APIView):
             return Response(status=status.HTTP_200_OK) 
         else:
             servicio.jc = datos['jc']
-            send_mail('Joven Club desactivado', 'Se ha desactivado su acceso a Joven Club, terminaron sus 30 dias y no se ha renovado su suscripcion. Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])        
+            send_mail('Joven Club desactivado', 'Se ha desactivado su acceso a Joven Club, terminaron sus 30 dias y no se ha renovado su suscripcion. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])        
             servicio.save()
             return Response(status=status.HTTP_200_OK)
 
@@ -246,8 +251,10 @@ class EmbyView(APIView):
         profile = Profile.objects.get(usuario=usuario.id)
         servicio = EstadoServicio.objects.get(usuario=usuario.id)
         datos= request.data
-        if 'coins' in request.data:            
-            url = 'http://172.16.0.10:8096/Users/New?api_key=2332d9926b55460fb7955e07f78df8cd'
+        if 'coins' in request.data:
+            emby_ip = config('EMBY_IP')            
+            emby_api_key = config('EMBY_API_KEY')            
+            url = f'{ emby_ip }/Users/New?api_key={ emby_api_key }'
             json = {'Name': usuario.username}  
             connect = requests.post(url=url, data=json)          
             resp = connect.json()    
@@ -262,7 +269,7 @@ class EmbyView(APIView):
                 servicio.emby_id = usuarioID
                 servicio.emby_time = timezone.now() + timedelta(days=30)
                 servicio.save()
-                url = f'http://172.16.0.10:8096/Users/{ usuarioID}/Configuration?api_key=2332d9926b55460fb7955e07f78df8cd'
+                url = f'{ emby_ip }/Users/{ usuarioID}/Configuration?api_key={ emby_api_key }'
                 json = {
                             "PlayDefaultAudioTrack": True,
                             "DisplayMissingEpisodes": False,
@@ -279,7 +286,7 @@ class EmbyView(APIView):
                             "EnableNextEpisodeAutoPlay": True
                         }
                 connect = requests.post(url=url, data=json)
-                url = f'http://172.16.0.10:8096/Users/{ usuarioID}/Policy?api_key=2332d9926b55460fb7955e07f78df8cd'
+                url = f'{ emby_ip }/Users/{ usuarioID}/Policy?api_key={ emby_api_key }'
                 json = {
                             "IsAdministrator": False,
                             "IsHidden": True,
@@ -321,8 +328,8 @@ class EmbyView(APIView):
                         }
                 connect = requests.post(url=url, data=json)
                 crearLog(usuario.username, "ActivacionLOG.txt", f'Se agregó correctamente el usuario: { usuario.username } al Emby.')
-                crearOper(usuario.username, "Emby", 100)
-                send_mail('Pago confirmado', 'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                code = crearOper(usuario.username, "Emby", 100)
+                send_mail('Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
                 return Response(status=status.HTTP_200_OK)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -333,7 +340,7 @@ class EmbyView(APIView):
         else:
             servicio.emby = datos['emby']
             servicio.save()
-            send_mail('Emby desactivado', 'Se ha desactivado su cuenta del Emby, terminaron sus 30 dias y no se ha renovado su suscripcion. Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])            
+            send_mail('Emby desactivado', 'Se ha desactivado su cuenta del Emby, terminaron sus 30 dias y no se ha renovado su suscripcion. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])            
             return Response(status=status.HTTP_200_OK)
 
 class FileZillaView(APIView):
@@ -353,9 +360,9 @@ class FileZillaView(APIView):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             servicio.ftp = True
             servicio.ftp_time = timezone.now() + timedelta(days=30)
-            crearOper(usuario.username, 'FileZilla', 50)
+            code = crearOper(usuario.username, 'FileZilla', 50)
             crearLog(usuario.username, "ActivacionLOG.txt", f'El usuario: { usuario.username } pago por FTP.')
-            send_mail('Pago confirmado', 'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])            
+            send_mail('Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])            
             servicio.save()            
             return Response(status=status.HTTP_200_OK)
         elif 'ftp_auto' in request.data:
@@ -364,7 +371,7 @@ class FileZillaView(APIView):
             return Response(status=status.HTTP_200_OK)
         else:
             servicio.ftp = datos['ftp']
-            send_mail('FileZilla desactivado', 'Se ha desactivado su cuenta de FileZilla, terminaron sus 30 dias y no se ha renovado su suscripcion. Saludos admin.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])        
+            send_mail('FileZilla desactivado', 'Se ha desactivado su cuenta de FileZilla, terminaron sus 30 dias y no se ha renovado su suscripcion. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])        
             servicio.save()
             return Response(status=status.HTTP_200_OK)
 

@@ -19,7 +19,7 @@ class WSConsumer(WebsocketConsumer):
     
     # Receive message from WebSocket
     def receive(self, text_data):
-        data = json.loads(text_data)        
+        data = json.loads(text_data) 
         self.commands[data['command']](self, data)
 
     def participants(self, data):

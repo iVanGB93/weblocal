@@ -21,7 +21,7 @@ class EstadosServiciosAdminConfig(admin.ModelAdmin):
 class OpersAdminConfig(admin.ModelAdmin):
     model = Oper
     search_fields = ['usuario__username', 'code', 'tipo']
-    list_filter = ('tipo', 'fecha', 'servicio', 'usuario')
+    list_filter = ('tipo', 'fecha', 'servicio')
     ordering = ('-fecha',)
     list_display = ('usuario', 'tipo', 'servicio', 'cantidad', 'fecha')
     fieldsets = (
@@ -32,7 +32,7 @@ class OpersAdminConfig(admin.ModelAdmin):
 class RecargasAdminConfig(admin.ModelAdmin):
     model = Recarga
     search_fields = ['usuario__username', 'code']
-    list_filter = ('usuario', 'cantidad', 'fechaHecha')
+    list_filter = ('cantidad', 'fechaHecha')
     ordering = ('-fechaHecha',)
     list_display = ('code', 'usuario', 'cantidad', 'activa', 'fechaHecha', 'fechaUso')
     fieldsets = (
