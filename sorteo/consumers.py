@@ -39,6 +39,7 @@ class WSConsumer(WebsocketConsumer):
     def participant_to_json(self, participant):
         result = []
         return {
+            'id': participant.id,
             'usuario': participant.usuario.username,
             'code': participant.code,
             'eliminado': participant.eliminado,

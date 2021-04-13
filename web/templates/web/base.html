@@ -8,8 +8,9 @@
     <meta name="description" content="Informacion sobre Qbared, red privada de centro habana.">
     <meta name="author" content="iVan">
     <link rel="stylesheet" href="{% static 'web/bootstrap5.0/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'web/normalize.css' %}">
     <link rel="stylesheet" href="{% static 'web/style.css' %}">
-    <title>QbaRed</title>
+    <title>QbaRed{% block title %}{% endblock %}</title>
     <style>
       .bd-placeholder-img {
         font-size: 1.125rem;
@@ -50,7 +51,7 @@
     <main>
     {% block content %}
     {% endblock content %}    
-    <footer class="footer mt-auto py-1 bg-light">
+    <footer class="footer mt-auto py-1">
       <p class="text-muted">QbaRed &copy; 2019–2021 &copy; QbaRed</p>
     </footer>
     </main>

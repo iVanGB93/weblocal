@@ -1,10 +1,50 @@
-#participants-frame {    
+#initial {
+    position: relative;
+    font-style: italic;
+    padding-left: 30px;
+    padding-right: 30px;
+    z-index: 1;
+}
+
+#final {
+    position: relative;
+    z-index: 2;
+    visibility: hidden;
+    width: 60%;
     height: 70%;
-    width: 100%;
+    align-items: center;
+    margin: auto;
+}
+
+.letras {
+    text-align: center;
+    font-weight: bolder; 
+    text-shadow: 0 0 3px red, 0 0 6px yellow; 
+    color: black;
+}
+.letras:hover {
+    color: white;
+    transform: scale(1.2);
+    cursor: crosshair;
+}
+
+#participants-frame {
+    margin: 30px;
+    max-height: calc(100vh - 180px);
+    min-height: calc(100vh - 180px);
+    position: relative;     
+    overflow:hidden; 
+    overflow-y: scroll;
     border-style: outset;
     border-radius: 10px;
     background-color: rgb(189, 165, 59);
     box-shadow: 0 0 3px red, 0 0 6px yellow;
+}
+
+#spinner {
+    display: flex;    
+    margin: auto; 
+    margin-top: 200px;   
 }
 
 #participants-list {
@@ -12,7 +52,7 @@
     padding: 10px;
 }
 
-#alive {
+.alive {
     font-weight: bolder; 
     text-shadow: 0 0 3px red, 0 0 6px yellow;
     border-style: solid;
@@ -24,9 +64,17 @@
     width: 100%;
     height: 100%;
     margin: 1px;
+    animation-name: lista;
+    animation-duration: 0.5s;
 }
 
-#dead {
+.alive:hover {
+    border-color: gold;
+    transform: scale(1.1);
+    cursor: crosshair;
+}
+
+.dead {
     border-style: solid;
     border-color: black;
     border-radius: 10px;
@@ -36,4 +84,68 @@
     width: 100%;
     height: 100%;
     margin: 1px;
+    animation-name: lista;
+    animation-duration: 0.5s;
+}
+.dead:hover {
+    cursor:not-allowed;
+    transform: scale(0.9);
+}
+
+.col-2 img {
+    display: flex;
+    align-items: center;
+    margin: auto; 
+}
+
+.col-3 img {
+    border-radius: 25px;
+    animation-play-state: paused;
+    animation-name: imagen;
+    animation-duration: 1200ms;    
+    animation-delay: 100ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-out;
+}
+.col-3 img:hover {
+    cursor: crosshair;
+    animation-play-state: running;
+}
+.izquierda {
+    transition: 2s;
+    transform: scale(1.3);
+    margin-left: 90%;
+}
+
+@keyframes lista {
+    0% {
+        transform: scale(.3);
+    }
+}
+
+@keyframes runnning {
+    0% {
+        transform: scale(1.6)
+    }
+    50% {
+        margin-left: 60px;
+    }
+}
+
+@keyframes imagen {
+    0% {
+        transform: scale(.95)
+    }
+    25% {
+        transform: rotate(-5deg);
+    }
+    50% {
+        transform: rotate(5deg);
+    }
+    75% {
+        transform: rotate(-3deg);
+    }
+    100% {
+        transform: rotate(3deg);
+    }
 }
