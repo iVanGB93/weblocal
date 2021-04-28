@@ -1,7 +1,8 @@
 {% extends "web/base.html" %}
 {% load static %}
 {% block content %}
-<div id="myCarousel" class="carousel slide" data-bs-ride="carousel" style="width: 90%; margin: auto; box-shadow: 10px 5px 5px 3px">
+<link rel="stylesheet" href="{% static 'web/webstyle.css' %}">
+<div id="myCarousel" class="carousel slide col-10 offset-1 col-lg-8 offset-lg-2" data-bs-ride="carousel">
   <div class="carousel-indicators">
     <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
     <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -44,7 +45,7 @@
 
 <div class="container servicios">
   <div class="row">
-      <h1 class="text-center">Nuestros Servicios</h1>
+      <h1 class="text-center" style="text-shadow: 0 0 3px white, 0 0 6px;">Nuestros Servicios</h1>
       <div class="col-lg-3">
           <img src="{% static 'web/ts.png' %}" class="rounded-circle" alt="Responsive image" width="120" height="120">
           <h2 style="color: grey">Team Speak</h2>
@@ -73,7 +74,7 @@
 </div>
   <hr class="featurette-divider">
 <div class="container detalles">
-  <div class="row featurette" style="background-color: rgb(27, 25, 25); padding: 10px; box-shadow: 10px 5px 5px 3px;">
+  <div class="row featurette" style="background-color: rgba(27, 25, 25, 0.8); padding: 10px; box-shadow: 5px 5px 5px 1px;">
     <div class="col-md-7" style="color: white;">
       <h2 class="featurette-heading">¿Quienes somos?</h2>
       <br>
@@ -88,7 +89,7 @@
 
   <hr class="featurette-divider">
 
-  <div class="row featurette" style="background-color: rgb(77, 180, 228); padding: 10px; box-shadow: 10px 5px 5px 3px">
+  <div class="row featurette" style="background-color: rgba(77, 180, 228, 0.8); padding: 10px; box-shadow: 5px 5px 5px 1px rgb(77, 180, 228)">
     <div class="col-md-7 order-md-2" style="color: black;">
       <h2 class="featurette-heading">¿Donde estamos?</h2>
       <br>

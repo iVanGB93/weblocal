@@ -7,25 +7,10 @@
     <link rel="icon" href="{% static 'portal/favicon.ico' %}"/>
     <meta name="description" content="Informacion sobre Qbared, red privada de centro habana.">
     <meta name="author" content="iVan">
-    <link rel="stylesheet" href="{% static 'web/bootstrap5.0/css/bootstrap.min.css' %}">
+    <link href="{% static 'web/bootstrap5.0/css/bootstrap.min.css' %}" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'web/normalize.css' %}">
     <link rel="stylesheet" href="{% static 'web/style.css' %}">
     <title>QbaRed{% block title %}{% endblock %}</title>
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
   </head>
   <body>    
     <div id="particles-js"></div>
@@ -39,7 +24,10 @@
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav me-auto mb-2 mb-md-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'web:noticias' %}">Noticias</a>
+                <a class="navbar-link" href="{% url 'forum:index' %}">Noticias</a>
+              </li>
+              <li class="nav-item">
+                <a class="navbar-link" href="{% url 'sorteo:index' %}">Sorteo</a>
               </li>              
             </ul>                         
             <a style="margin-right: 10px;" class="btn btn-sm btn-outline-primary" href="https://login.qbared.com">Internet</a>
@@ -51,18 +39,31 @@
     <main>
     {% block content %}
     {% endblock content %}    
-    <footer class="footer mt-auto py-1">
-      <p class="text-muted">QbaRed &copy; 2019–2021 &copy; QbaRed</p>
+    <div>
+      <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+        <defs>
+            <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+        </defs>
+        <g class="parallax">
+            <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(25,25,25,0.7)" />
+            <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(25,25,25,0.5)" />
+            <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(25,25,25,0.3)" />
+            <use xlink:href="#gentle-wave" x="48" y="7" fill="rgb(25, 25, 25)" />
+        </g>
+      </svg>
+    </div>
+    <footer class="page-footer font-small unique-color-dark pt-4">
+    <div class="footer-copyright text-center py-3"><h7>2019-2021 © QbaRed</h7>
+    </div>
     </footer>
+    </div>
     </main>
     <!--Particles-->
     <script src="{% static 'web/root/particles.min.js' %}"></script>
     <script src="{% static 'web/root/particles-run.js' %}"></script>
     
     <script src="{% static 'web/myjs.js' %}"></script>
-    <script src="{% static 'web/bootstrap5.0/jquery.min.js' %}"></script>
     <script src="{% static 'web/bootstrap5.0/popper.min.js' %}"></script>
     <script src="{% static 'web/bootstrap5.0/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'web/bootstrap5.0/js/bootstrap.bundle.min.js' %}"></script>
   </body>
 </html>

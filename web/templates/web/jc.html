@@ -2,6 +2,7 @@
 {% load static %}
 {% block title %} - Joven Club{% endblock %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'web/webstyle.css' %}">
 <div class="container marketing">
   <hr class="featurette-divider">
     <div class="row featurette">
@@ -19,10 +20,34 @@
             <h2>Para activar el servicio local entre al Portal del Usuario:</h2>           
         </div>        
         <div class="col-md-4">
-            <a href="https://qbared.com/portal/"><button class="btn btn-primary">Portal</button></a>
+          <p>Click para entrar -->
+            <a href="https://qbared.com/portal/" style="float: right;"><button class="btn btn-primary">Portal</button></a>
+          </p>  
         </div>
     </div>
-</div>
-<hr class="featurette-divider">
+    <hr class="featurette-divider">
+    <div class="row featurette">
+        <div class="col-md-8">
+            <h2>Servidor de TS de Habana Vieja: 10.89.199.25</h2>           
+        </div>        
+        <div class="col-md-4">
+            <p>Click para entrar -->
+              <a style="float: right;" href="ts3server://10.89.199.25">
+                  <button class="btn btn-primary">Vikingos</button>
+              </a>
+          </p>
+        </div>
+    </div>
+    <hr class="featurette-divider">
+    <div class="row featurette">
+      <div class="col-md-8 order-md-1">
+        <h4 >Ayuda!!!</h4>
+        <p class="lead">En el video se explica como utilizarlo.</p>
+      </div>
+      <div class="col-md-4 order-md-2" >
+        <img src="" class="img-fluid" alt="Pronto"> 
+      </div>
+    </div>
+    <hr class="featurette-divider">
 </div>
 {% endblock content %}

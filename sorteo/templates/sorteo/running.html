@@ -1,11 +1,11 @@
 {% extends "web/base.html" %}
 {% load static %}
+{% block title %} - Sorteo{% endblock %}
 {% block content %}
-<link rel="stylesheet" href={% static "sorteo/style.css" %}>
-<div class="contenedor" style="background-image: url({% static 'sorteo/background-explicacion.jpg' %}); background-attachment: fixed">
-    <div id="final">        
-    </div>
-    <div id="initial" class="row align-items-center text-center">
+<link rel="stylesheet" href="{% static 'sorteo/style.css' %}">
+<div class="fondo" style="background-image: url({% static 'sorteo/background-explicacion.jpg' %})"></div>
+<div class="contenedor">    
+    <div class="row align-items-center">
         <div class="col-2 d-none d-md-block">
             <h2 class="letras">QbaRed</h2>
             <img id="medio" class="rounded-circle" width="30%" src="{% static 'sorteo/coin.gif' %}" alt="coins"/>
@@ -19,29 +19,35 @@
             <img id="medio" class="rounded-circle" width="40%" src="{% static 'sorteo/coin.gif' %}" alt="coins"/>
             <h2 class="letras">200</h2>
         </div>
-        <div class="col-12 col-md-5">
-            <h1 class="letras">Participantes</h1>
-            <div id="participants-frame">  
-                <div class="spinner-grow text-dark" role="status" aria-hidden="true" id="spinner"></div>          
-                <ul id="participants-list" class="list-group">
-                </ul>          
-            </div>
-        </div>
-        <div class="col-3 d-none d-md-block">
-            <h1 class="letras">Suerte!!!</h1>
-            <h3 class="letras">Los verdes están activos</h3>
-            <h1 id="app" class="letras">{{ text }}</h1>
-            <img class="img-fluid" width="100%" src="{% static 'sorteo/middle.gif' %}" alt="mmmm"/>
-            <h3 class="letras">Los rojos están eliminados</h3>        
-            <div id="botones">
-                {% if usuario.is_staff %}
-                <button id="roll-button" class="btn btn-success" style="float: right;">
-                    Empezar
-                </button>
-                <button id="anime-button" class="btn btn-success" style="float: left;">
-                    Animacion
-                </button>
-                {% endif %}
+        <div class="col-12 col-md-8 mainframe">
+            <div class="row align-items-center frame">
+                <div class="col-12 col-lg-8">
+                    <h1 class="letras">Participantes</h1>
+                    <div class="participants-frame">  
+                        <div class="spinner-grow text-dark" role="status" aria-hidden="true" id="spinner"></div>          
+                        <ul class="participants-list">
+                        </ul>          
+                    </div>
+                </div>
+                <div class="col-4 d-none d-lg-block">
+                    <h1 class="letras">Suerte!!!</h1>
+                    <h3 class="letras">Los verdes están activos</h3>                    
+                    <img class="img-fluid" width="100%" src="{% static 'sorteo/middle.gif' %}" alt="mmmm"/>
+                    <h3 class="letras">Los rojos están eliminados</h3>        
+                    <div id="botones">
+                        {% if usuario.is_staff %}
+                        <button id="roll-button" class="btn btn-success" style="float: right;">
+                            Empezar
+                        </button>
+                        <button id="anime-button" class="btn btn-success" style="float: left;">
+                            Animacion
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div> 
+            <div class="row result">
+                <h1 class="letras bg-dark">aqui{{ text }}</h1>
             </div>
         </div>
         <div class="col-2 d-none d-md-block">
@@ -58,70 +64,64 @@
             <h2 class="letras">200</h2>            
         </div>        
     </div>
-    <script src="{% static 'sorteo/reconnecting-websocket.js' %}"></script> 
-    <script>
-        const activos = [];
-        const eliminados = [];
-        var socket = new ReconnectingWebSocket('ws://172.20.24.2:8000/ws/sorteo/running/');
-        socket.onopen = function(e) {
-            console.log('socket conectado');
+</div>
+<script src="{% static 'sorteo/reconnecting-websocket.js' %}"></script> 
+<script>
+    const activos = [];
+    const eliminados = [];
+    var socket = new ReconnectingWebSocket('ws://172.20.24.2:8000/ws/sorteo/running/');
+    socket.onopen = function(e) {
+        console.log('socket conectado');
+        socket.send(JSON.stringify({
+            'command': 'participants'
+        }))
+    }
+    socket.onmessage = function(e){
+        var data = JSON.parse(e.data);
+        if (data['command'] === 'participants') {
+            document.getElementById('spinner').style.display = 'none';
+            var list = document.querySelector('.participants-list');
+            while (list.firstChild) {
+                list.removeChild(list.firstChild);
+            }
+            var participants = data['participants']
+            var participants = participants.map(participants => {                   
+                var parListTag = document.createElement('li');
+                if (participants['eliminado']) {
+                    var delTag = document.createElement('del');
+                    delTag.textContent = participants['usuario'] + ", servicio: " + participants['servicio'] + " code: " + participants['code'];
+                    parListTag.appendChild(delTag);
+                    parListTag.className = "dead";
+                    parListTag.id = participants.id
+                    eliminados.push(participants.id);
+                } else {
+                    var pTag = document.createElement('p');
+                    pTag.textContent = participants['usuario'] + ", servicio: " + participants['servicio'] + " code: " + participants['code'];
+                    parListTag.appendChild(pTag);
+                    parListTag.className = "alive";
+                    parListTag.id = participants.id
+                    activos.push(participants.id);
+                }                        
+                document.querySelector('.participants-list').appendChild(parListTag);
+            })                
+        } else {
+            document.querySelector('#result').innerText = data.code;
             socket.send(JSON.stringify({
                 'command': 'participants'
             }))
         }
-        socket.onmessage = function(e){
-            var data = JSON.parse(e.data);
-            if (data['command'] === 'participants') {
-                document.getElementById('spinner').style.display = 'none';
-                var list = document.getElementById("participants-list");
-                while (list.firstChild) {
-                    list.removeChild(list.firstChild);
-                }
-                var participants = data['participants']
-                var participants = participants.map(participants => {
-                    var parListTag = document.createElement('li');
-                    if (participants['eliminado']) {
-                        var delTag = document.createElement('del');
-                        delTag.textContent = participants['usuario'] + ", servicio: " + participants['servicio'] + " code: " + participants['code'];
-                        parListTag.appendChild(delTag);
-                        parListTag.className = "dead";
-                        parListTag.id = participants.id
-                        eliminados.push(participants.id);
-                    } else {
-                        var pTag = document.createElement('p');
-                        pTag.textContent = participants['usuario'] + ", servicio: " + participants['servicio'] + " code: " + participants['code'];
-                        parListTag.appendChild(pTag);
-                        parListTag.className = "alive";
-                        parListTag.id = participants.id
-                        activos.push(participants.id);
-                    }                                    
-                    document.querySelector('#participants-list').appendChild(parListTag);
-                })                
-            } else {
-                document.querySelector('#app').innerText = data.code;
-                socket.send(JSON.stringify({
-                    'command': 'participants'
-                }))
-            }
-        }
-        socket.onclose = function(e) {
-            console.error('socket cerrado');
-        }
-        document.querySelector('#roll-button').onclick = function(e) {
-            socket.send(JSON.stringify({
-                'command': 'roll'
-            }))
-        }    
-        document.querySelector('#anime-button').onclick = function(e) {
-            console.log("ANIMAR")
-            console.log(eliminados, activos)
-            //document.querySelector('.alive').classList = "izquierda";
-            document.querySelector('#initial').style.visibility = "hidden";
-            document.querySelector('#final').style.visibility = "visible";
-            var list = document.getElementById("participants-frame");         
-            document.querySelector('#final').appendChild(list);
-            document.querySelector('#final').appendChild(document.getElementById("botones"));
-        }     
-    </script>
-</div>
+    }
+    socket.onclose = function(e) {
+        console.error('socket cerrado');
+    }
+    document.querySelector('#roll-button').onclick = function(e) {
+        socket.send(JSON.stringify({
+            'command': 'roll'
+        }))
+    }    
+    document.querySelector('#anime-button').onclick = function(e) {            
+        document.querySelector('#frame').style.animationPlayState="Running";
+        document.querySelector('#result').style.animationPlayState="Running";
+    }     
+</script>
 {% endblock content %}

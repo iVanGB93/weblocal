@@ -2,18 +2,19 @@
 {% load static %}
 {% block title %} - Emby{% endblock %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'web/webstyle.css' %}">
 <div class="container marketing">
-<hr class="featurette-divider">
+    <hr class="featurette-divider">
     <div class="row featurette">
-      <div class="col-md-8 order-md-2">
+    <div class="col-md-8 order-md-2">
         <h2>Emby.</h2>
         <p class="lead">Emby es un servidor multimedia desde el cual puedes visualizar contenido en tus dispositivos mediante stream directo.</p>
-      </div>
-      <div class="col-md-4 order-md-1">
-        <img src="{% static 'web/embymain.png' %}" class="img-fluid" alt="Responsive image" width="300" height="300"> 
-      </div>
     </div>
-<hr class="featurette-divider">   
+    <div class="col-md-4 order-md-1">
+        <img src="{% static 'web/embymain.png' %}" class="img-fluid" alt="Responsive image" width="300" height="300"> 
+    </div>
+    </div>
+    <hr class="featurette-divider">   
     <div class="row featurette">
         <div class="col-md-10">
             <h2>Entre al emby desde el siguiente link:</h2>        
@@ -24,7 +25,7 @@
             </a>
         </div>
     </div>
-<hr class="featurette-divider">
+    <hr class="featurette-divider">
     <div class="row featurette">
         <div class="col-md-8">
             <h2>Para crear su cuenta en el Portal del Usuario:</h2>           
@@ -33,6 +34,16 @@
             <a href="https://qbared.com/portal/"><button class="btn btn-primary">Portal</button></a>
         </div>
     </div>
+    <hr class="featurette-divider">
+    <div class="row featurette">
+        <div class="col-md-8">
+        <h4 >Ayuda!!!</h4>
+        <p class="lead">En el video se explica como utilizarlo.</p>
+        </div>
+        <div class="col-md-4" >
+        <img src="" class="img-fluid" alt="Pronto"> 
+        </div>
+    </div>
+    <hr class="featurette-divider">
 </div>
-<hr class="featurette-divider">
 {% endblock content %}

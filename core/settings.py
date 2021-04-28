@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'servicios.apps.ServiciosConfig',
     'portal.apps.PortalConfig',
+    'forum.apps.ForumConfig',
     'sorteo.apps.SorteoConfig',
 ]
 

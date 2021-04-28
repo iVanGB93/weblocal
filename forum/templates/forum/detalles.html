@@ -1,0 +1,35 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block title %} - Cotilleo{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'forum/style.css' %}">
+<div class="fondo" style="background-image: url({% static 'forum/fondo.jpg' %})"></div>
+<div class="contenedor">
+    <div class="row" style="padding-bottom: 30px">
+        {% for p in publicacion %}
+        <div class="col-10 col-lg-8 m-auto box">
+            <div class="box" style="margin-top: 40px;">
+                <h1 class="text-center">{{ p.titulo }}</h1>
+            </div>
+            <div class="box .fecha" style="text-align: right; padding-right: 30px;">
+                <span style="text-align: right;">Publicado el {{ p.fecha }}</span>
+            </div>
+            <div class=" box contenido">
+                <p class="fw-bolder">{{ p.contenido }}</p>
+            </div>
+            <div class="row text-align-center align-items-center imagenes">
+                <div class="col-12 col-md-4">
+                    <img src="{{ p.imagen1.url }}" alt="imagen1">
+                </div>
+                <div class="col-12 col-md-4">
+                    <img src="{{ p.imagen2.url }}" alt="imagen2">
+                </div>
+                <div class="col-12 col-md-4">
+                    <img src="{{ p.imagen3.url }}" alt="imagen3">
+                </div>
+            </div>        
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

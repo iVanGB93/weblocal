@@ -1,11 +1,14 @@
 {% extends "web/base.html" %}
 {% load static %}
+{% block title %} - Sorteo{% endblock %}
 {% block content %}
-<div style="padding: 30px; text-align:center; background-image: url({% static 'sorteo/background-explicacion.jpg' %}); background-attachment: fixed">
-    <h1 style="font-style: italic; font-weight: bolder; text-shadow: 0 0 3px red, 0 0 6px yellow; color: white">Bienvenidos al Sorteo de QbaRed</h1>
-    <div class="row align-items-center">
-        <div class="col-md-6 offset-md-3">            
-            <div style="background-color: rgb(211, 211, 228); border-style: solid; border-width: 5px; padding: 10px; border-radius: 10px;color: black">            
+<link rel="stylesheet" href="{% static 'sorteo/style.css' %}">
+<div class="fondo" style="background-image: url({% static 'sorteo/background-explicacion.jpg' %})"></div>
+<div class="contenedor text-center">
+    <h1 class="letras">Bienvenidos al Sorteo de QbaRed</h1>
+    <div class="row align-items-center" style="margin-bottom: 35px;">
+        <div class="col-10 offset-1 col-md-8 offset-md-2 col-lg-6 offset-lg-3">            
+            <div class="cartel">            
                 <h5>¿Como funciona?</h5>
                 <p>Hey!!! vamos a probar tu suerte y ponerle un poco de emoción a la red. Aquí te dejo la explicación de como participar
                     en el sorteo mensual, lee atentamente y sigue los pasos, vamos!!!
@@ -31,8 +34,8 @@
             </div>
         </div>
     </div>
-    <div style="margin-top: 15px;">
-        <form id="myform" action="{% url 'sorteo:index' %}" method="post" class="col-md-2 offset-md-5" style="background-color: rgb(211, 211, 228); padding: 15px; border-style: solid; border-width: 5px; color: black;">
+    <div class="cartel" style="margin: auto; width: 250px;">
+        <form id="myform" action="{% url 'sorteo:index' %}" method="post">
             {% if message %}
                 {% if success %}
                     <div class="alert alert-success" role="alert">
@@ -46,34 +49,30 @@
             {% endif %}
             {% for field in form %}
             {% csrf_token %}        
-            {{ field.label_tag }}
-            <br><br>
-            {{ field }}
-            <br>
-            <button id="boton" type="submit" class="btn btn-primary mb-3">
-                <span
-                    class="spinner-border spinner-border-sm"
-                    role="status"
-                    aria-hidden="true"
-                    id="spinner"
-                    style='display:none'                   
-                ></span>
+            <div>
+                {{ field.label_tag }} 
+            </div>
+            <div style="margin-top: 10px">
+                {{ field }}
+            </div>
+            <button id="boton" type="submit" class="btn btn-primary w-100" style="margin-top: 30px;">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='margin: auto; display: none'></span>
                 Enviar
             </button>
             {% endfor %}
-        </form>    
-        <br><br>
-        <a href="{% url 'sorteo:running' %}">
-            <button type="submit" class="btn btn-success mb-3">               
-                Vamos al sorteo!!!
-            </button>
-        </a>        
+        </form>
     </div>
+    <br><br>
+    <a href="{% url 'sorteo:running' %}">
+        <button type="submit" class="btn btn-success mb-3">               
+            Vamos al sorteo!!!
+        </button>
+    </a> 
 </div>
 <script>
     const myform = document.getElementById("myform");
     myform.addEventListener("submit", (e) => {       
-        document.getElementById('spinner').style.display = '';        
+        document.getElementById('spinner').style.display = 'inline-block';        
     });
 </script>
 {% endblock content %}
