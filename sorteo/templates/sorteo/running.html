@@ -20,34 +20,31 @@
             <h2 class="letras">200</h2>
         </div>
         <div class="col-12 col-md-8 mainframe">
-            <div class="row align-items-center frame">
-                <div class="col-12 col-lg-8">
+            <div class="row align-items-center ">
+                <div class="col-12 order-2 col-md-8 order-md-1">
                     <h1 class="letras">Participantes</h1>
                     <div class="participants-frame">  
                         <div class="spinner-grow text-dark" role="status" aria-hidden="true" id="spinner"></div>          
                         <ul class="participants-list">
-                        </ul>          
+                        </ul>         
                     </div>
                 </div>
-                <div class="col-4 d-none d-lg-block">
+                <div class="col-12 order-1 col-md-4 order-md-2 frame">
                     <h1 class="letras">Suerte!!!</h1>
                     <h3 class="letras">Los verdes están activos</h3>                    
-                    <img class="img-fluid" width="100%" src="{% static 'sorteo/middle.gif' %}" alt="mmmm"/>
+                    <img class="img-fluid" src="{% static 'sorteo/middle.gif' %}" alt="mmmm"/>
                     <h3 class="letras">Los rojos están eliminados</h3>        
                     <div id="botones">
                         {% if usuario.is_staff %}
                         <button id="roll-button" class="btn btn-success" style="float: right;">
                             Empezar
-                        </button>
-                        <button id="anime-button" class="btn btn-success" style="float: left;">
-                            Animacion
-                        </button>
+                        </button>                        
                         {% endif %}
                     </div>
                 </div>
             </div> 
             <div class="row result">
-                <h1 class="letras bg-dark">aqui{{ text }}</h1>
+                <h1 id="resultado">Sorteo Finalizado{{ text }}</h1>
             </div>
         </div>
         <div class="col-2 d-none d-md-block">
@@ -65,25 +62,45 @@
         </div>        
     </div>
 </div>
+{{ activo|json_script:"activo" }}
+{{ finalizado|json_script:"finalizado" }}
 <script src="{% static 'sorteo/reconnecting-websocket.js' %}"></script> 
 <script>
     const activos = [];
     const eliminados = [];
+    var activo = JSON.parse(document.getElementById('activo').textContent);
+    var finalizado = JSON.parse(document.getElementById('finalizado').textContent);
     var socket = new ReconnectingWebSocket('ws://172.20.24.2:8000/ws/sorteo/running/');
     socket.onopen = function(e) {
         console.log('socket conectado');
-        socket.send(JSON.stringify({
-            'command': 'participants'
-        }))
+        if (activo === false) {
+            socket.send(JSON.stringify({
+                'command': 'participants'
+            })) 
+        };
+        if (finalizado === true) {
+            resultado.classList.add("letras")
+            document.querySelector('.frame').classList.add("playframe");
+            document.querySelector('.result').classList.add("playresult");
+        }   
     }
     socket.onmessage = function(e){
         var data = JSON.parse(e.data);
-        if (data['command'] === 'participants') {
-            document.getElementById('spinner').style.display = 'none';
+        if (data['code'] === 'Ya ha terminado el sorteo') {
+            var resultado = document.querySelector('#resultado');
+            resultado.innerText = data.code;
+            resultado.classList.add("letras")
+            document.querySelector('.frame').classList.add("playframe");
+            document.querySelector('.result').classList.add("playresult"); 
+            activo = false;          
+        } else if (data['command'] === 'participants') {            
             var list = document.querySelector('.participants-list');
             while (list.firstChild) {
                 list.removeChild(list.firstChild);
             }
+            document.getElementById('spinner').style.display = 'none';
+            document.querySelector('.frame').classList.remove("playframe");
+            document.querySelector('.result').classList.remove("playresult");
             var participants = data['participants']
             var participants = participants.map(participants => {                   
                 var parListTag = document.createElement('li');
@@ -103,25 +120,40 @@
                     activos.push(participants.id);
                 }                        
                 document.querySelector('.participants-list').appendChild(parListTag);
-            })                
+            });
+            if (activo === true) {
+                setTimeout(roll, 3000);
+                function roll() {
+                    socket.send(JSON.stringify({
+                        'command': 'roll'
+                    }))
+                };
+            }            
         } else {
-            document.querySelector('#result').innerText = data.code;
-            socket.send(JSON.stringify({
-                'command': 'participants'
-            }))
+            var resultado = document.querySelector('#resultado');
+            resultado.innerText = data.code;
+            resultado.classList.add("letras")
+            document.querySelector('.frame').classList.add("playframe");
+            document.querySelector('.result').classList.add("playresult");
+            setTimeout(enviar, 3000);
+            function enviar() {
+                socket.send(JSON.stringify({
+                    'command': 'participants'
+                }))
+            };
         }
     }
     socket.onclose = function(e) {
         console.error('socket cerrado');
     }
     document.querySelector('#roll-button').onclick = function(e) {
+        activo = true;
+        socket.send(JSON.stringify({
+            'command': 'start'
+        }));
         socket.send(JSON.stringify({
             'command': 'roll'
         }))
     }    
-    document.querySelector('#anime-button').onclick = function(e) {            
-        document.querySelector('#frame').style.animationPlayState="Running";
-        document.querySelector('#result').style.animationPlayState="Running";
-    }     
 </script>
 {% endblock content %}

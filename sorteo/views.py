@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from .models import Sorteo
+from .models import Sorteo, SorteoDetalle
 from servicios.models import Oper
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -89,11 +89,21 @@ def index(request):
 def running(request):
     if User.objects.filter(username=request.user).exists():  
         usuario = User.objects.get(username=request.user)    
-        content = {
-            'usuario': usuario,            
-        }
     else:         
-        content = {
-            'usuario': 'anonymous',            
-        }
+        usuario = 'anonymous'
+    mesActual = timezone.now().month
+    if SorteoDetalle.objects.filter(mes=mesActual).exists():
+        actual = SorteoDetalle.objects.get(mes=mesActual)
+        activo = actual.activo
+        finalizado = actual.finalizado
+    else:
+        actual = SorteoDetalle(mes=mesActual)
+        actual.save()
+        activo = actual.activo
+        finalizado = actual.finalizado
+    content = {
+        'usuario': usuario,
+        'activo': activo,
+        'finalizado': finalizado           
+    }
     return render(request, 'sorteo/running.html', content)

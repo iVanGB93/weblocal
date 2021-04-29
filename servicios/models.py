@@ -46,7 +46,7 @@ class Recarga(models.Model):
     fechaUso = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return self.code + str(self.cantidad)
+        return self.code + " de " + str(self.cantidad) + " coins"
     
 
 class EstadoServicio(models.Model):

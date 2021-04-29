@@ -7,8 +7,19 @@ class Sorteo(models.Model):
     code = models.CharField(max_length=10, unique=True)
     servicio = models.CharField(max_length=15)
     eliminado = models.BooleanField(default=False)
+    mes = models.CharField(max_length=10, default=timezone.now().month)
     fecha = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.usuario.username +  " " + self.servicio
+        return self.usuario.username +  ", servicio: " + self.servicio + ", mes: " + self.mes + ", eliminado: " + str(self.eliminado)
+
+class SorteoDetalle(models.Model):
+    mes = models.CharField(max_length=10, default=timezone.now().month)
+    activo = models.BooleanField(default=False)
+    finalizado = models.BooleanField(default=False)
+    ganador = models.CharField(max_length=40, blank=True, null=True)
+    recarga = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return "Sorteo del mes " + self.mes + " ganador " + str(self.ganador) + " recarga " + str(self.recarga)
     

@@ -2,8 +2,11 @@ from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
 import random
+from django.utils import timezone
+from django.core.mail import send_mail
 
-from .models import Sorteo
+from .models import Sorteo, SorteoDetalle
+from servicios.models import Recarga
 
 
 class WSConsumer(WebsocketConsumer):
@@ -21,6 +24,12 @@ class WSConsumer(WebsocketConsumer):
     def receive(self, text_data):
         data = json.loads(text_data) 
         self.commands[data['command']](self, data)
+
+    def start(self, data):
+        mesActual = timezone.now().month
+        sorteo = SorteoDetalle.objects.get(mes=mesActual)
+        sorteo.activo = True
+        sorteo.save()
 
     def participants(self, data):
         participants = Sorteo.objects.all()
@@ -48,7 +57,8 @@ class WSConsumer(WebsocketConsumer):
         return result
 
     def roll(self, data):
-        participants = Sorteo.objects.filter(eliminado=False)
+        mesActual = timezone.now().month
+        participants = Sorteo.objects.filter(eliminado=False, mes=mesActual)
         codes = []
         for p in participants:
             codes.append(p.code)
@@ -61,8 +71,15 @@ class WSConsumer(WebsocketConsumer):
                 ganador = Sorteo.objects.get(eliminado=False)
                 content = {
                     'command': 'code',
-                    'code': "El ganador es " + ganador.usuario.username + " " + ganador.servicio
+                    'code': "El ganador es " + ganador.usuario.username + ", servicio: " + ganador.servicio
                 }
+                recarga = Recarga(cantidad=200)
+                recarga.save()
+                sorteo = SorteoDetalle.objects.get(mes=mesActual)
+                sorteo.ganador = ganador.usuario.username
+                sorteo.recarga = recarga.code
+                sorteo.save()               
+                send_mail('FELICIDADES desde QbaRed', f'Usted ha sido el ganador del sorteo del mes {sorteo.mes}, este es su código de recarga {sorteo.recarga}. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [ganador.usuario.email,])
                 self.send_chat_message(content)
             else:
                 code = random.choice(codes)
@@ -71,7 +88,7 @@ class WSConsumer(WebsocketConsumer):
                 selected.save()
                 content = {
                     'command': 'code',
-                    'code': "El eliminado es " + selected.usuario.username + " " + selected.servicio
+                    'code': "El eliminado es " + selected.usuario.username + ", servicio: " + selected.servicio
                 }
                 self.send_chat_message(content)
         else:
@@ -79,9 +96,14 @@ class WSConsumer(WebsocketConsumer):
                 'command': 'code',
                 'code': 'Ya ha terminado el sorteo'
             }
+            mesActual = timezone.now().month
+            sorteo = SorteoDetalle.objects.get(mes=mesActual)
+            sorteo.finalizado = True
+            sorteo.save()
             self.send_chat_message(content)
 
     commands = {
+        'start': start,
         'participants': participants,        
         'roll': roll,
     }
