@@ -15,6 +15,3 @@ def emby(request):
 
 def jc(request):
     return render(request, 'web/jc.html')
-
-def noticias(request):
-    return render(request, 'web/noticias.html')

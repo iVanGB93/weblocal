@@ -259,6 +259,6 @@ def chequeo():
 
 def tiempoAcabado():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(chequeoInternet, 'interval', minutes=90)
-    scheduler.add_job(chequeo, 'interval', minutes=90)
+    scheduler.add_job(chequeoInternet, 'interval', minutes=5)
+    scheduler.add_job(chequeo, 'interval', minutes=30)
     scheduler.start()

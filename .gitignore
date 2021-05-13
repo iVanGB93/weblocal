@@ -1,5 +1,15 @@
 /env
-/frontend
+/LOG
+/nginx_waitress
+
+/static/admin/
+/static/forum/
+/static/portal/
+/static/rest_framework/
+/static/sorteo/
+/static/web/
+
+/runserver.py
 
 *.ini
 *.pyc

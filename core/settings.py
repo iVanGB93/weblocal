@@ -88,7 +88,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         "CLIENT": {
-           "name": 'paginalocal',
+           "name": 'dblocal',
            "host": '127.0.0.1',
            #"username": config('DB_USER'),
            #"password": config('DB_PASSWORD'),
@@ -131,12 +131,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #RestFramework settings
 REST_FRAMEWORK = {    
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ], 
-    'DEFAULT_AUTHENTICATION_CLASSES': [   
-        'rest_framework.authentication.TokenAuthentication',
-    ]
+        'rest_framework.permissions.AllowAny',
+    ],
+    
 }
+#'DEFAULT_AUTHENTICATION_CLASSES': [   
+#        'rest_framework.authentication.TokenAuthentication',
+#    ]
 # Permissions:
 # AllowAny
 # IsAuthenticated

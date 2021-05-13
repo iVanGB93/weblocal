@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index, ts, ftp, jc, emby, noticias
+from .views import index, ts, ftp, jc, emby
 
 app_name='web'
 
@@ -9,5 +9,4 @@ urlpatterns = [
     path('ftp/', ftp, name="ftp"),
     path('jc/', jc, name="jc"),
     path('emby/', emby, name="emby"),
-    path('noticias/', noticias, name="noticias"),
 ]
