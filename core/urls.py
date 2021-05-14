@@ -12,6 +12,7 @@ urlpatterns = [
     path('cotilleo/', include('forum.urls')),
     path('portal/', include('portal.urls')),
     path('api/servicios/', include('servicios.api.urls')),
+    path('users/', include('users.urls')),
     path('api/users/', include('users.api.urls')),
     path('portal/password-reset/confirm/<uidb64>/<token>/',
         TemplateView.as_view(template_name="portal/index.html"), name='password_reset_confirm'),

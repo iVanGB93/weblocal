@@ -70,7 +70,7 @@
     const eliminados = [];
     var activo = JSON.parse(document.getElementById('activo').textContent);
     var finalizado = JSON.parse(document.getElementById('finalizado').textContent);
-    var socket = new ReconnectingWebSocket('ws://172.20.24.2:8000/ws/sorteo/running/');
+    var socket = new ReconnectingWebSocket('ws://127.0.0.1:8000/ws/sorteo/running/');
     socket.onopen = function(e) {
         console.log('socket conectado');
         if (activo === false) {

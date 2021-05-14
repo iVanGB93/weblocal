@@ -29,7 +29,14 @@
               <li class="nav-item">
                 <a class="navbar-link" href="{% url 'sorteo:index' %}">Sorteo</a>
               </li>              
-            </ul>                         
+            </ul>
+            {% if user.is_authenticated %}                     
+              <a style="margin-right: 10px;" class="btn btn-sm btn-outline-success" href="{% url 'users:logout' %}">{{ user}}</a>
+              <a style="margin-right: 10px;" class="btn btn-sm btn-outline-danger" href="{% url 'users:logout' %}">Salir</a>
+            {% else %}
+              <a style="margin-right: 10px;" class="btn btn-sm btn-outline-warning" href="{% url 'users:login' %}">Entrar</a>
+              <a style="margin-right: 10px;" class="btn btn-sm btn-outline-info" href="{% url 'users:register' %}">Registrarse</a>
+            {% endif %}
             <a style="margin-right: 10px;" class="btn btn-sm btn-outline-primary" href="https://login.qbared.com">Internet</a>
             <a class="btn btn-sm btn-outline-success" href="{% url 'portal:index' %}">Portal del Usuario</a>          
           </div> 

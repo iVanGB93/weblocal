@@ -1,0 +1,138 @@
+.fondo {
+    top: 0;
+    left: 0;
+    position: fixed;
+    height: 100vh;
+    width: 100%;
+    z-index: -1;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.box{ 
+    width: 400px;
+    min-width: 300px;
+    margin-top: auto;
+    margin-bottom: auto;    
+    background-color: rgba(100, 0, 110, 0.4);
+    backdrop-filter: blur(5px);
+    border-radius: 6px;
+    box-shadow: 0 5px 35px rgba(0,0,0,0.3);
+}
+.box:hover {
+    box-shadow: 0 5px 35px rgba(255,255,255,0.3);
+}
+
+.card-header h3{
+    color: white;
+    font-style: italic;
+}
+.card-header h3:hover {
+    cursor: default;
+    color: black
+}
+
+.card-header h5 {
+    text-align: center;
+    color: white;
+    font-style: italic;
+}
+.card-header h5:hover {
+    cursor: default;
+    color: black
+}
+
+.input-group-prepend span{
+    width: 50px;
+    background-color: #FFC312;
+    color: black;
+    border:0 !important;
+}
+input:focus{
+    outline: 0 0 0 0  !important;
+    box-shadow: 0 0 0 0 !important;
+    
+}
+
+.card-body form label {
+    color: white;
+}
+
+.card-body form button {
+    color: white;
+    margin-top: 8px;
+}
+
+#id_username {
+    color: white;
+    background: transparent;
+}
+#id_username::placeholder {
+    color: white;
+}
+#id_password {
+    color: white;
+    background: transparent;
+}
+#id_password::placeholder {
+    color: white;
+}
+
+.links button {
+    color: white;
+    margin-top: 8px;
+}
+
+.social_icon span{
+    font-size: 60px;
+    margin-left: 10px;
+    color: #FFC312;
+}
+    
+.social_icon span:hover{
+    color: white;
+    cursor: pointer;
+}
+
+/* registro */
+
+#id_email {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    background: transparent;
+    color: white;
+    border: solid 1px white;
+}
+#id_email::placeholder {
+    color: white;
+}
+
+#id_email2 {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    background: transparent;
+    color: white;
+    border: solid 1px white;
+}
+#id_email2::placeholder {
+    color: white;
+}
