@@ -64,7 +64,7 @@
         </div>
         {% if not servicio.jc %}
         <h4>Activar el servicio Joven Club:</h4>
-        <form action="{% url 'portal:jovenclub' %}" method="post">
+        <form id="myform" action="{% url 'portal:jovenclub' %}" method="post">
             {% if mensaje %}
                 <div class="alert alert-warning text-center" role="alert">
                     <div>
@@ -77,7 +77,10 @@
                 <span class="col-5 col-md-4 input-group-text" id="inputGroup-sizing-default">Contraseña</span>
                 <input type="text" name="contra" required class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
             </div>    
-            <button type="submit" class="form-control btn btn-primary">Activar</button>            
+            <button type="submit" class="form-control btn btn-primary">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                Activar
+            </button>            
         </form>
         {% endif %}
     </div>
@@ -97,4 +100,10 @@
         </div>
     </div>
 </div>
+<script>
+    const myform = document.getElementById("myform");
+    myform.addEventListener("submit", (e) => {       
+        document.getElementById('spinner').style.display = 'inline-block';        
+    });
+</script>
 {% endblock contenido %}

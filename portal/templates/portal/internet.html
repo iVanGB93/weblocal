@@ -78,7 +78,7 @@
         </div>
         {% if not servicio.internet %}
         <h4>Activar el servicio Internet:</h4>
-        <form action="{% url 'portal:internet' %}" method="post">
+        <form id="myform" action="{% url 'portal:internet' %}" method="post">
             {% if mensaje %}
                 <div class="alert alert-danger d-flex align-items-center text-center" role="alert">
                 <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
@@ -102,7 +102,10 @@
                 <span class="col-5 col-md-4 input-group-text" id="inputGroup-sizing-default">Contraseña</span>
                 <input type="text" name="contra" required class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
             </div>
-            <button type="submit" class="form-control btn btn-primary">Activar</button>            
+            <button type="submit" class="form-control btn btn-primary">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                Activar
+            </button>            
         </form>
         {% endif %}
     </div>
@@ -123,4 +126,10 @@
         </div>
     </div>
 </div>
+<script>
+    const myform = document.getElementById("myform");
+    myform.addEventListener("submit", (e) => {       
+        document.getElementById('spinner').style.display = 'inline-block';        
+    });
+</script>
 {% endblock contenido %}
