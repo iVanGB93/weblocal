@@ -19,8 +19,14 @@ class RegisterForm(forms.ModelForm):
         'class': 'form-control',
         'placeholder': 'Nombre de Usuario...'
     }))
-    email = forms.EmailField(label="Correo")
-    email2 = forms.EmailField(label="Confirme Correo")
+    email = forms.EmailField(label="Correo", widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Email...'
+    }))
+    email2 = forms.EmailField(label="Confirme Correo", widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Repita el email...'
+    }))
     password = forms.CharField(max_length=10, label='Contraseña', widget=forms.PasswordInput(attrs={
         'class': 'form-control',
         'placeholder': 'Contraseña...'

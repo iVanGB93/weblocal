@@ -1,0 +1,171 @@
+{% extends "portal/basePortal.html" %}
+{% load static %}
+{% block contenido %}
+<div class="row p-3">
+    <div class="col-6 col-md-5 m-auto">
+        <div class="card">
+            <h5 class="card-header">Internet</h5>
+            <div class="card-body">
+                <div class="row p-1">
+                    <h6 class="card-title col-12 col-md-8">
+                        Estado del servicio:
+                    </h6>
+                    {% if servicio.internet %}
+                        <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
+                    {% else %}
+                        <span class="badge rounded-pill bg-danger col-8 col-md-4 m-auto text-center">Fuera de línea</span>
+                    {% endif %}
+                </div>
+                <hr class="dropdown-divider" />
+                <div class="row p-1">
+                    <p class="card-text col-12 col-md-6">Ultimo chequeo:</p>
+                    <p class="card-text col-12 col-md-6 text-center">{{ servicio.int_time }}</p>
+                </div> 
+                <hr class="dropdown-divider" />
+                <div class="row p-1">             
+                    <p class="card-text col-12 col-md-6">Mi cuenta:</p>                        
+                    {% if servicio.internet %}
+                        <span class="badge rounded-pill bg-success col-auto col-md-3 m-auto text-center">Activa</span>
+                        <a class="col-auto col-md-3 m-auto text-center" href="{% url 'portal:internet' %}">Detalles</a>
+                        {% else %}
+                        <span class="badge rounded-pill bg-danger col-auto col-md-3 m-auto text-center">No activa</span>
+                        <a class="col-auto col-md-3 m-auto text-center" href="{% url 'portal:internet' %}">Activar</a>
+                    {% endif %}                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-5 m-auto">
+        <div class="card">
+            <h5 class="card-header">Joven Club</h5>
+            <div class="card-body">
+                <div class="row p-1">
+                    <h6 class="card-title col-12 col-md-8">
+                        Estado del servicio:
+                    </h6>
+                    {% if servicio.jc %}
+                        <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
+                    {% else %}
+                        <span class="badge rounded-pill bg-danger col-8 col-md-4 m-auto text-center">Fuera de línea</span>
+                    {% endif %}
+                </div>
+                <hr class="dropdown-divider" />
+                <div class="row p-1">
+                    <p class="card-text col-12 col-md-6">Ultimo chequeo:</p>
+                    <p class="card-text col-12 col-md-6 text-center">{{ servicio.jc_time }}</p>
+                </div> 
+                <hr class="dropdown-divider" />
+                <div class="row p-1">             
+                    <p class="card-text col-12 col-md-6">Mi cuenta:</p>                        
+                    {% if servicio.jc %}
+                        <span class="badge rounded-pill bg-success col-auto col-md-3 m-auto text-center">Activa</span>
+                        <a class="col-auto col-md-3 m-auto text-center" href="{% url 'portal:internet' %}">Detalles</a>
+                        {% else %}
+                        <span class="badge rounded-pill bg-danger col-auto col-md-3 m-auto text-center">No activa</span>
+                        <a class="col-auto col-md-3 m-auto text-center" href="{% url 'portal:internet' %}">Activar</a>
+                    {% endif %}                    
+                </div>            
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row p-3">
+    <div class="col-6 col-md-5 m-auto">
+        <div class="card">
+            <h5 class="card-header">Emby</h5>
+            <div class="card-body">
+                <div class="row p-1">
+                    <h6 class="card-title col-12 col-md-8">
+                        Estado del servicio:
+                    </h6>
+                    {% if servicio.emby %}
+                        <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
+                    {% else %}
+                        <span class="badge rounded-pill bg-danger col-8 col-md-4 m-auto text-center">Fuera de línea</span>
+                    {% endif %}
+                </div>
+                <hr class="dropdown-divider" />
+                <div class="row p-1">
+                    <p class="card-text col-12 col-md-6">Ultimo chequeo:</p>
+                    <p class="card-text col-12 col-md-6 text-center">{{ servicio.emby_time }}</p>
+                </div> 
+                <hr class="dropdown-divider" />
+                <div class="row p-1">             
+                    <p class="card-text col-12 col-md-6">Mi cuenta:</p>                        
+                    {% if servicio.emby %}
+                        <span class="badge rounded-pill bg-success col-auto col-md-3 m-auto text-center">Activa</span>
+                        <a class="col-auto col-md-3 m-auto text-center" href="{% url 'portal:internet' %}">Detalles</a>
+                        {% else %}
+                        <span class="badge rounded-pill bg-danger col-auto col-md-3 m-auto text-center">No activa</span>
+                        <a class="col-auto col-md-3 m-auto text-center" href="{% url 'portal:internet' %}">Activar</a>
+                    {% endif %}                    
+                </div>             
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-5 m-auto">
+        <div class="card">
+            <h5 class="card-header">FileZilla</h5>
+            <div class="card-body">
+                <div class="row p-1">
+                    <h6 class="card-title col-12 col-md-8">
+                        Estado del servicio:
+                    </h6>
+                    {% if servicio.ftp %}
+                        <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
+                    {% else %}
+                        <span class="badge rounded-pill bg-danger col-8 col-md-4 m-auto text-center">Fuera de línea</span>
+                    {% endif %}
+                </div>
+                <hr class="dropdown-divider" />
+                <div class="row p-1">
+                    <p class="card-text col-12 col-md-6">Ultimo chequeo:</p>
+                    <p class="card-text col-12 col-md-6 text-center">{{ servicio.ftp_time }}</p>
+                </div> 
+                <hr class="dropdown-divider" />
+                <div class="row p-1">             
+                    <p class="card-text col-12 col-md-6">Mi cuenta:</p>                        
+                    {% if servicio.ftp %}
+                        <span class="badge rounded-pill bg-success col-auto col-md-3 m-auto text-center">Activa</span>
+                        <a class="col-auto col-md-3 m-auto text-center" href="{% url 'portal:internet' %}">Detalles</a>
+                        {% else %}
+                        <span class="badge rounded-pill bg-danger col-auto col-md-3 m-auto text-center">No activa</span>
+                        <a class="col-auto col-md-3 m-auto text-center" href="{% url 'portal:internet' %}">Activar</a>
+                    {% endif %}                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container col-11 m-auto p-3">
+    <div class="card">
+        <h5 class="card-header">Mis datos:</h5>
+        <div class="card-body">
+            <h5 class="card-title">Mis coins:</h5>
+            <p class="card-text d-flex justify-content-end">{{ perfil.coins }}</p>
+            <h5 class="card-title">Nombre de usuario:</h5>
+            <p class="card-text d-flex justify-content-end">{{ usuario.username }}</p>
+            <h5 class="card-title">Correo:</h5>
+            <p class="card-text d-flex justify-content-end">{{ usuario.email }}</p>
+            {% if usuario.name %}
+            <h5 class="card-title">Nombre y apellidos:</h5>
+            <p class="card-text d-flex justify-content-end">{{ usuario.first_name }} {{ usuario.last_name }}</p>
+            {% endif %}
+            <h5 class="card-title">Ultima sesión:</h5>
+            <p class="card-text d-flex justify-content-end">{{ usuario.last_login }}</p>
+            <h5 class="card-title">Fecha de registro:</h5>
+            <p class="card-text d-flex justify-content-end">{{ usuario.date_joined }}</p>            
+            <a class="d-flex justify-content-end" href="{% url 'portal:perfil' %}">Editar</a>
+        </div>
+    </div>
+</div>
+<div class="container col-11 m-auto p-3">
+    <div class="card">
+        <h5 class="card-header">Sorteos:</h5>
+        <div class="card-body">
+            <h5 class="card-title">Ganador mes abril:</h5>
+            <p class="card-text d-flex justify-content-end">Erick.Roche</p>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}

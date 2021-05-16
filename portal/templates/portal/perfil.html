@@ -1,0 +1,46 @@
+{% extends "portal/basePortal.html" %}
+{% load static %}
+{% block contenido %}
+<div class="row py-5">   
+    <div class="col-10 offset-1 col-md-8 offset-md-2 text-center">
+        <div class="card">            
+            <div class="card-header">
+                Editar mi perfil:
+            </div>
+            <p>En construcción, pronto ONLINE</p>
+            <!-- <div class="card-body">                
+                <form action="{% url 'portal:perfil' %}"  method="post">
+                {% if error %}
+                <div class="alert alert-danger d-flex align-items-center text-center" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                    <div>
+                        {{ error }}
+                    </div>
+                </div>                
+                {% endif %}
+                {% csrf_token %}
+                <div class="row">  
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="floatingInput" name="email" placeholder="{{ usuario.email }}">
+                        <label for="floatingInput">Correo</label>
+                    </div>                   
+                </div>                
+                <div class="row">                    
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingName" name="nombre" placeholder="{{ usuario.first_name }}">
+                        <label for="floatingName">Nombre</label>
+                    </div>                   
+                </div>
+                <div class="row">                    
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingApellidos" name="apellidos" placeholder="{{ usuario.last_name }}">
+                        <label for="floatingApellidos">Apellidos</label>
+                    </div>                   
+                </div>
+                <button class="form-control btn btn-primary" type="submit">Enviar</button>
+                </form>      
+            </div> -->
+        </div>
+    </div>
+</div>
+{% endblock contenido %}

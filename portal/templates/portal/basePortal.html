@@ -1,0 +1,85 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block title %} - Portal{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'portal/style.css' %}">
+<div class="fondo"></div>
+<div>
+    <button class="btn btn-dark canvasTriguer" type="button" data-bs-toggle="offcanvas" data-bs-target="#panellateral" aria-controls="offcanvasExample">
+        Panel
+    </button>    
+    <div class="offcanvas offcanvas-start sidebar-nav bg-dark text-white" tabindex="-1" id="panellateral" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title m-auto" id="offcanvasExampleLabel">Panel lateral</h5>
+            <!--button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button-->
+        </div>
+        <div class="offcanvas-body p-0">
+            <nav class="navbar-dark">
+                <ul class="navbar-nav">
+                    <li>
+                        <p class="px-3">Mi Cuenta</p>
+                    </li>
+                    <li class="nav-item">
+                        <ul title="Perfil">
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:dashboard' %}">Dashboard</a>
+                            </li>
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:perfil' %}">Editar mis datos</a>
+                            </li>
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:perfil' %}">Cambiar contraseña</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+                    <li>
+                        <p class="px-3">Servicios</p>
+                    </li>
+                    <li class="nav-item">
+                        <ul title="Servicios">
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:internet' %}">Internet</a>
+                            </li>
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:jovenclub' %}">Joven Club</a>
+                            </li>
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:emby' %}">Emby</a>
+                            </li>
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:filezilla' %}">FileZilla</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+                    <li>
+                        <p class="px-3">Coins</p>
+                    </li>
+                    <li class="nav-item">
+                        <ul title="Coins">
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:recarga' %}">Recargar</a>
+                            </li>
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:transferencia' %}">Transferir</a>
+                            </li>
+                            <li>
+                                <a class="nav-link px-3 active" href="{% url 'portal:operaciones' %}">Operaciones</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div class="contenido">
+        {% block contenido %}
+        {% endblock contenido %}
+    </div>
+</div>
+{% endblock content %}

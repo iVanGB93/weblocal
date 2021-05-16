@@ -1,0 +1,63 @@
+{% extends "portal/basePortal.html" %}
+{% load static %}
+{% block contenido %}
+<div>
+    <div class="row py-5">
+        <div class="col-8 offset-2 col-md-6 offset-md-3 text-center">
+            <div class="card">
+                <div class="card-header">
+                    Ultimas 10 operaciones:
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <h5 class="col-6 card-title d-flex justify-content-start">Usuario</h5>
+                        <h5 class="col-6 card-title d-flex justify-content-end">{{ user }}</h5>
+                    </div>      
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-lg-10 m-auto overflow-scroll">    
+            <table class="table table-light table-hover text-center">
+                <thead>
+                    <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Servicio</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Código Recarga</th>
+                    <th scope="col">Destino</th>
+                    <th scope="col">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in opers %}
+                    <tr>
+                        <th scope="row">{{ o.code }}</th>
+                        <td>{{ o.tipo }}</td>
+                        {% if o.servicio %}
+                            <td>{{ o.servicio }}</td>
+                        {% else %}
+                            <td>-</td>
+                        {% endif %}            
+                        <td>{{ o.cantidad }}</td>
+                        {% if o.codRec %}
+                            <td>{{ o.codRec }}</td>
+                        {% else %}
+                            <td>-</td>
+                        {% endif %}    
+                        {% if o.haciaDesde %}
+                            <td>{{ o.haciaDesde }}</td>
+                        {% else %}
+                            <td>-</td>
+                        {% endif %} 
+                        <td>{{ o.fecha }}</td>
+                        </tr>
+                        {% endfor %}
+                </tbody>   
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}

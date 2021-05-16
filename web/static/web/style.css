@@ -5,23 +5,31 @@
   z-index: -2;
 }
 
-nav.scroll-up,
-nav:focus-within {
-  top: 0;
+.navtop {
+  top: 8px;
+  width: 90%;
+  margin: auto;
+  border-radius: 6px;
+  transition: top 200ms ease-in-out;
 }
 
-nav.scroll-down {
+.navtop.scroll-up,
+.navtop:focus-within {
+  top: 8px;
+}
+
+.navtop.scroll-down {
   top: -100%;
 }
 
-.navbar-link {
+.navtop-link {
   text-decoration: none;
   padding-left: 20px;
   font-size: 20px;
   font-style: oblique;
   color: rgba(255,255,255,0.8)
 }
-.navbar-link:hover {
+.navtop-link:hover {
   text-decoration: underline;
   color: white;
   text-shadow: 5px -5px 4px #ffff;
@@ -32,6 +40,8 @@ footer {
   color:white;
   width: 100%;
   height: 100%;
+  left: 0;
+  right: 0;
   bottom: 0;
   padding-bottom: 0;
 }

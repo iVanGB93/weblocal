@@ -1,0 +1,57 @@
+{% extends "portal/basePortal.html" %}
+{% load static %}
+{% block contenido %}
+<div class="row py-5">
+    <div class="col-8 offset-2 col-md-6 offset-md-3 text-center">
+        <div class="card">
+            <div class="card-header">
+                Mis coins:
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <h5 class="col-6 card-title d-flex justify-content-start">{{ user }}</h5>
+                    <h5 class="col-6 card-title d-flex justify-content-end">{{ perfil.coins }}</h5>
+                </div>      
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-8 offset-2 col-md-6 offset-md-3 text-center">
+        <h4>Transferir coins a:</h4>
+        <form action="{% url 'portal:transferencia' %}" method="post">
+            {% if mensaje %}
+                <div class="alert alert-warning text-center" role="alert">
+                    <div>
+                        {{ mensaje }}
+                    </div>
+                </div>                
+            {% endif %}
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <span class="col-4 col-md-3 input-group-text" id="inputGroup-sizing-default">Usuario</span>
+                <input type="text" name="hacia" required class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+            </div>  
+            <div class="input-group mb-3">
+                <span class="col-4 col-md-3 input-group-text" id="inputGroup-sizing-default">Cantidad</span>
+                <input type="text" name="cantidad" required class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+            </div>            
+            <button type="submit" class="form-control btn btn-primary">Transferir</button>            
+        </form>
+    </div>
+</div>
+<div class="row py-5">
+    <div class="col-10 offset-1 col-md-6 offset-md-3 text-center">
+        <div class="card">
+            <div class="card-header">Información:</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item">La transferencia es hacia un usuario que esté registrado.</li>
+                    <li class="list-group-item">La cantidad a transferir no puede ser mayor que el propio crédito.</li>
+                    <li class="list-group-item">Duda y sugerencias, escribir a la administración.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}

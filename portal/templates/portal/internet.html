@@ -1,0 +1,126 @@
+{% extends "portal/basePortal.html" %}
+{% load static %}
+{% block contenido %}
+<div class="row my-1">    
+    <div class="col-10 col-md-8 m-auto">
+        <div class="card">
+            <div class="card-header">
+                INTERNET - {{ user }}
+            </div>
+            <div class="card-body">
+                <div class="row my-1">
+                    <h5 class="col-6 card-title d-flex justify-content-start">Mis coins</h5>
+                    <h5 class="col-6 card-title d-flex justify-content-end">{{ perfil.coins }} coins</h5>
+                </div> 
+                <hr class="dropdown-divider" />
+                <div class="row my-1">
+                    <h5 class="col-6 card-title d-flex justify-content-start">Mi cuenta</h5>
+                    <h5 class="col-6 card-title d-flex justify-content-end">
+                        {% if servicio.internet %}
+                        <span class="badge rounded-pill bg-success">Activa</span>
+                        {% else %}
+                        <span class="badge rounded-pill bg-danger">No activa</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <hr class="dropdown-divider" />
+                <div class="row my-1">
+                    <h5 class="col-6 card-title d-flex justify-content-start">Restante</h5>
+                    <h5 class="col-6 card-title d-flex justify-content-end">
+                        {% if servicio.int_time %}
+                            {{ servicio.int_time}}
+                        {% else %}
+                            {% if servicio.int_tipo == "internetHoras" %}
+                                <a href="https://login.qbared.com/status/">Horas: {{ servicio.int_horas }}</a> 
+                            {% else %}
+                                -
+                            {% endif %}
+                        {% endif %}
+                    </h5>
+                </div>  
+                <hr class="dropdown-divider" /> 
+                <div class="row my-1">
+                    <h5 class="col-6 card-title d-flex justify-content-start">Activación automática</h5>
+                    <h5 class="col-6 card-title d-flex justify-content-end">
+                        {% if servicio.int_auto %}
+                        <span class="badge rounded-pill bg-success">Activa</span>
+                        {% else %}
+                        <span class="badge rounded-pill bg-danger">No activa</span>
+                        {% endif %}
+                    </h5>
+                </div>  
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row my-1">
+    <div class="col-10 col-md-8 m-auto text-center">
+        <div class="card my-3">
+            <div class="card-header">
+                Costo:
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <h5 class="col-6 card-title d-flex justify-content-start">Mensual(solo portal)</h5>
+                    <h5 class="col-6 card-title d-flex justify-content-end">200 coins</h5>
+                </div>   
+                <hr class="dropdown-divider" />
+                <div class="row">
+                    <h5 class="col-6 card-title d-flex justify-content-start">Semanal</h5>
+                    <h5 class="col-6 card-title d-flex justify-content-end">300 coins</h5>
+                </div>
+                <hr class="dropdown-divider" />
+                <div class="row">
+                    <h5 class="col-6 card-title d-flex justify-content-start">Por horas</h5>
+                    <h5 class="col-6 card-title d-flex justify-content-end">10 coins X hora</h5>
+                </div>   
+            </div>
+        </div>
+        {% if not servicio.internet %}
+        <h4>Activar el servicio Internet:</h4>
+        <form action="{% url 'portal:internet' %}" method="post">
+            {% if mensaje %}
+                <div class="alert alert-danger d-flex align-items-center text-center" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                    <div>
+                        {{ mensaje }}
+                    </div>
+                </div>                
+            {% endif %}
+            {% csrf_token %}
+            <select class="form-select mb-3" name="tipo" aria-label="Default select example">
+                <option selected>Seleccione el tipo</option>
+                <option value="mensual">Mensual</option>
+                <option value="semanal">Semanal</option>
+                <option value="horas">Horas</option>
+            </select>
+            <div class="input-group mb-3">
+                <span class="col-5 col-md-4 input-group-text" id="inputGroup-sizing-default">Horas:</span>
+                <input type="text" name="cantidad_horas" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+            </div> 
+            <div class="input-group mb-3">
+                <span class="col-5 col-md-4 input-group-text" id="inputGroup-sizing-default">Contraseña</span>
+                <input type="text" name="contra" required class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+            </div>
+            <button type="submit" class="form-control btn btn-primary">Activar</button>            
+        </form>
+        {% endif %}
+    </div>
+</div>
+<div class="row py-5">
+    <div class="col-10 col-md-8 m-auto text-center">
+        <div class="card">
+            <div class="card-header">Información:</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item">El tipo mensual solo incluye el acceso al portal nauta para que usted ponga su propia cuenta cuando desee tener internet.</li>
+                    <li class="list-group-item">El tipo semanal es conexión a internet desde las 11am hasta las 3pm, serían 16 horas diarias.</li>
+                    <li class="list-group-item">El tipo por horas es conexión a internet cuando usted desee usar el tiempo que tenga,siempre en el horario de 11am a 3pm.</li>
+                    <li class="list-group-item">No olvide si activa el servicio tiene la oportunidad de ganar el sorteo del mes usando el código, mas información <a href="{% url 'sorteo:index' %}">-->aquí<--</a>.</li>
+                    <li class="list-group-item">Duda y sugerencias, escribir a la administración.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}

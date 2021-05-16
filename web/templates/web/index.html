@@ -17,9 +17,9 @@
           <p style="font-style: italic; font-weight: 600; text-shadow: 0 0 3px red, 0 0 6px yellow;">Red Privada de Centro Habana, Cuba</p>
           <p style="font-style: italic; font-weight: 600; text-shadow: 0 0 3px red, 0 0 6px yellow;">
             {% if user.is_authenticated %}              
-              <a style="box-shadow: 0 0 3px red, 0 0 6px yellow;" class="btn btn-lg btn-warning" href="{% url 'portal:index' %}">Hola {{ request.user }}</a>
+              <a style="box-shadow: 0 0 3px red, 0 0 6px yellow;" class="btn btn-lg btn-warning" href="{% url 'portal:dashboard' %}">Hola {{ request.user }}</a>
             {% else %}
-              <a style="box-shadow: 0 0 3px red, 0 0 6px yellow;" class="btn btn-lg btn-warning" href="{% url 'portal:index' %}">Unirme</a>
+              <a style="box-shadow: 0 0 3px red, 0 0 6px yellow;" class="btn btn-lg btn-warning" href="{% url 'users:register' %}">Unirme</a>
             {% endif %}
           </p>
         </div>
@@ -32,9 +32,9 @@
           <h1 style="font-style: italic; font-weight: 700;">Juega Online</h1>
           <p style="font-style: italic; font-weight: 600;">Compite con todos por ganar y ser el mejor</p>
           {% if user.is_authenticated %}
-            <p><a class="btn btn-lg btn-primary" href="{% url 'portal:index' %}">¿Juegas DOTA2 {{ user }}?</a></p>
+            <p><a class="btn btn-lg btn-primary" href="{% url 'portal:dashboard' %}">¿Juegas DOTA2 {{ user }}?</a></p>
           {% else %}
-            <p><a class="btn btn-lg btn-primary" href="{% url 'portal:index' %}">Unirme</a></p>
+            <p><a class="btn btn-lg btn-primary" href="{% url 'users:register' %}">Unirme</a></p>
           {% endif %}
         </div>
       </div>
