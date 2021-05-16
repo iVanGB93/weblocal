@@ -76,9 +76,9 @@
             {% csrf_token %}   
             <div class="input-group mb-3">
                 <span class="col-5 col-md-4 input-group-text" id="inputGroup-sizing-default">Contraseña</span>
-                <input type="text" name="contra" required class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+                <input type="password" name="contra" required class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
             </div>                      
-            <button type="submit" class="form-control btn btn-primary">
+            <button id="boton" type="submit" class="form-control btn btn-primary">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
                 Activar
             </button>            
@@ -105,7 +105,8 @@
 <script>
     const myform = document.getElementById("myform");
     myform.addEventListener("submit", (e) => {       
-        document.getElementById('spinner').style.display = 'inline-block';        
+        document.getElementById('spinner').style.display = 'inline-block';
+        document.getElementById('boton').disabled=true;
     });
 </script>
 {% endblock contenido %}

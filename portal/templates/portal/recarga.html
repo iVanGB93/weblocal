@@ -19,7 +19,7 @@
 <div class="row">
     <div class="col-8 offset-2 col-md-6 offset-md-3 text-center">
         <h4>Agrege coins a su cuenta:</h4>
-        <form action="{% url 'portal:recarga' %}" method="post">
+        <form id="myform" action="{% url 'portal:recarga' %}" method="post">
             {% if mensaje %}
                 <div class="alert alert-warning text-center" role="alert">
                     <div>
@@ -32,7 +32,10 @@
                 <span class="col-4 col-md-3 input-group-text" id="inputGroup-sizing-default">Código</span>
                 <input type="text" name="code" required class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
             </div>              
-            <button type="submit" class="form-control btn btn-primary">Recargar</button>            
+            <button id="boton" type="submit" class="form-control btn btn-primary">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none;'></span>
+                Recargar
+            </button>            
         </form>
     </div>
 </div>
@@ -50,4 +53,11 @@
         </div>
     </div>
 </div>
+<script>
+    const myform = document.getElementById("myform");
+    myform.addEventListener("submit", (e) => {       
+        document.getElementById('spinner').style.display = 'inline-block';
+        document.getElementById('boton').disabled=true;
+    });
+</script>
 {% endblock contenido %}

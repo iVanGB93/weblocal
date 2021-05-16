@@ -52,7 +52,7 @@ def internet(request):
             else:
                 mensaje = 'Contraseña incorrecta.'
                 content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-                return render(request, 'portal/filezilla.html', content)
+                return render(request, 'portal/internet.html', content)
         else:
             mensaje = 'Seleccione un tipo de internet'
             content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
@@ -81,7 +81,7 @@ def jovenclub(request):
         else:
             mensaje = 'Contraseña incorrecta.'
             content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-            return render(request, 'portal/filezilla.html', content)
+            return render(request, 'portal/jovenclub.html', content)
     else:
         content = {'perfil': perfil, 'servicio': servicio} 
         return render(request, 'portal/jovenclub.html', content)
@@ -106,7 +106,7 @@ def emby(request):
         else:
             mensaje = 'Contraseña incorrecta.'
             content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-            return render(request, 'portal/filezilla.html', content)
+            return render(request, 'portal/emby.html', content)
     else:
         content = {'perfil': perfil, 'servicio': servicio} 
         return render(request, 'portal/emby.html', content)
