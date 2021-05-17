@@ -20,14 +20,51 @@ def dashboard(request):
 @login_required(login_url='/users/login/')
 def perfil(request):
     usuario = User.objects.get(username=request.user)
-    if request.method == 'POST':
-        if request.POST['email'] != '':
+    if request.method == 'POST':        
+        form = EditUserForm(request.POST)
+        if form.is_valid():
+            usuario = User.objects.get(username=request.user)
             usuario.email = request.POST['email']
-        content = {'usuario': usuario}
-        return render(request, 'portal/perfil.html', content)
+            usuario.first_name = request.POST['first_name']
+            usuario.last_name = request.POST['last_name']
+            usuario.save()
+            form = EditUserForm()
+            mensaje = 'Perfil editado con éxito'
+            content = {'mensaje': mensaje, 'form': form}
+            return render(request, 'portal/perfil.html', content)
     else:
-        content = {'usuario': usuario}
+        form = EditUserForm()
+        content = {'form': form}
         return render(request, 'portal/perfil.html', content)
+
+@login_required(login_url='/users/login/')
+def contra(request):
+    if request.method == 'POST':
+        usuario = User.objects.get(username=request.user)
+        contra = request.POST['actual']
+        if usuario.check_password(contra):
+            if request.POST['nueva'] == request.POST['confirme']:
+                if len(request.POST['nueva']) >= 8:
+                    nueva = request.POST['nueva']
+                    usuario.set_password(nueva)
+                    usuario.save()
+                    mensaje = 'Contraseña cambiada con éxito.'
+                    content = {'mensaje': mensaje}
+                    return render(request, 'portal/cambiarcontra.html', content)
+                else:
+                    mensaje = 'La contraseña debe tener al menos 8 caracteres.'
+                    content = {'mensaje': mensaje}
+                    return render(request, 'portal/cambiarcontra.html', content)
+            else:
+                mensaje = 'Las contraseñas nuevas no coinciden.'
+                content = {'mensaje': mensaje}
+                return render(request, 'portal/cambiarcontra.html', content)
+        else:
+            mensaje = 'Contraseña actual incorrecta.'
+            content = {'mensaje': mensaje}
+            return render(request, 'portal/cambiarcontra.html', content)
+    else:
+        return render(request, 'portal/cambiarcontra.html')
 
 @login_required(login_url='/users/login/')
 def internet(request):

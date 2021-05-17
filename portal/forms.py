@@ -4,21 +4,20 @@ from django.contrib.auth.models import User
 class EditUserForm(forms.ModelForm):
     email = forms.EmailField(label="Correo", widget=forms.TextInput(attrs={
         'class': 'form-control',
-        'placeholder': 'Email...'
+        'placeholder': 'su correo...'
     }))
-    first_name = forms.CharField(max_length=20, label='Nombre', widget=forms.TextInput(attrs={
+    first_name = forms.CharField(max_length=20, label='Nombre:', widget=forms.TextInput(attrs={
         'class': 'form-control',
-        'placeholder': 'Nombre...'
+        'placeholder': 'su nombre...'
     }))
-    last_name = forms.CharField(max_length=20, label='Apellidos', widget=forms.TextInput(attrs={
+    last_name = forms.CharField(max_length=40, label='Apellidos:', widget=forms.TextInput(attrs={
         'class': 'form-control',
-        'placeholder': 'Apellidos...'
+        'placeholder': 'sus apellidos...'
     }))
-
-    class Meta: 
+    class Meta:
         model = User
-        fields = [            
+        fields = [
             'email',
             'first_name',
-            'last_name',
+            'last_name'
         ]

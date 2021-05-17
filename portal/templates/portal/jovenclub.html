@@ -66,10 +66,8 @@
         <h4>Activar el servicio Joven Club:</h4>
         <form id="myform" action="{% url 'portal:jovenclub' %}" method="post">
             {% if mensaje %}
-                <div class="alert alert-warning text-center" role="alert">
-                    <div>
-                        {{ mensaje }}
-                    </div>
+                <div class="alert alert-warning text-center" role="alert">                   
+                    {{ mensaje }}                   
                 </div>               
             {% endif %}
             {% csrf_token %}

@@ -80,12 +80,9 @@
         <h4>Activar el servicio Internet:</h4>
         <form id="myform" action="{% url 'portal:internet' %}" method="post">
             {% if mensaje %}
-                <div class="alert alert-danger d-flex align-items-center text-center" role="alert">
-                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
-                    <div>
-                        {{ mensaje }}
-                    </div>
-                </div>                
+                <div class="alert alert-warning text-center" role="alert">                   
+                    {{ mensaje }}                   
+                </div>               
             {% endif %}
             {% csrf_token %}
             <select class="form-select mb-3" name="tipo" aria-label="Default select example">

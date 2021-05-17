@@ -140,6 +140,11 @@
 <div class="container col-11 m-auto p-3">
     <div class="card">
         <h5 class="card-header">Mis datos:</h5>
+        {% if mensaje %}
+        <div class="alert alert-warning text-center" role="alert">                   
+            {{ mensaje }}                   
+        </div>               
+        {% endif %}
         <div class="card-body">
             <h5 class="card-title">Mis coins:</h5>
             <p class="card-text d-flex justify-content-end">{{ perfil.coins }}</p>
@@ -147,7 +152,7 @@
             <p class="card-text d-flex justify-content-end">{{ usuario.username }}</p>
             <h5 class="card-title">Correo:</h5>
             <p class="card-text d-flex justify-content-end">{{ usuario.email }}</p>
-            {% if usuario.name %}
+            {% if usuario.first_name %}
             <h5 class="card-title">Nombre y apellidos:</h5>
             <p class="card-text d-flex justify-content-end">{{ usuario.first_name }} {{ usuario.last_name }}</p>
             {% endif %}
