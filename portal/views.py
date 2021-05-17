@@ -6,7 +6,7 @@ from .forms import EditUserForm
 from servicios.models import EstadoServicio, Oper
 from servicios.actions import *
 
-def index(request, *args, **kwargs):
+def index(request):
     return render(request, 'portal/index.html')
 
 @login_required(login_url='/users/login/')

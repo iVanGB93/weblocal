@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'portal.apps.PortalConfig',
     'forum.apps.ForumConfig',
     'sorteo.apps.SorteoConfig',
+    'sync.apps.SyncConfig',
 ]
 
 SITE_ID = 1

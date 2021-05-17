@@ -8,6 +8,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('administrador/', admin.site.urls),
     path('', include('web.urls')),
+    path('sync/', include('sync.urls')),
     path('sorteo/', include('sorteo.urls')),
     path('cotilleo/', include('forum.urls')),
     path('portal/', include('portal.urls')),
