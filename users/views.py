@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .forms import LoginForm, RegisterForm
+from sync.syncs import actualizacion_usuario
 
 
 def entrar(request):
@@ -42,6 +43,11 @@ def register(request):
             error = "Nombre de usuario en uso."
             content = {'error': error, 'form': form}
             return render(request, 'users/register.html', content)
+        if actualizacion_usuario('check', username):
+            form = RegisterForm()
+            error = "Nombre de usuario en uso."
+            content = {'error': error, 'form': form}
+            return render(request, 'users/register.html', content)
         else:
             email = request.POST['email']
             if User.objects.filter(email=email).exists():
@@ -64,8 +70,14 @@ def register(request):
                         user.set_password(password)
                         user.save()
                         new_user = authenticate(username=user.username, password=password)  
-                        login(request, new_user)
-                        return redirect('web:index')
+                        if actualizacion_usuario('nuevo', user.username, user.email, password):
+                            login(request, new_user)
+                            return redirect('web:index')
+                        else:
+                            form = RegisterForm()
+                            error = "Error de comunicación."
+                            content = {'error': error, 'form': form}
+                            return render(request, 'users/register.html', content)
                     else:
                         form = RegisterForm()
                         error = "Error de campo."
