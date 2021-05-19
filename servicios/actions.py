@@ -93,6 +93,9 @@ def compra_internet(usuario, tipo, contra, horas):
     profile = Profile.objects.get(usuario=usuario)
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
+    if servicio.internet == True:
+        result['mensaje'] = 'Ya tiene el servicio activo.'
+        return result
     if tipo == 'mensual':
         user_coins = int(profile.coins)
         if user_coins >= 200:
@@ -208,9 +211,13 @@ def compra_internet(usuario, tipo, contra, horas):
 def comprar_jc(usuario):
     result = {'correcto': False, 'mensaje': ''}
     profile = Profile.objects.get(usuario=usuario)
+    usuario = User.objects.get(username=usuario)
+    servicio = EstadoServicio.objects.get(usuario=usuario.id)
+    if servicio.jc == True:
+        result['mensaje'] = 'Ya tiene el servicio activo.'
+        return result
     if profile.coins >= 100:
         profile.coins = profile.coins - 100
-        usuario = User.objects.get(username=usuario)
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
@@ -218,7 +225,6 @@ def comprar_jc(usuario):
             stdin, stdout, stderr = client.exec_command(f'/ip firewall address-list set [find comment={usuario.username}] disable=no')
             client.close()
             profile.save()
-            servicio = EstadoServicio.objects.get(usuario=usuario.id)
             servicio.jc = True
             servicio.jc_time = timezone.now() + timedelta(days=30)
             servicio.save()
@@ -238,9 +244,13 @@ def comprar_jc(usuario):
 def comprar_emby(usuario):
     result = {'correcto': False, 'mensaje': ''}
     profile = Profile.objects.get(usuario=usuario)
+    usuario = User.objects.get(username=usuario)
+    servicio = EstadoServicio.objects.get(usuario=usuario.id)
+    if servicio.jc == True:
+        result['mensaje'] = 'Ya tiene el servicio activo.'
+        return result
     if profile.coins >= 100:
         profile.coins = profile.coins - 100
-        usuario = User.objects.get(username=usuario)
         emby_ip = config('EMBY_IP')
         emby_api_key = config('EMBY_API_KEY')
         url = f'{ emby_ip }/Users/New?api_key={ emby_api_key }'
@@ -250,7 +260,6 @@ def comprar_emby(usuario):
         usuarioID = resp['Id']
         if connect.status_code == 200:
             profile.save()
-            servicio = EstadoServicio.objects.get(usuario=usuario.id)
             servicio.emby = True
             servicio.emby_id = usuarioID
             servicio.emby_time = timezone.now() + timedelta(days=30)
@@ -329,14 +338,17 @@ def comprar_emby(usuario):
 def comprar_filezilla(usuario, contraseña):
     result = {'correcto': False, 'mensaje': ''}
     profile = Profile.objects.get(usuario=usuario)
+    usuario = User.objects.get(username=usuario)
+    servicio = EstadoServicio.objects.get(usuario=usuario)
+    if servicio.jc == True:
+        result['mensaje'] = 'Ya tiene el servicio activo.'
+        return result
     if profile.coins >= 50:
         profile.coins = profile.coins - 50
         activarFTP(usuario, contraseña, group='usuarios')
         profile.save()
-        servicio = EstadoServicio.objects.get(usuario=usuario)
         servicio.ftp = True
         servicio.ftp_time = timezone.now() + timedelta(days=30)
-        usuario = User.objects.get(username=usuario)
         code = crearOper(usuario.username, 'FileZilla', 50)
         #crearLog(usuario, "ActivacionLOG.txt", f'El usuario: { usuario.username } pago por FTP.')
         send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])            
