@@ -5,6 +5,9 @@ from users.models import Profile
 from .forms import EditUserForm
 from servicios.models import EstadoServicio, Oper
 from servicios.actions import *
+from sync.syncs import actualizacion_servicio
+
+from servicios.api.serializers import ServiciosSerializer
 
 def index(request):
     return render(request, 'portal/index.html')
@@ -275,5 +278,43 @@ def cambiar_auto(request, id):
         content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
         return render(request, f'portal/{ id }.html', content)
     mensaje = 'Activación automática cambiada con éxito'
+    content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+    return render(request, f'portal/{ id }.html', content)
+    
+@login_required(login_url='/users/login/')
+def sync_servicio(request, id):
+    usuario = request.user
+    perfil = Profile.objects.get(usuario=usuario)
+    servicio = EstadoServicio.objects.get(usuario=usuario)
+    if id == 'internet':
+        serializer = ServiciosSerializer(servicio)
+        data=serializer.data
+        result = actualizacion_servicio('check', usuario, id, data)
+    elif id == 'jovenclub':
+        if servicio.jc_auto:
+            servicio.jc_auto = False
+            servicio.save()
+        else:
+            servicio.jc_auto = True
+            servicio.save()
+    elif id == 'emby':
+        if servicio.emby_auto:
+            servicio.emby_auto = False
+            servicio.save()
+        else:
+            servicio.emby_auto = True
+            servicio.save()
+    elif id == 'filezilla':
+        if servicio.ftp_auto:
+            servicio.ftp_auto = False
+            servicio.save()
+        else:
+            servicio.ftp_auto = True
+            servicio.save()
+    else:
+        mensaje = 'Ocurrio algún error'
+        content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+        return render(request, f'portal/{ id }.html', content)
+    mensaje = result
     content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
     return render(request, f'portal/{ id }.html', content)

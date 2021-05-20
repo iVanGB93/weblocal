@@ -1,4 +1,3 @@
-#from django.contrib.auth.models import User
 from decouple import config
 import asyncio
 import websockets

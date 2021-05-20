@@ -50,11 +50,14 @@ class SyncWSConsumer(WebsocketConsumer):
     def check_servicio(self, data):
         correcto = True
         data = data['data']
-        servicio = data['servicio']
+        print(data)
+        servicio_chequeo = data['servicio']
         usuario_local = User.objects.get(username=data['usuario'])
         servicio = EstadoServicio.objects.filter(usuario=usuario_local)
-        if servicio == 'internet':
+        print(servicio_chequeo)
+        if servicio_chequeo == 'internet':
             for s in servicio:
+                print(s.internet)
                 if s.internet != data['servicio.internet']:
                     correcto = False
                     self.responder(correcto)
@@ -72,7 +75,7 @@ class SyncWSConsumer(WebsocketConsumer):
                     self.responder(correcto)
                 else:
                     self.responder(correcto)
-        elif servicio == 'jovenclub':
+        elif servicio_chequeo == 'jovenclub':
             pass
 
         print(data, servicio.internet)
