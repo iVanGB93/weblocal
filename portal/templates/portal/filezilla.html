@@ -39,9 +39,23 @@
                     <h5 class="col-6 card-title d-flex justify-content-start">Activación automática</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
                         {% if servicio.ftp_auto %}
-                        <span class="badge rounded-pill bg-success">Activa</span>
+                        <span class="badge rounded-pill bg-success">ON</span>
+                        <form action="{% url 'portal:auto' 'filezilla' %}" method="POST">
+                            {% csrf_token %}
+                            <button id="boton" type="submit" class="btn btn-outline-danger">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                                Desactivar
+                            </button>
+                        </form>
                         {% else %}
-                        <span class="badge rounded-pill bg-danger">No activa</span>
+                        <span class="badge rounded-pill bg-danger">OFF</span>
+                        <form action="{% url 'portal:auto' 'filezilla' %}" method="POST">
+                            {% csrf_token %}
+                            <button id="boton" type="submit" class="btn btn-outline-success">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                                Activar
+                            </button>
+                        </form>
                         {% endif %}
                     </h5>
                 </div>  

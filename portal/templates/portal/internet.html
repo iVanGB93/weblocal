@@ -43,9 +43,23 @@
                     <h5 class="col-6 card-title d-flex justify-content-start">Activación automática</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
                         {% if servicio.int_auto %}
-                        <span class="badge rounded-pill bg-success">Activa</span>
+                        <span class="badge rounded-pill bg-success">ON</span>
+                        <form action="{% url 'portal:auto' 'internet' %}" method="POST">
+                            {% csrf_token %}
+                            <button id="boton" type="submit" class="btn btn-outline-danger">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                                Desactivar
+                            </button>
+                        </form>
                         {% else %}
-                        <span class="badge rounded-pill bg-danger">No activa</span>
+                        <span class="badge rounded-pill bg-danger">OFF</span>
+                        <form action="{% url 'portal:auto' 'internet' %}" method="POST">
+                            {% csrf_token %}
+                            <button id="boton" type="submit" class="btn btn-outline-success">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                                Activar
+                            </button>
+                        </form>
                         {% endif %}
                     </h5>
                 </div>  
@@ -76,14 +90,15 @@
                 </div>   
             </div>
         </div>
+        {% if mensaje %}
+        <div class="alert alert-warning text-center" role="alert">                   
+            {{ mensaje }}                   
+        </div>               
+        {% endif %}
         {% if not servicio.internet %}
         <h4>Activar el servicio Internet:</h4>
         <form id="myform" action="{% url 'portal:internet' %}" method="post">
-            {% if mensaje %}
-                <div class="alert alert-warning text-center" role="alert">                   
-                    {{ mensaje }}                   
-                </div>               
-            {% endif %}
+            
             {% csrf_token %}
             <select class="form-select mb-3" name="tipo" aria-label="Default select example">
                 <option selected>Seleccione el tipo</option>

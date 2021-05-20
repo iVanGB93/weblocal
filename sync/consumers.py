@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 
 from django.contrib.auth.models import User
+from servicios.models import EstadoServicio
 
 class SyncWSConsumer(WebsocketConsumer):
     def connect(self):
@@ -45,6 +46,36 @@ class SyncWSConsumer(WebsocketConsumer):
         usuario_local.save()
         correcto = True
         self.responder(correcto)
+    
+    def check_servicio(self, data):
+        correcto = True
+        data = data['data']
+        servicio = data['servicio']
+        usuario_local = User.objects.get(username=data['usuario'])
+        servicio = EstadoServicio.objects.filter(usuario=usuario_local)
+        if servicio == 'internet':
+            for s in servicio:
+                if s.internet != data['servicio.internet']:
+                    correcto = False
+                    self.responder(correcto)
+                elif s.int_time != data['servicio.int_time']:
+                    correcto = False
+                    self.responder(correcto)
+                elif s.int_horas != data['servicio.int_horas']:
+                    correcto = False
+                    self.responder(correcto)
+                elif s.int_tipo != data['servicio.int_tipo']:
+                    correcto = False
+                    self.responder(correcto)
+                elif s.int_auto != data['servicio.int_auto']:
+                    correcto = False
+                    self.responder(correcto)
+                else:
+                    self.responder(correcto)
+        elif servicio == 'jovenclub':
+            pass
+
+        print(data, servicio.internet)
 
     def cambio_servicio(self, data):
         print("SERVICIO", data)
@@ -54,11 +85,13 @@ class SyncWSConsumer(WebsocketConsumer):
         'check_usuario': check_usuario,
         'nuevo_usuario': nuevo_usuario,
         'cambio_usuario': cambio_usuario,
+        'check_servicio': check_servicio,
         'cambio_servicio': cambio_servicio,
     }  
 
     def receive(self, text_data):
         data = json.loads(text_data)
+        print("LLEGO", data)
         self.commands[data['command']](self, data)
     
     def responder(self, data):

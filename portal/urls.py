@@ -1,3 +1,4 @@
+from os import name
 from django.urls import path
 from . import views
 
@@ -15,4 +16,5 @@ urlpatterns = [
     path('recarga', views.recarga, name='recarga'),
     path('transferencia', views.transferencia, name='transferencia'),
     path('operaciones', views.operaciones, name='operaciones'),
+    path('cambiar-auto/<str:id>', views.cambiar_auto, name="auto"),
 ]
