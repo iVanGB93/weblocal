@@ -25,6 +25,19 @@
                 </div>
                 <hr class="dropdown-divider" />
                 <div class="row my-1">
+                    <h5 class="col-6 card-title d-flex justify-content-start">Sincronizada:</h5>
+                    <h5 class="col-6 card-title d-flex justify-content-end">
+                        <form action="{% url 'portal:sync_servicio' 'filezilla' %}" method="POST">
+                            {% csrf_token %}
+                            <button id="boton" type="submit" class="btn btn-outline-info">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                                Sincronizar
+                            </button>
+                        </form>
+                    </h5>
+                </div>
+                <hr class="dropdown-divider" />
+                <div class="row my-1">
                     <h5 class="col-6 card-title d-flex justify-content-start">Restante</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
                         {% if servicio.ftp_time %}

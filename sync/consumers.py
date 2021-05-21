@@ -63,10 +63,7 @@ class SyncWSConsumer(WebsocketConsumer):
             for s in servicio:
                 if s.internet != data['internet']:
                     correcto = False
-                    self.responder(correcto)
-                elif s.int_time != data['int_time']:
-                    correcto = False
-                    self.responder(correcto)
+                    self.responder(correcto)                
                 elif s.int_horas != data['int_horas']:
                     correcto = False
                     self.responder(correcto)
@@ -79,7 +76,38 @@ class SyncWSConsumer(WebsocketConsumer):
                 else:
                     self.responder(correcto)
         elif servicio_chequeo == 'jovenclub':
-            pass
+            for s in servicio:
+                if s.jc != data['jc']:
+                    correcto = False
+                    self.responder(correcto)                
+                elif s.jc_auto != data['jc_auto']:
+                    correcto = False
+                    self.responder(correcto)
+                else:
+                    self.responder(correcto)
+        elif servicio_chequeo == 'emby':
+            for s in servicio:
+                if s.emby != data['emby']:
+                    correcto = False
+                    self.responder(correcto)                
+                elif s.emby_id != data['emby_id']:
+                    correcto = False
+                    self.responder(correcto)
+                elif s.emby_auto != data['emby_auto']:
+                    correcto = False
+                    self.responder(correcto)
+                else:
+                    self.responder(correcto)
+        elif servicio_chequeo == 'filezilla':
+            for s in servicio:
+                if s.ftp != data['ftp']:
+                    correcto = False
+                    self.responder(correcto)               
+                elif s.ftp_auto != data['ftp_auto']:
+                    correcto = False
+                    self.responder(correcto)
+                else:
+                    self.responder(correcto)
 
     def cambio_servicio(self, data):
         print("SERVICIO", data)
