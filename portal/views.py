@@ -114,7 +114,6 @@ def jovenclub(request):
                 servicio = EstadoServicio.objects.get(usuario=usuario)
                 serializer = ServiciosSerializer(servicio)
                 data=serializer.data
-                print(data)
                 sync = actualizacion_servicio('cambio', usuario, 'jovenclub', data)
                 if sync:
                     print("SE ACTUALIZO EL SERVICIO")
@@ -295,14 +294,31 @@ def sync_servicio(request, id):
     perfil = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
     serializer = ServiciosSerializer(servicio)
-    data=serializer.data    
-    result = actualizacion_servicio('check', usuario, id, data)
-    if result:
-        mensaje = 'Sincronización realizada con éxito'
-        content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-        return render(request, f'portal/{ id }.html', content)
+    data=serializer.data
+    if servicio.sync:
+        result = actualizacion_servicio('check', usuario, id, data)
+        if result:
+            servicio.sync = True
+            servicio.save()
+            servicio = EstadoServicio.objects.get(usuario=usuario)
+            mensaje = 'Sincronización realizada con éxito'
+            content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+            return render(request, f'portal/{ id }.html', content)
+        else:
+            mensaje = 'Ocurrio algún error'
+            content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+            return render(request, f'portal/{ id }.html', content)
     else:
-        mensaje = 'Ocurrio algún error'
-        content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-        return render(request, f'portal/{ id }.html', content)
+        result = actualizacion_servicio('cambio', usuario, id, data)
+        if result:
+            servicio.sync = True
+            servicio.save()
+            servicio = EstadoServicio.objects.get(usuario=usuario)
+            mensaje = 'Sincronización realizada con éxito'
+            content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+            return render(request, f'portal/{ id }.html', content)
+        else:
+            mensaje = 'Ocurrio algún error'
+            content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+            return render(request, f'portal/{ id }.html', content)
     

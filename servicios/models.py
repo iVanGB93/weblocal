@@ -25,6 +25,7 @@ class Oper(models.Model):
     code = models.CharField(max_length=10, default=generarHash, unique=True)
     tipo = models.CharField(max_length=10, choices=opcionesTipo)
     haciaDesde = models.CharField(max_length=150, null=True, blank=True)
+    sync = models.BooleanField(default=False)
 
     def __str__(self):
         return self.tipo + self.usuario.username + str(self.cantidad)
@@ -37,6 +38,7 @@ def codigoRecarga():
             break
     return code
 
+
 class Recarga(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     code = models.CharField(max_length=10, default=codigoRecarga, unique=True)
@@ -44,6 +46,7 @@ class Recarga(models.Model):
     fechaHecha = models.DateTimeField(default=timezone.now)
     activa = models.BooleanField(default=True)
     fechaUso = models.DateTimeField(blank=True, null=True)
+    sync = models.BooleanField(default=False)
 
     def __str__(self):
         return self.code + " de " + str(self.cantidad) + " coins"
@@ -66,6 +69,7 @@ class EstadoServicio(models.Model):
     ftp = models.BooleanField(default=False)
     ftp_time = models.DateTimeField(null=True, blank=True)
     ftp_auto = models.BooleanField(default=False)
+    sync = models.BooleanField(default=False)
 
     def __str__(self):
         return (f'Servicios de: {self.usuario.username}')
