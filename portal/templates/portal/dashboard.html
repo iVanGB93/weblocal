@@ -138,13 +138,13 @@
     </div>
 </div>
 <div class="container col-11 m-auto p-3">
+    {% if mensaje %}
+    <div class="alert alert-warning text-center" role="alert">                   
+        {{ mensaje }}                   
+    </div>               
+    {% endif %}
     <div class="card">
-        <h5 class="card-header">Mis datos:</h5>
-        {% if mensaje %}
-        <div class="alert alert-warning text-center" role="alert">                   
-            {{ mensaje }}                   
-        </div>               
-        {% endif %}
+        <h5 class="card-header">Mis datos:</h5>        
         <div class="card-body">
             <h5 class="card-title">Mis coins:</h5>
             <p class="card-text d-flex justify-content-end">{{ perfil.coins }}</p>

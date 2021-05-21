@@ -319,15 +319,15 @@ def sync_servicio(request, id):
             return render(request, f'portal/{ id }.html', content)
 
 @login_required(login_url='/users/login/')
-def guardar_servicio(request, id):
+def guardar_servicio(request):
     usuario = request.user
     perfil = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
     serializer = ServiciosSerializer(servicio)
     data=serializer.data
-    result = actualizacion_servicio('guardar', usuario, data)
+    result = actualizacion_servicio('guardar', usuario, 'servicio', data)
     if result:
         servicio = EstadoServicio.objects.get(usuario=usuario)
         mensaje = 'Sincronización realizada con éxito'
         content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-        return render(request, f'portal/{ id }.html', content) 
+        return render(request, f'portal/dashboard.html', content) 
