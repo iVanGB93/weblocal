@@ -311,10 +311,12 @@ def sync_servicio(request, id):
         else:
             servicio.ftp_auto = True
             servicio.save()
+    if result:
+        mensaje = 'Sincronización realizada con éxito'
+        content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+        return render(request, f'portal/{ id }.html', content)
     else:
         mensaje = 'Ocurrio algún error'
         content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
         return render(request, f'portal/{ id }.html', content)
-    mensaje = result
-    content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-    return render(request, f'portal/{ id }.html', content)
+    

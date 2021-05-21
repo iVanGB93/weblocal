@@ -9,8 +9,14 @@ from servicios.models import EstadoServicio
 
 class SyncWSConsumer(WebsocketConsumer):
     def connect(self):
-        print("CLIENTE CONECTADO")
+        #self.room_name
         self.accept()
+        """ usuario = self.scope['user']
+        if usuario.is_authenticated:
+            print(f"CLIENTE { usuario } CONECTADO")
+            
+        else:
+            print("CONEXION DENEGADA") """
     
     def disconnect(self, close_code):
         print("CLIENTE DESCONECTADO", close_code)
@@ -50,35 +56,30 @@ class SyncWSConsumer(WebsocketConsumer):
     def check_servicio(self, data):
         correcto = True
         data = data['data']
-        print(data)
         servicio_chequeo = data['servicio']
         usuario_local = User.objects.get(username=data['usuario'])
         servicio = EstadoServicio.objects.filter(usuario=usuario_local)
-        print(servicio_chequeo)
         if servicio_chequeo == 'internet':
             for s in servicio:
-                print(s.internet)
-                if s.internet != data['servicio.internet']:
+                if s.internet != data['internet']:
                     correcto = False
                     self.responder(correcto)
-                elif s.int_time != data['servicio.int_time']:
+                elif s.int_time != data['int_time']:
                     correcto = False
                     self.responder(correcto)
-                elif s.int_horas != data['servicio.int_horas']:
+                elif s.int_horas != data['int_horas']:
                     correcto = False
                     self.responder(correcto)
-                elif s.int_tipo != data['servicio.int_tipo']:
+                elif s.int_tipo != data['int_tipo']:
                     correcto = False
                     self.responder(correcto)
-                elif s.int_auto != data['servicio.int_auto']:
+                elif s.int_auto != data['int_auto']:
                     correcto = False
                     self.responder(correcto)
                 else:
                     self.responder(correcto)
         elif servicio_chequeo == 'jovenclub':
             pass
-
-        print(data, servicio.internet)
 
     def cambio_servicio(self, data):
         print("SERVICIO", data)
@@ -94,7 +95,6 @@ class SyncWSConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         data = json.loads(text_data)
-        print("LLEGO", data)
         self.commands[data['command']](self, data)
     
     def responder(self, data):

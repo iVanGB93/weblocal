@@ -5,6 +5,7 @@ import json
 
 
 medula = config('MEDULA')
+medula = 'ws:172.16.0.11/ws/sync/'
 
 def actualizacion_usuario(method, usuario, email=None, password=None, data=None):
     if method == 'check':
@@ -54,5 +55,8 @@ async def conectar(url, command, data):
         print("NADA QUE DECIR")
 
 
-#data={'servicio.internet': 'True', 'servicio.int_auto': 'False'}
-#print(actualizacion_servicio('check', 'iVan', 'internet', data))
+data={'id': 1, 'internet': False, 'int_time': None, 'int_horas': 5, 'int_tipo': 'internetMensual',
+ 'int_auto': True, 'emby': False, 'emby_time': None, 'emby_id': None, 'emby_auto': False, 'jc': False, 
+ 'jc_time': '2021-06-15T15:45:31-04:00', 'jc_auto': True, 'ftp': False, 'ftp_time': '2021-06-14T16:53:36-04:00', 
+ 'ftp_auto': False, 'usuario': 'iVan', 'servicio': 'internet'}
+print(actualizacion_servicio('check', 'iVan', 'internet', data))
