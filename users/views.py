@@ -43,11 +43,11 @@ def register(request):
             error = "Nombre de usuario en uso."
             content = {'error': error, 'form': form}
             return render(request, 'users/register.html', content)
-        if actualizacion_usuario('check', username):
-            form = RegisterForm()
-            error = "Nombre de usuario en uso."
-            content = {'error': error, 'form': form}
-            return render(request, 'users/register.html', content)
+        #if actualizacion_usuario('check', username):
+        #    form = RegisterForm()
+        #    error = "Nombre de usuario en uso."
+        #    content = {'error': error, 'form': form}
+        #    return render(request, 'users/register.html', content)
         else:
             email = request.POST['email']
             if User.objects.filter(email=email).exists():
