@@ -6,7 +6,7 @@ import json
 
 medula = config('MEDULA')
 
-def actualizacion_usuario(method, usuario, email=None, password=None, data=None):
+async def actualizacion_usuario(method, usuario, email=None, password=None, data=None):
     if method == 'check':
         print("CHECKING")
         data = {'usuario': usuario}
@@ -24,7 +24,7 @@ def actualizacion_usuario(method, usuario, email=None, password=None, data=None)
     else:
         print("ALGO MAS")
 
-def actualizacion_servicio(method, usuario, servicio, data):
+async def actualizacion_servicio(method, usuario, servicio, data):
     if method == 'check':
         print("CHECKING")
         data['usuario'] = usuario
@@ -39,6 +39,7 @@ def actualizacion_servicio(method, usuario, servicio, data):
         return recibe
     
 async def conectar(url, command, data):
+    recibe = False
     try:
         async with websockets.connect(url) as ws:
             envia = json.dumps({'command': command, 'data': data})
@@ -48,11 +49,10 @@ async def conectar(url, command, data):
             return recibe
     except ConnectionRefusedError:
         print("EL SERVIDOR DENEGO LA CONEXION")
+        return recibe
     except OSError:
         print("IP INALCANZABLE", OSError)
+        return recibe
     except:
-        print("NADA QUE DECIR")
-
-
-#data={'servicio.internet': 'True', 'servicio.int_auto': 'False'}
-#print(actualizacion_servicio('check', 'iVan', 'internet', data))
+        print("NADA QUE DECIR, SOLO PROBLEMAS")
+        return recibe

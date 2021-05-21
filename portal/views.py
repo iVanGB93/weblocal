@@ -111,6 +111,11 @@ def jovenclub(request):
         if usuario.check_password(contra):
             result = comprar_jc(usuario)
             if result['correcto']:
+                servicio = EstadoServicio.objects.get(usuario=usuario)
+                serializer = ServiciosSerializer(servicio)
+                data=serializer.data 
+                if actualizacion_servicio('cambio', usuario, 'jovenclub', data):
+                    print("SE ACTUALIZO EL SERVICIO")
                 mensaje = result['mensaje']
                 content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
                 return render(request, 'portal/jovenclub.html', content)
@@ -187,6 +192,7 @@ def recarga(request):
             result = recargar(code, usuario)
             if result['correcto']:
                 mensaje = result['mensaje']
+                perfil = Profile.objects.get(usuario=usuario)
                 content = {'mensaje': mensaje, 'perfil': perfil}
                 return render(request, 'portal/recarga.html', content)
             else:

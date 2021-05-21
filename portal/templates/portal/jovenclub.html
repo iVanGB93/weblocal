@@ -78,6 +78,11 @@
 </div>
 <div class="row my-1">
     <div class="col-10 col-md-8 m-auto text-center">
+        {% if mensaje %}
+        <div class="alert alert-warning text-center my-2" role="alert">                   
+            {{ mensaje }}                   
+        </div>               
+        {% endif %}
         <div class="card my-3">
             <div class="card-header">
                 Costo:
@@ -88,15 +93,10 @@
                     <h5 class="col-6 card-title d-flex justify-content-end">100 coins</h5>
                 </div>      
             </div>
-        </div>
+        </div>        
         {% if not servicio.jc %}
         <h4>Activar el servicio Joven Club:</h4>
-        <form id="myform" action="{% url 'portal:jovenclub' %}" method="post">
-            {% if mensaje %}
-                <div class="alert alert-warning text-center" role="alert">                   
-                    {{ mensaje }}                   
-                </div>               
-            {% endif %}
+        <form id="myform" action="{% url 'portal:jovenclub' %}" method="post">            
             {% csrf_token %}
             <div class="input-group mb-3">
                 <span class="col-5 col-md-4 input-group-text" id="inputGroup-sizing-default">Contraseña</span>

@@ -82,6 +82,11 @@
 </div>
 <div class="row my-1">
     <div class="col-10 col-md-8 m-auto text-center">
+        {% if mensaje %}
+        <div class="alert alert-warning text-center my-2" role="alert">                   
+            {{ mensaje }}                   
+        </div>               
+        {% endif %}
         <div class="card my-3">
             <div class="card-header">
                 Costo:
@@ -102,12 +107,7 @@
                     <h5 class="col-6 card-title d-flex justify-content-end">10 coins X hora</h5>
                 </div>   
             </div>
-        </div>
-        {% if mensaje %}
-        <div class="alert alert-warning text-center" role="alert">                   
-            {{ mensaje }}                   
-        </div>               
-        {% endif %}
+        </div>        
         {% if not servicio.internet %}
         <h4>Activar el servicio Internet:</h4>
         <form id="myform" action="{% url 'portal:internet' %}" method="post">

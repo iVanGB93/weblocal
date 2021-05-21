@@ -1,3 +1,4 @@
+from re import T
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
@@ -110,8 +111,46 @@ class SyncWSConsumer(WebsocketConsumer):
                     self.responder(correcto)
 
     def cambio_servicio(self, data):
-        print("SERVICIO", data)
-
+        correcto = False
+        data = data['data']
+        servicio_cambio = data['servicio']
+        usuario_local = User.objects.get(username=data['usuario'])
+        servicio = EstadoServicio.objects.filter(usuario=usuario_local)
+        if servicio_cambio == 'internet':
+            for s in servicio:
+                s.internet = data['internet']                                   
+                s.int_horas = data['int_horas']                  
+                s.int_tipo = data['int_tipo']
+                s.int_time = data['int_time']                   
+                s.int_auto = data['int_auto']
+                s.save()
+            correcto = True
+            self.responder(correcto)
+        elif servicio_cambio == 'jovenclub':
+            for s in servicio:
+                s.jc = data['jc']                                   
+                s.jc_time = data['jc_time']                   
+                s.jc_auto = data['jc_auto']
+                s.save()
+            correcto = True
+            self.responder(correcto)
+        elif servicio_cambio == 'emby':
+            for s in servicio:
+                s.emby = data['emby']                                   
+                s.emby_time = data['emby_time']                   
+                s.emby_id = data['emby_id']                   
+                s.emby_auto = data['emby_auto']
+                s.save()
+            correcto = True
+            self.responder(correcto)
+        elif servicio_cambio == 'filezilla':
+            for s in servicio:
+                s.ftp = data['ftp']                                   
+                s.ftp_time = data['ftp_time']                   
+                s.ftp_auto = data['ftp_auto']
+                s.save()
+            correcto = True
+            self.responder(correcto)
 
     commands = {
         'check_usuario': check_usuario,
