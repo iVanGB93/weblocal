@@ -29,7 +29,7 @@
                     <h5 class="col-6 card-title d-flex justify-content-end">
                         {% if servicio.sync %}
                         <span class="badge rounded-pill bg-success">OK</span>
-                        <form id="myform_sync" action="{% url 'portal:sync_servicio' 'internet' %}" method="POST">
+                        <form id="myform_sync" action="{% url 'portal:sync_servicio' 'filezilla' %}" method="POST">
                             {% csrf_token %}
                             <button id="boton_sync" type="submit" class="btn btn-outline-info">
                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner_sync" style='display: none'></span>

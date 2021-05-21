@@ -1,0 +1,30 @@
+{% extends "portal/basePortal.html" %}
+{% load static %}
+{% block contenido %}
+<div class="row my-1">    
+    <div class="col-10 col-md-8 m-auto">
+        <div class="card">
+            <div class="card-header">
+                Sincronizar - {{ user }}
+            </div>
+            <div class="card-body">
+                Seguro
+                <form id="myform_sync" action="{% url 'portal:guardar_servicio' {{ id }} %}" method="POST">
+                    {% csrf_token %}
+                    <button id="boton_sync" type="submit" class="btn btn-outline-info">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner_sync" style='display: none'></span>
+                        Sincronizar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const myform_sync = document.getElementById("myform_sync");
+    myform_sync.addEventListener("submit", (e) => {       
+        document.getElementById('spinner_sync').style.display = 'inline-block';
+        document.getElementById('boton_sync').disabled=true;
+    });
+</script>
+{% endblock contenido %}

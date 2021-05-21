@@ -56,6 +56,62 @@ class SyncWSConsumer(WebsocketConsumer):
     
     def check_servicio(self, data):
         correcto = True
+        data = data['data']
+        servicio_chequeo = data['servicio']
+        usuario_local = User.objects.get(username=data['usuario'])
+        servicio = EstadoServicio.objects.filter(usuario=usuario_local)
+        if servicio_chequeo == 'internet':
+            for s in servicio:
+                if s.internet != data['internet']:
+                    correcto = False
+                    self.responder(correcto)                
+                elif s.int_horas != data['int_horas']:
+                    correcto = False
+                    self.responder(correcto)
+                elif s.int_tipo != data['int_tipo']:
+                    correcto = False
+                    self.responder(correcto)
+                elif s.int_auto != data['int_auto']:
+                    correcto = False
+                    self.responder(correcto)
+                else:
+                    self.responder(correcto)
+        elif servicio_chequeo == 'jovenclub':
+            for s in servicio:
+                if s.jc != data['jc']:
+                    correcto = False
+                    self.responder(correcto)                
+                elif s.jc_auto != data['jc_auto']:
+                    correcto = False
+                    self.responder(correcto)
+                else:
+                    self.responder(correcto)
+        elif servicio_chequeo == 'emby':
+            for s in servicio:
+                if s.emby != data['emby']:
+                    correcto = False
+                    self.responder(correcto)                
+                elif s.emby_id != data['emby_id']:
+                    correcto = False
+                    self.responder(correcto)
+                elif s.emby_auto != data['emby_auto']:
+                    correcto = False
+                    self.responder(correcto)
+                else:
+                    self.responder(correcto)
+        elif servicio_chequeo == 'filezilla':
+            for s in servicio:
+                if s.ftp != data['ftp']:
+                    correcto = False
+                    self.responder(correcto)               
+                elif s.ftp_auto != data['ftp_auto']:
+                    correcto = False
+                    self.responder(correcto)
+                else:
+                    self.responder(correcto)
+
+    def guardar_servicio(self, data):
+        correcto = True
         data = data['data']        
         usuario_local = User.objects.get(username=data['usuario'])
         servicio = EstadoServicio.objects.filter(usuario=usuario_local)
@@ -126,6 +182,7 @@ class SyncWSConsumer(WebsocketConsumer):
         'nuevo_usuario': nuevo_usuario,
         'cambio_usuario': cambio_usuario,
         'check_servicio': check_servicio,
+        'guardar_servicio': guardar_servicio,
         'cambio_servicio': cambio_servicio,
     }  
 

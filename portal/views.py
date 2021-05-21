@@ -298,16 +298,12 @@ def sync_servicio(request, id):
     if servicio.sync:
         result = actualizacion_servicio('check', usuario, id, data)
         if result:
-            servicio.sync = True
-            servicio.save()
-            servicio = EstadoServicio.objects.get(usuario=usuario)
-            mensaje = 'Sincronización realizada con éxito'
+            mensaje = 'Su cuenta esta sincronizada'
             content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
             return render(request, f'portal/{ id }.html', content)
         else:
-            mensaje = 'Ocurrio algún error'
-            content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-            return render(request, f'portal/{ id }.html', content)
+            content = {'id': id}
+            return render(request, 'portal/sync.html', content)
     else:
         result = actualizacion_servicio('cambio', usuario, id, data)
         if result:
@@ -321,4 +317,17 @@ def sync_servicio(request, id):
             mensaje = 'Ocurrio algún error'
             content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
             return render(request, f'portal/{ id }.html', content)
-    
+
+@login_required(login_url='/users/login/')
+def guardar_servicio(request, id):
+    usuario = request.user
+    perfil = Profile.objects.get(usuario=usuario)
+    servicio = EstadoServicio.objects.get(usuario=usuario)
+    serializer = ServiciosSerializer(servicio)
+    data=serializer.data
+    result = actualizacion_servicio('guardar', usuario, data)
+    if result:
+        servicio = EstadoServicio.objects.get(usuario=usuario)
+        mensaje = 'Sincronización realizada con éxito'
+        content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+        return render(request, f'portal/{ id }.html', content) 

@@ -18,4 +18,5 @@ urlpatterns = [
     path('operaciones', views.operaciones, name='operaciones'),
     path('cambiar-auto/<str:id>', views.cambiar_auto, name="auto"),
     path('sincronizar/<str:id>', views.sync_servicio, name="sync_servicio"),
+    path('guardar-servicio/<str:id>', views.guardar_servicio, name="guardar_servicio"),
 ]

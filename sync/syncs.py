@@ -49,6 +49,12 @@ def actualizacion_servicio(method, usuario, servicio, data):
         data['servicio'] = servicio
         recibe = get_or_create_eventloop().run_until_complete(conectar(medula, 'cambio_servicio', data))
         return recibe
+    if method == 'guardar':
+        print("GUARDANDO")
+        usuario = str(usuario)
+        data['usuario'] = usuario
+        recibe = get_or_create_eventloop().run_until_complete(conectar(medula, 'guardar_servicio', data))
+        return recibe
     
 async def conectar(url, command, data):
     recibe = False
