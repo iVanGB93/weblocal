@@ -27,10 +27,10 @@
                 <div class="row my-1">
                     <h5 class="col-6 card-title d-flex justify-content-start">Sincronizada:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        <form action="{% url 'portal:sync_servicio' 'emby' %}" method="POST">
+                        <form id="myform_sync" action="{% url 'portal:sync_servicio' 'emby' %}" method="POST">
                             {% csrf_token %}
-                            <button id="boton" type="submit" class="btn btn-outline-info">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                            <button id="boton_sync" type="submit" class="btn btn-outline-info">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner_sync" style='display: none'></span>
                                 Sincronizar
                             </button>
                         </form>
@@ -53,10 +53,10 @@
                     <h5 class="col-6 card-title d-flex justify-content-end">
                         {% if servicio.emby_auto %}
                         <span class="badge rounded-pill bg-success">ON</span>
-                        <form action="{% url 'portal:auto' 'emby' %}" method="POST">
+                        <form id="myform_auto" action="{% url 'portal:auto' 'emby' %}" method="POST">
                             {% csrf_token %}
-                            <button id="boton" type="submit" class="btn btn-outline-danger">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                            <button id="boton_auto" type="submit" class="btn btn-outline-danger">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner_auto" style='display: none'></span>
                                 Desactivar
                             </button>
                         </form>
@@ -131,6 +131,16 @@
     myform.addEventListener("submit", (e) => {       
         document.getElementById('spinner').style.display = 'inline-block';
         document.getElementById('boton').disabled=true;
+    });
+    const myform_sync = document.getElementById("myform_sync");
+    myform_sync.addEventListener("submit", (e) => {       
+        document.getElementById('spinner_sync').style.display = 'inline-block';
+        document.getElementById('boton_sync').disabled=true;
+    });
+    const myform_auto = document.getElementById("myform_auto");
+    myform_auto.addEventListener("submit", (e) => {       
+        document.getElementById('spinner_auto').style.display = 'inline-block';
+        document.getElementById('boton_auto').disabled=true;
     });
 </script>
 {% endblock contenido %}

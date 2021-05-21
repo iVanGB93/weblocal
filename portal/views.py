@@ -113,8 +113,10 @@ def jovenclub(request):
             if result['correcto']:
                 servicio = EstadoServicio.objects.get(usuario=usuario)
                 serializer = ServiciosSerializer(servicio)
-                data=serializer.data 
-                if actualizacion_servicio('cambio', usuario, 'jovenclub', data):
+                data=serializer.data
+                print(data)
+                sync = actualizacion_servicio('cambio', usuario, 'jovenclub', data)
+                if sync:
                     print("SE ACTUALIZO EL SERVICIO")
                 mensaje = result['mensaje']
                 content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}

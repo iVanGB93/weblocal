@@ -4,7 +4,9 @@ import websockets
 import json
 
 
-medula = config('MEDULA')
+#medula = config('MEDULA')
+medula = 'ws://172.16.0.11:8000/ws/sync/'
+
 
 async def actualizacion_usuario(method, usuario, email=None, password=None, data=None):
     if method == 'check':

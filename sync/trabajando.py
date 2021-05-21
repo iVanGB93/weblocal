@@ -5,7 +5,7 @@ import json
 
 
 medula = config('MEDULA')
-medula = 'ws://127.0.0.1:8000/ws/sync/'
+medula = 'ws://172.16.0.11:8000/ws/sync/'
 
 def actualizacion_usuario(method, usuario, email=None, password=None, data=None):
     if method == 'check':
@@ -54,8 +54,6 @@ async def conectar(url, command, data):
     except:
         print("NADA QUE DECIR")
 
-data={'id': 1, 'internet': True, 'int_time': None, 'int_horas': 5, 'int_tipo': 'internetMensual',
- 'int_auto': True, 'emby': False, 'emby_time': None, 'emby_id': None, 'emby_auto': False, 'jc': False, 
- 'jc_time': '2021-06-15 19:45:31+00:00', 'jc_auto': True, 'ftp': True, 'ftp_time': '2021-06-14T16:53:36-04:00', 
- 'ftp_auto': True}
-print(actualizacion_servicio('check', 'iVan', 'filezilla', data))
+data={'id': 1, 'internet': True, 'int_time': None, 'int_horas': 5, 'int_tipo': 'internetMensual', 'int_auto': True, 'emby': False, 'emby_time': None, 'emby_id': None, 'emby_auto': False, 'jc': True, 'jc_time': '2021-06-20T01:43:05.002000-04:00', 'jc_auto': True, 
+'ftp': False, 'ftp_time': '2021-06-14T16:53:36-04:00', 'ftp_auto': True, 'usuario': 1}
+print(actualizacion_servicio('cambio', 'iVan', 'jovenclub', data))
