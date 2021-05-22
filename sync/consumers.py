@@ -36,8 +36,7 @@ class SyncWSConsumer(WebsocketConsumer):
         existe = False
         if User.objects.filter(username=data['data']['usuario']).exists():
             existe = True
-            envia = {'command': 'respuesta', 'data': existe}
-            self.responder(envia)
+            self.responder(existe)
         else:
             self.responder(existe)
 

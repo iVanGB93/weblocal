@@ -7,7 +7,7 @@ import websocket
 
 
 medula = config('MEDULA')
-medula = 'ws://172.16.0.11/ws/sync/'
+medula = 'ws://127.0.0.1:8000/ws/sync/'
 
 def get_or_create_eventloop():
     try:
@@ -106,3 +106,5 @@ websocket.setdefaulttimeout(5)
 ws = websocket.WebSocketApp(medula, on_open=on_open, on_message=on_message, on_error=on_error, on_close=on_close)
 
 ws.run_forever()
+
+print("SIGUIO EL CODIGO")

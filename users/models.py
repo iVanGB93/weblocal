@@ -27,6 +27,7 @@ class Profile(models.Model):
     coins = models.IntegerField(default=0)    
     imagen = models.ImageField(_("Image"), upload_to=upload_to, default='usuario/default.jpg')
     notificaciones = models.ManyToManyField(Notificacion)
+    sync = models.BooleanField(default=False)
 
     def __str__(self):
         return self.usuario.username

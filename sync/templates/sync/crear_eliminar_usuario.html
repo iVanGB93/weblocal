@@ -1,0 +1,26 @@
+{% extends 'web/base.html' %}
+{% load static %}
+{% block title %}
+- Control, confirmar
+{% endblock title %}
+{% block content %}
+<div class="container text-center">
+    {% if mensaje %}
+        <div class="alert alert-warning text-center my-2" role="alert">                   
+            {{ mensaje }}                   
+        </div>               
+    {% endif %}
+    <div class="m-1">
+        <h5>Desea eliminar el usuario de la local o crearlo en internet?</h5>
+        <h6>Usuario: {{ usuario }}</h6>
+        <form action="{% url 'sync:crear_eliminar' id %}" method="POST">
+            {% csrf_token%}
+            <button class="form-control btn btn-success" name="respuesta" value="crear" type="submit">Crear</button>
+        </form>
+        <form action="{% url 'sync:crear_eliminar' id %}" method="POST">
+            {% csrf_token%}
+            <button class="form-control btn btn-danger" name="respuesta" value="eliminar" type="submit">Eliminar</button>
+        </form>
+    </div>            
+</div>
+{% endblock content %}
