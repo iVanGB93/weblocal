@@ -3,6 +3,7 @@ import asyncio
 import websockets
 import json
 
+import websocket
 
 #medula = config('MEDULA')
 medula = 'ws://172.16.0.11:8000/ws/sync/'
@@ -16,7 +17,7 @@ def get_or_create_eventloop():
             asyncio.set_event_loop(loop)
             return asyncio.get_event_loop()
 
-async def actualizacion_usuario(method, usuario, email=None, password=None, data=None):
+def actualizacion_usuario(method, usuario, email=None, password=None, data=None):
     if method == 'check':
         print("CHECKING")
         data = {'usuario': usuario}
@@ -74,3 +75,41 @@ async def conectar(url, command, data):
     except:
         print("NADA QUE DECIR, SOLO PROBLEMAS")
         return recibe
+
+
+def saludo(data):
+    data = data['data']
+    mensaje = data['mensaje']
+    print(mensaje)
+
+def respuesta(data):
+    data = data['data']
+    respuesta = data['existe']
+    print(respuesta)
+
+commands = {
+        'saludo': saludo,
+        'respuesta': respuesta,
+    } 
+
+def on_open(ws):
+    print("SE CONECTO EL WS")
+    command = 'saludo'
+    data = {'identidad': 'cel1'}
+    envia = json.dumps({'command': command, 'data': data})
+    ws.send(envia)
+
+def on_message(ws, data):
+    data = json.loads(data)
+    commands[data['command']](data)
+
+def on_error(ws, error):
+    print ("Se produjo un error: ", error)
+
+def on_close(ws):
+    print("SE CERRO EL WS")
+
+websocket.setdefaulttimeout(5)
+ws = websocket.WebSocketApp(medula, on_open=on_open, on_message=on_message, on_error=on_error, on_close=on_close)
+
+ws.run_forever()

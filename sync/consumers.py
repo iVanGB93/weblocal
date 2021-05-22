@@ -23,11 +23,21 @@ class SyncWSConsumer(WebsocketConsumer):
         print("CLIENTE DESCONECTADO", close_code)
         pass
 
+    def saludo(self, data):
+        data = data['data']
+        celula = data['identidad']
+        print(f'{ celula } se ha conectado')
+        command = 'saludo'
+        data = {'mensaje': f'bienvenido {celula}, ya esta conectado'}
+        envia = {'command': command, 'data': data}
+        self.responder(envia)
+
     def check_usuario(self, data):
         existe = False
         if User.objects.filter(username=data['data']['usuario']).exists():
             existe = True
-            self.responder(existe)
+            envia = {'command': 'respuesta', 'data': existe}
+            self.responder(envia)
         else:
             self.responder(existe)
 
@@ -178,6 +188,7 @@ class SyncWSConsumer(WebsocketConsumer):
             self.responder(correcto)
 
     commands = {
+        'saludo': saludo,
         'check_usuario': check_usuario,
         'nuevo_usuario': nuevo_usuario,
         'cambio_usuario': cambio_usuario,
