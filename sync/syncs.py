@@ -5,7 +5,7 @@ import json
 
 
 #medula = config('MEDULA')
-medula = 'ws://172.16.0.11:8000/ws/sync/'
+medula = 'ws://127.0.0.1:8080/ws/sync/'
 
 def get_or_create_eventloop():
     try:
@@ -32,7 +32,21 @@ def actualizacion_usuario(method, usuario, email=None, password=None, data=None)
         recibe = get_or_create_eventloop().run_until_complete(conectar(medula, 'cambio_usuario', data))
         return recibe
     else:
-        print("ALGO MAS")
+        print("ALGO MAL ACTUALIZACION")
+
+def actualizacion_perfil(method, usuario, data):
+    if method == 'check':
+        print("CHECKING")
+        data['usuario'] = usuario
+        recibe = get_or_create_eventloop().run_until_complete(conectar(medula, 'check_perfil', data))
+        return recibe
+    if method == 'cambio':
+        print("MODIFICANDO")
+        data['usuario'] = usuario
+        recibe = get_or_create_eventloop().run_until_complete(conectar(medula, 'cambio_perfil', data))
+        return recibe
+    else:
+        print("ALGO MAL ACTUALIZACION")
 
 def actualizacion_servicio(method, usuario, servicio, data):
     if method == 'check':
@@ -55,22 +69,30 @@ def actualizacion_servicio(method, usuario, servicio, data):
         data['usuario'] = usuario
         recibe = get_or_create_eventloop().run_until_complete(conectar(medula, 'guardar_servicio', data))
         return recibe
-    
+    else:
+        print("ALGO MAL ACTUALIZACION")
+
 async def conectar(url, command, data):
-    recibe = False
+    respuesta = {'conexion': False, 'estado': False}
     try:
         async with websockets.connect(url) as ws:
             envia = json.dumps({'command': command, 'data': data})
             await ws.send(envia)
             recibe = await ws.recv()
             recibe = json.loads(recibe)
-            return recibe
+            respuesta['estado'] = recibe['estado']
+            respuesta['mensaje'] = recibe['mensaje']
+            respuesta['conexion'] = True
+            return respuesta
     except ConnectionRefusedError:
         print("EL SERVIDOR DENEGO LA CONEXION")
-        return recibe
+        respuesta['mensaje'] = 'EL SERVIDOR DENEGO LA CONEXION'
+        return respuesta
     except OSError:
         print("IP INALCANZABLE", OSError)
-        return recibe
+        respuesta['mensaje'] = f'IP INALCANZABLE { OSError }'
+        return respuesta
     except:
         print("NADA QUE DECIR, SOLO PROBLEMAS")
-        return recibe
+        respuesta['mensaje'] = 'NADA QUE DECIR, SOLO PROBLEMAS'
+        return respuesta

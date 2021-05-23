@@ -11,15 +11,15 @@
         </div>               
     {% endif %}
     <div class="m-1">
-        <h5>Desea eliminar el usuario de la local o crearlo en internet?</h5>
+        <h5>El perfil de internet no coincide con el local, desea guardar este o el de internet?</h5>
         <h6>Usuario: {{ usuario }}</h6>
-        <form action="{% url 'sync:crear_eliminar_usuario' id %}" method="POST">
+        <form action="{% url 'sync:actualizar_perfil' id %}" method="POST">
             {% csrf_token%}
-            <button class="form-control btn btn-success" name="respuesta" value="crear" type="submit">Crear</button>
+            <button class="form-control btn btn-success" name="respuesta" value="local" type="submit">Perfil Local</button>
         </form>
-        <form action="{% url 'sync:crear_eliminar_usuario' id %}" method="POST">
+        <form action="{% url 'sync:actualizar_perfil' id %}" method="POST">
             {% csrf_token%}
-            <button class="form-control btn btn-danger" name="respuesta" value="eliminar" type="submit">Eliminar</button>
+            <button class="form-control btn btn-danger" name="respuesta" value="remoto" type="submit">Perfil remoto(internet)</button>
         </form>
         <a href="{% url 'sync:control' %}"><button class="form-control btn btn-info">Cancelar</button></a>
     </div>            
