@@ -11,7 +11,7 @@
             <h5>Registrarse</h5>        
         </div> 
         <div class="card-body">       
-            <form action="{% url 'users:register' %}"  method="post">
+            <form id="myform" action="{% url 'users:register' %}"  method="post">
                 {% if error %}
                 <div class="alert alert-danger text-center" role="alert">
                     {{ error }}
@@ -19,7 +19,10 @@
                 {% endif %}
                 {% csrf_token %}
                 {{ form }}        
-                <button class="form-control btn btn-outline-info" type="submit">Registrarme</button>
+                <button id="boton" class="form-control btn btn-outline-info" type="submit">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none;'></span>
+                    Registrarme
+                </button>
             </form>
         </div>
         <div class="card-footer links">
@@ -31,4 +34,11 @@
         </div>
     </div>
 </div>
+<script>
+    const myform = document.getElementById("myform");
+    myform.addEventListener("submit", (e) => {       
+        document.getElementById('spinner').style.display = 'inline-block';
+        document.getElementById('boton').disabled=true;
+    });
+</script>
 {% endblock content %}
