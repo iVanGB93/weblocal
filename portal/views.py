@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from decouple import config
 from users.models import Profile
 from .forms import EditUserForm
 from servicios.models import EstadoServicio, Oper
 from servicios.actions import *
-from sync.syncs import actualizacion_servicio
+from sync.syncs import actualizacion_servicio, actualizacion_usuario
 
 from servicios.api.serializers import ServiciosSerializer
+from users.api.serializers import UserSerializer
 
 def index(request):
     return render(request, 'portal/index.html')
@@ -23,16 +25,30 @@ def dashboard(request):
 @login_required(login_url='/users/login/')
 def perfil(request):
     usuario = User.objects.get(username=request.user)
-    if request.method == 'POST':        
+    if request.method == 'POST':
         form = EditUserForm(request.POST)
         if form.is_valid():
-            usuario = User.objects.get(username=request.user)
             usuario.email = request.POST['email']
             usuario.first_name = request.POST['first_name']
-            usuario.last_name = request.POST['last_name']
-            usuario.save()
+            usuario.last_name = request.POST['last_name']    
+            if config('APP_MODE') == 'online':              
+                data = {'email': usuario.email, 'first_name': usuario.first_name, 'last_name': usuario.last_name}       
+                respuesta = actualizacion_usuario('cambio_usuario', usuario.username, data)            
+                if respuesta['estado']:
+                    usuario.save()
+                form = EditUserForm()
+                mensaje = respuesta['mensaje']
+                content = {'mensaje': mensaje, 'form': form}
+                return render(request, 'portal/perfil.html', content)
+            else:                
+                usuario.save()
+                form = EditUserForm()
+                mensaje = 'Perfil editado con éxito'
+                content = {'mensaje': mensaje, 'form': form}
+                return render(request, 'portal/perfil.html', content)
+        else:
+            mensaje = form.errors
             form = EditUserForm()
-            mensaje = 'Perfil editado con éxito'
             content = {'mensaje': mensaje, 'form': form}
             return render(request, 'portal/perfil.html', content)
     else:
@@ -42,18 +58,28 @@ def perfil(request):
 
 @login_required(login_url='/users/login/')
 def contra(request):
-    if request.method == 'POST':
+    if request.method == 'POST':        
         usuario = User.objects.get(username=request.user)
         contra = request.POST['actual']
         if usuario.check_password(contra):
             if request.POST['nueva'] == request.POST['confirme']:
                 if len(request.POST['nueva']) >= 8:
                     nueva = request.POST['nueva']
-                    usuario.set_password(nueva)
-                    usuario.save()
-                    mensaje = 'Contraseña cambiada con éxito.'
-                    content = {'mensaje': mensaje}
-                    return render(request, 'portal/cambiarcontra.html', content)
+                    if config('APP_MODE') == 'online':
+                        data = {'contraseña': nueva}
+                        respuesta = actualizacion_usuario('nueva_contraseña', usuario.username, data)
+                        if respuesta['estado']:
+                            usuario.set_password(nueva)
+                            usuario.save()
+                        mensaje = respuesta['mensaje']
+                        content = {'mensaje': mensaje}
+                        return render(request, 'portal/cambiarcontra.html', content)
+                    else:
+                        usuario.set_password(nueva)
+                        usuario.save()
+                        mensaje = 'Contraseña cambiada con éxito.'
+                        content = {'mensaje': mensaje}
+                        return render(request, 'portal/cambiarcontra.html', content)
                 else:
                     mensaje = 'La contraseña debe tener al menos 8 caracteres.'
                     content = {'mensaje': mensaje}
@@ -83,6 +109,7 @@ def internet(request):
                 result = compra_internet(usuario, tipo, contra, horas)
                 if result['correcto']:
                     mensaje = result['mensaje']
+                    servicio = EstadoServicio.objects.get(usuario=usuario)
                     content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
                     return render(request, 'portal/internet.html', content)
                 else:
@@ -111,12 +138,7 @@ def jovenclub(request):
         if usuario.check_password(contra):
             result = comprar_jc(usuario)
             if result['correcto']:
-                servicio = EstadoServicio.objects.get(usuario=usuario)
-                serializer = ServiciosSerializer(servicio)
-                data=serializer.data
-                sync = actualizacion_servicio('cambio', usuario, 'jovenclub', data)
-                if sync:
-                    print("SE ACTUALIZO EL SERVICIO")
+                servicio = EstadoServicio.objects.get(usuario=usuario)                
                 mensaje = result['mensaje']
                 content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
                 return render(request, 'portal/jovenclub.html', content)
@@ -142,6 +164,7 @@ def emby(request):
         if usuario.check_password(contra):
             result = comprar_emby(usuario)
             if result['correcto']:
+                servicio = EstadoServicio.objects.get(usuario=usuario)
                 mensaje = result['mensaje']
                 content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
                 return render(request, 'portal/emby.html', content)
@@ -167,6 +190,7 @@ def filezilla(request):
         if usuario.check_password(contra):                    
             result = comprar_filezilla(usuario, contra)
             if result['correcto']:
+                servicio = EstadoServicio.objects.get(usuario=usuario)
                 mensaje = result['mensaje']
                 content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
                 return render(request, 'portal/filezilla.html', content)
@@ -296,7 +320,7 @@ def sync_servicio(request, id):
     serializer = ServiciosSerializer(servicio)
     data=serializer.data
     if servicio.sync:
-        result = actualizacion_servicio('check', usuario, id, data)
+        result = actualizacion_servicio('check_servicio', usuario, id, data)
         if result:
             mensaje = 'Su cuenta esta sincronizada'
             content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
@@ -305,7 +329,7 @@ def sync_servicio(request, id):
             content = {'id': id}
             return render(request, 'portal/sync.html', content)
     else:
-        result = actualizacion_servicio('cambio', usuario, id, data)
+        result = actualizacion_servicio('cambio_servicio', usuario, id, data)
         if result:
             servicio.sync = True
             servicio.save()
@@ -325,7 +349,7 @@ def guardar_servicio(request):
     servicio = EstadoServicio.objects.get(usuario=usuario)
     serializer = ServiciosSerializer(servicio)
     data=serializer.data
-    result = actualizacion_servicio('guardar', usuario, 'servicio', data)
+    result = actualizacion_servicio('guardar_servicio', usuario, 'servicio', data)
     if result:
         servicio = EstadoServicio.objects.get(usuario=usuario)
         mensaje = 'Sincronización realizada con éxito'

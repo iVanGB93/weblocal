@@ -114,6 +114,7 @@ def compra_internet(usuario, tipo, contra, horas):
                 servicio.internet = True  
                 servicio.int_time = timezone.now() + timedelta(days=30)
                 servicio.int_tipo = 'internetMensual'
+                servicio.sync = False
                 servicio.save()
                 profile.save()
                 code = crearOper(usuario.username, 'internetMensual', 200)
@@ -146,6 +147,7 @@ def compra_internet(usuario, tipo, contra, horas):
                 servicio.internet = True  
                 servicio.int_time = timezone.now() + timedelta(days=7)
                 servicio.int_tipo = 'internetSemanal'
+                servicio.sync = False
                 servicio.save()
                 profile.save()
                 code = crearOper(usuario.username, 'internetSemanal', 300)
@@ -188,6 +190,7 @@ def compra_internet(usuario, tipo, contra, horas):
                     servicio.int_horas = horas
                     servicio.int_tipo = 'internetHoras'
                     servicio.int_time = None
+                    servicio.sync = False
                     servicio.save()
                     profile.save() 
                     send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
@@ -227,6 +230,7 @@ def comprar_jc(usuario):
             profile.save()
             servicio.jc = True
             servicio.jc_time = timezone.now() + timedelta(days=30)
+            servicio.sync = False
             servicio.save()
             code = crearOper(usuario.username, "Joven-Club", 100)
             send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de Joven Club, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
@@ -263,6 +267,7 @@ def comprar_emby(usuario):
             servicio.emby = True
             servicio.emby_id = usuarioID
             servicio.emby_time = timezone.now() + timedelta(days=30)
+            servicio.sync = False
             servicio.save()
             url = f'{ emby_ip }/Users/{ usuarioID}/Configuration?api_key={ emby_api_key }'
             json = {
@@ -352,6 +357,7 @@ def comprar_filezilla(usuario, contraseña):
         code = crearOper(usuario.username, 'FileZilla', 50)
         #crearLog(usuario, "ActivacionLOG.txt", f'El usuario: { usuario.username } pago por FTP.')
         send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])            
+        servicio.sync = False
         servicio.save()
         result['mensaje'] = 'Servicio activado con éxito.'
         result['correcto'] = True

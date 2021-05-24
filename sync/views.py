@@ -84,6 +84,9 @@ def control_perfil(request, id):
         respuesta = actualizacion_perfil('check', usuario.username, data)
         if respuesta['conexion']:
             if respuesta['estado']:   
+                profile.sync = True
+                profile.save()
+                perfiles = Profile.objects.all()
                 mensaje = respuesta['mensaje']
                 content = {'usuarios': usuarios, 'perfiles': perfiles, 'servicios': servicios, 'mensaje': mensaje}
                 return render(request, 'sync/index.html', content)
