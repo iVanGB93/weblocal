@@ -16,46 +16,30 @@ def get_or_create_eventloop():
             asyncio.set_event_loop(loop)
             return asyncio.get_event_loop()
 
-def actualizacion_usuario(accion, usuario, data):
-    data['usuario'] = usuario
+def actualizacion_remota(accion, data):
     recibe = get_or_create_eventloop().run_until_complete(conectar(medula, accion, data))
     return recibe
 
-def actualizacion_perfil(accion, usuario, data):
-    data['usuario'] = usuario
-    recibe = get_or_create_eventloop().run_until_complete(conectar(medula, accion, data))
-    return recibe
-   
-
-def actualizacion_servicio(accion, usuario, servicio, data):
-    usuario = str(usuario)
-    data['usuario'] = usuario
-    data['servicio'] = servicio
-    recibe = get_or_create_eventloop().run_until_complete(conectar(medula, accion, data))
-    return recibe
-
-async def conectar(url, command, data):
+async def conectar(url, accion, data):
     respuesta = {'conexion': False, 'estado': False}
     try:
         async with websockets.connect(url) as ws:
             while True:
-                envia = json.dumps({'command': command, 'data': data})
+                envia = json.dumps({'accion': accion, 'data': data})
                 await ws.send(envia)
                 recibe = await ws.recv()
-                recibe = json.loads(recibe)
-                respuesta['estado'] = recibe['estado']
-                respuesta['mensaje'] = recibe['mensaje']
+                respuesta = json.loads(recibe)
                 respuesta['conexion'] = True
+                print(respuesta)
                 return respuesta
     except ConnectionRefusedError:
-        print("EL SERVIDOR REMOTO DENEGO LA CONEXION")
         respuesta['mensaje'] = 'EL SERVIDOR DENEGO LA CONEXION'
         return respuesta
     except OSError:
-        print("IP INALCANZABLE", OSError)
         respuesta['mensaje'] = f'IP INALCANZABLE { OSError }'
         return respuesta
+    except TypeError:
+        respuesta['mensaje'] = f'ERROR {TypeError}'
     except:
-        print("NADA QUE DECIR, SOLO PROBLEMAS")
         respuesta['mensaje'] = 'NADA QUE DECIR, SOLO PROBLEMAS'
         return respuesta

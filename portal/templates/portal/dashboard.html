@@ -146,6 +146,35 @@
     <div class="card">
         <h5 class="card-header">Mis datos:</h5>        
         <div class="card-body">
+            <div class="row">
+                <div class="col-7 col-md-8 col-lg-9">
+                    <h5 class="card-title">Sincronización de perfil:</h5>
+                </div>
+                <div class="col-5 col-md-4 col-lg-3">
+                    <p class="card-text d-flex justify-content-end">
+                        {% if perfil.sync %}
+                        Sincronizado
+                        <form id="myform" action="{% url 'portal:sync_perfil' %}" method="POST">
+                            {% csrf_token%}
+                            <button id="boton" class="form-control btn btn-info" type="submit">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none;'></span>
+                                Chequear
+                            </button>
+                        </form>
+                        {% else %}
+                        Incorrecto
+                        <form id="myform" action="{% url 'portal:sync_perfil' %}" method="POST">
+                            {% csrf_token%}
+                            <button id="boton" class="form-control btn btn-danger" type="submit">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none;'></span>
+                                Sincronizar
+                            </button>
+                        </form>
+                        {% endif %}
+                    </p>
+                </div>
+                
+            </div>            
             <h5 class="card-title">Mis coins:</h5>
             <p class="card-text d-flex justify-content-end">{{ perfil.coins }}</p>
             <h5 class="card-title">Nombre de usuario:</h5>
@@ -173,4 +202,11 @@
         </div>
     </div>
 </div>
+<script>
+    const myform = document.getElementById("myform");
+    myform.addEventListener("submit", (e) => {       
+        document.getElementById('spinner').style.display = 'inline-block';
+        document.getElementById('boton').disabled=true;
+    });
+</script>
 {% endblock contenido %}

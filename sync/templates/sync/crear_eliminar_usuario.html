@@ -1,27 +1,38 @@
-{% extends 'web/base.html' %}
+{% extends 'sync/baseSync.html' %}
 {% load static %}
-{% block title %}
-- Control, confirmar
-{% endblock title %}
-{% block content %}
-<div class="container text-center">
+{% block contenido %}
+<div class="col-8 col-md-6 m-auto my-5" style="height: 90%;">
     {% if mensaje %}
         <div class="alert alert-warning text-center my-2" role="alert">                   
             {{ mensaje }}                   
         </div>               
     {% endif %}
-    <div class="m-1">
-        <h5>Desea eliminar el usuario de la local o crearlo en internet?</h5>
-        <h6>Usuario: {{ usuario }}</h6>
-        <form action="{% url 'sync:crear_eliminar_usuario' id %}" method="POST">
-            {% csrf_token%}
-            <button class="form-control btn btn-success" name="respuesta" value="crear" type="submit">Crear</button>
-        </form>
-        <form action="{% url 'sync:crear_eliminar_usuario' id %}" method="POST">
-            {% csrf_token%}
-            <button class="form-control btn btn-danger" name="respuesta" value="eliminar" type="submit">Eliminar</button>
-        </form>
-        <a href="{% url 'sync:control' %}"><button class="form-control btn btn-info">Cancelar</button></a>
-    </div>            
+    <div class="card align-middle">
+        <div class="card-header bg-dark text-white">
+            <h5>Desea eliminar el usuario de la local o crearlo en internet?</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">        
+                <h5 class="col-12 text-center my-3">La acción es permanente asegurece bien.</h5>
+            </div>
+            <div class="row">
+                <div class="col-3 m-auto">
+                    <form action="{% url 'sync:crear_eliminar_usuario' id %}" method="POST">
+                        {% csrf_token%}
+                        <button class="form-control btn btn-success" name="respuesta" value="crear" type="submit">Crear</button>
+                    </form>
+                </div>
+                <div class="col-3 m-auto">
+                    <form action="{% url 'sync:crear_eliminar_usuario' id %}" method="POST">
+                        {% csrf_token%}
+                        <button class="form-control btn btn-danger" name="respuesta" value="eliminar" type="submit">Eliminar</button>
+                    </form>
+                </div>
+                <div class="col-3 m-auto">
+                    <a href="{% url 'sync:control' %}"><button class="form-control btn btn-info">Cancelar</button></a>
+                </div>
+            </div> 
+        </div>
+    </div>
 </div>
-{% endblock content %}
+{% endblock contenido %}

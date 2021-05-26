@@ -9,9 +9,9 @@ class EstadosServiciosAdminConfig(admin.ModelAdmin):
     search_fields = ['usuario__username']
     list_filter = ('internet', 'emby', 'jc', 'ftp')
     ordering = ('usuario',)
-    list_display = ('usuario', 'internet', 'emby', 'jc', 'ftp')
+    list_display = ('usuario', 'internet', 'emby', 'jc', 'ftp', 'sync')
     fieldsets = (
-        (None, {'fields': ('usuario', )}),
+        (None, {'fields': ('usuario', 'sync')}),
         ('Internet', {'fields': ('internet', 'int_auto', 'int_time', 'int_tipo', 'int_horas')}),
         ('Emby', {'fields': ('emby', 'emby_auto', 'emby_time', 'emby_id')}),  
         ('FileZilla', {'fields': ('ftp', 'ftp_auto', 'ftp_time')}),

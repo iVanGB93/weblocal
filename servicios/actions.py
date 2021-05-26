@@ -4,6 +4,7 @@ from .models import Recarga, Oper, EstadoServicio
 from django.contrib.auth.models import User
 from users.models import Profile
 from django.core.mail import send_mail
+from sync.syncs import actualizacion_remota
 from decouple import config
 import xml.etree.ElementTree
 import subprocess
@@ -88,7 +89,7 @@ def activarFTP(username, pwd, group):
     subprocess.run([exe_path, '/reload-config'], shell=True)
 #Fin FILEZILLA
 
-def compra_internet(usuario, tipo, contra, horas):
+def comprar_internet(usuario, tipo, contra, horas):
     result = {'correcto': False, 'mensaje': ''}
     profile = Profile.objects.get(usuario=usuario)
     usuario = User.objects.get(username=usuario)
@@ -373,18 +374,23 @@ def recargar(code, usuario):
         if recarga.activa:
                 usuario = User.objects.get(username=usuario)
                 profile = Profile.objects.get(usuario=usuario.id)
-                cantidad = recarga.cantidad                
+                cantidad = recarga.cantidad                   
                 profile.coins = profile.coins + cantidad
-                profile.save()
-                recarga.activa = False
-                recarga.fechaUso = timezone.now()
-                recarga.usuario = usuario
-                recarga.save()
-                oper = Oper(tipo='RECARGA', usuario=usuario, codRec=code, cantidad=cantidad)
-                oper.save()
-                result['correcto'] = True
-                result['mensaje'] = 'Cuenta Recargada con éxito'
-                return result
+                respuesta = actualizacion_remota('usar_recarga', {'usuario': usuario.username, 'code': code})
+                if respuesta['estado']:                    
+                    profile.save()
+                    recarga.activa = False
+                    recarga.fechaUso = timezone.now()
+                    recarga.usuario = usuario
+                    recarga.save()
+                    oper = Oper(tipo='RECARGA', usuario=usuario, codRec=code, cantidad=cantidad)
+                    oper.save()
+                    result['correcto'] = True
+                    result['mensaje'] = 'Cuenta Recargada con éxito'
+                    return result
+                else:
+                    result['mensaje'] = respuesta['mensaje']
+                    return result
         else:
             result['mensaje'] = 'Recarga usada'
             return result
@@ -404,6 +410,11 @@ def transferir(desde, hacia, cantidad):
                 recibeProfile = Profile.objects.get(usuario=recibe.id)
                 recibeProfile.coins = recibeProfile.coins + cantidad
                 enviaProfile.coins = enviaProfile.coins - cantidad
+                data = {'usuario': envia.username, 'recibe': recibe.username, 'cantidad': cantidad}
+                respuesta = actualizacion_remota('transferencia', data)
+                if not respuesta['estado']:
+                    result['mensaje']= respuesta['mensaje']
+                    return result
                 enviaProfile.save()
                 recibeProfile.save()
                 cantidad = str(cantidad)
