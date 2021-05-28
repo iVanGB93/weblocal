@@ -30,7 +30,6 @@ async def conectar(url, accion, data):
                 recibe = await ws.recv()
                 respuesta = json.loads(recibe)
                 respuesta['conexion'] = True
-                print(respuesta)
                 return respuesta
     except ConnectionRefusedError:
         respuesta['mensaje'] = 'EL SERVIDOR DENEGO LA CONEXION'

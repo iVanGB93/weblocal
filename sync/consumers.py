@@ -123,6 +123,7 @@ class SyncWSConsumer(WebsocketConsumer):
             if Profile.objects.filter(usuario=usuario_local).exists:
                 perfil = Profile.objects.get(usuario=usuario_local)
                 perfil.coins = data['coins']
+                perfil.sync = True
                 perfil.save()
                 respuesta['estado'] = True
                 respuesta['mensaje'] = 'Perfil actualizado con éxito'
@@ -177,6 +178,8 @@ class SyncWSConsumer(WebsocketConsumer):
                     elif s.ftp_auto != data['ftp_auto']:
                         self.responder(respuesta)
                     else:
+                        s.sync = True
+                        s.save()
                         respuesta['estado'] = True
                         respuesta['mensaje'] = 'Servicios sincronizados'
                         self.responder(respuesta)
@@ -283,33 +286,24 @@ class SyncWSConsumer(WebsocketConsumer):
         respuesta['estado'] = True
         self.responder(respuesta)
     
-    def transferencia(self, data):
-        respuesta = {'estado': False}
-        usuario = data['usuario']
-        cantidad = data['cantidad']
-        hacia = data['recibe']
-        envia = User.objects.get(username=usuario)        
-        enviaProfile = Profile.objects.get(usuario=envia.id)        
-        coinsDesde = int(enviaProfile.coins)        
-        if coinsDesde >= cantidad:
-            recibe = User.objects.get(username=hacia)
-            recibeProfile = Profile.objects.get(usuario=recibe.id)
-            recibeProfile.coins = recibeProfile.coins + cantidad
-            enviaProfile.coins = enviaProfile.coins - cantidad
-            enviaProfile.save()
-            recibeProfile.save()
-            respuesta['mensaje'] = 'Transferencia realizada con éxito'
-            respuesta['estado'] = True
-            self.responder(respuesta)
-        else:
-            respuesta['mensaje'] = 'No tiene suficientes coins'
-            self.responder(respuesta)
-    
     def nueva_operacion(self, data):
         respuesta = {'estado': False}
         usuario = data['usuario']
         usuario = User.objects.get(username=usuario)
-        operacion = Oper(code=data['code'], tipo=data['tipo'], usuario=usuario, servicio=data['servicio'], cantidad=data['cantidad'], codRed=data['codRec'], haciaDesde=data['haciaDesde'], fecha=data['fecha'])
+        if data['servicio'] == 'None':
+            servicio = None
+        else:
+            servicio = data['servicio']
+        if data['codRec'] == 'None':
+            codRec = None
+        else:
+            codRec = data['codRec']
+        if data['haciaDesde'] == 'None':
+            haciaDesde = None
+        else:
+            haciaDesde = data['haciaDesde']
+        operacion = Oper(code=data['code'], tipo=data['tipo'], usuario=usuario, servicio=servicio, cantidad=data['cantidad'], codRec=codRec, haciaDesde=haciaDesde, fecha=data['fecha'])
+        operacion.sync = True
         operacion.save()
         respuesta['mensaje'] = 'Operación creada con éxito'
         respuesta['estado'] = True
@@ -330,7 +324,6 @@ class SyncWSConsumer(WebsocketConsumer):
         'coger_servicios': coger_servicios,
         'usar_recarga': usar_recarga,
         'crear_recarga': crear_recarga,
-        'transferencia': transferencia,
         'nueva_operacion': nueva_operacion,
     }  
 

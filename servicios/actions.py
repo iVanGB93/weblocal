@@ -409,13 +409,10 @@ def transferir(desde, hacia, cantidad):
                 recibe = User.objects.get(username=hacia)
                 recibeProfile = Profile.objects.get(usuario=recibe.id)
                 recibeProfile.coins = recibeProfile.coins + cantidad
-                enviaProfile.coins = enviaProfile.coins - cantidad
-                data = {'usuario': envia.username, 'recibe': recibe.username, 'cantidad': cantidad}
-                respuesta = actualizacion_remota('transferencia', data)
-                if not respuesta['estado']:
-                    result['mensaje']= respuesta['mensaje']
-                    return result
+                enviaProfile.coins = enviaProfile.coins - cantidad 
+                enviaProfile.sync = False     
                 enviaProfile.save()
+                recibeProfile.sync = False
                 recibeProfile.save()
                 cantidad = str(cantidad)
                 oper = Oper(usuario=recibe, tipo="RECIBO", cantidad=cantidad, haciaDesde=desde)

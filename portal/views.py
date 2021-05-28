@@ -9,7 +9,6 @@ from servicios.actions import *
 from sync.syncs import actualizacion_remota
 
 from servicios.api.serializers import ServiciosSerializer
-from users.api.serializers import UserSerializer
 
 def index(request):
     return render(request, 'portal/index.html')
@@ -19,7 +18,8 @@ def dashboard(request):
     usuario = User.objects.get(username=request.user)
     perfil = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
-    content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio}
+    tiempo = timezone.now()
+    content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'tiempo': tiempo}
     return render(request, 'portal/dashboard.html', content)
 
 @login_required(login_url='/users/login/')
@@ -30,10 +30,10 @@ def perfil(request):
         if form.is_valid():
             usuario.email = request.POST['email']
             usuario.first_name = request.POST['first_name']
-            usuario.last_name = request.POST['last_name']    
-            if config('APP_MODE') == 'online':              
-                data = {'email': usuario.email, 'first_name': usuario.first_name, 'last_name': usuario.last_name}       
-                respuesta = actualizacion_usuario('cambio_usuario', usuario.username, data)            
+            usuario.last_name = request.POST['last_name']
+            if config('APP_MODE') == 'online':
+                data = {'usuario': usuario.username, 'email': usuario.email, 'first_name': usuario.first_name, 'last_name': usuario.last_name}       
+                respuesta = actualizacion_remota('cambio_usuario', data)          
                 if respuesta['estado']:
                     usuario.save()
                 form = EditUserForm()
@@ -66,8 +66,8 @@ def contra(request):
                 if len(request.POST['nueva']) >= 8:
                     nueva = request.POST['nueva']
                     if config('APP_MODE') == 'online':
-                        data = {'contraseña': nueva}
-                        respuesta = actualizacion_usuario('nueva_contraseña', usuario.username, data)
+                        data = {'usuario': usuario.username, 'contraseña': nueva}
+                        respuesta = actualizacion_remota('nueva_contraseña', data)
                         if respuesta['estado']:
                             usuario.set_password(nueva)
                             usuario.save()
@@ -107,17 +107,9 @@ def internet(request):
         if tipo != 'Seleccione el tipo':
             if usuario.check_password(contra):
                 result = comprar_internet(usuario, tipo, contra, horas)
-                if result['correcto']:
-                    if config('APP_MODE') == 'online':
-                        servicio = EstadoServicio.objects.get(usuario=usuario)
-                        serializer = ServiciosSerializer(servicio)
-                        data=serializer.data
-                        data['usuario'] = str(usuario)                        
-                        respuesta = actualizacion_remota('cambio_servicio', data)
-                        if respuesta['estado']:
-                            servicio.sync = True
-                            servicio.save()
+                if result['correcto']:                   
                     servicio = EstadoServicio.objects.get(usuario=usuario)
+                    perfil = Profile.objects.get(usuario=usuario)
                 mensaje = result['mensaje']
                 content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
                 return render(request, 'portal/internet.html', content)
@@ -142,17 +134,9 @@ def jovenclub(request):
         contra = request.POST['contra']
         if usuario.check_password(contra):
             result = comprar_jc(usuario)
-            if result['correcto']:
-                if config('APP_MODE') == 'online':
-                    servicio = EstadoServicio.objects.get(usuario=usuario)
-                    serializer = ServiciosSerializer(servicio)
-                    data=serializer.data
-                    data['usuario'] = str(usuario)                        
-                    respuesta = actualizacion_remota('cambio_servicio', data)
-                    if respuesta['estado']:
-                        servicio.sync = True
-                        servicio.save()
+            if result['correcto']:                
                 servicio = EstadoServicio.objects.get(usuario=usuario)
+                perfil = Profile.objects.get(usuario=usuario)
             mensaje = result['mensaje']
             content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
             return render(request, 'portal/jovenclub.html', content)
@@ -173,17 +157,9 @@ def emby(request):
         contra = request.POST['contra']
         if usuario.check_password(contra):
             result = comprar_emby(usuario)
-            if result['correcto']:
-                if config('APP_MODE') == 'online':
-                    servicio = EstadoServicio.objects.get(usuario=usuario)
-                    serializer = ServiciosSerializer(servicio)
-                    data=serializer.data
-                    data['usuario'] = str(usuario)                        
-                    respuesta = actualizacion_remota('cambio_servicio', data)
-                    if respuesta['estado']:
-                        servicio.sync = True
-                        servicio.save()
+            if result['correcto']:                
                 servicio = EstadoServicio.objects.get(usuario=usuario)
+                perfil = Profile.objects.get(usuario=usuario)
             mensaje = result['mensaje']
             content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
             return render(request, 'portal/emby.html', content)
@@ -204,17 +180,9 @@ def filezilla(request):
         contra = request.POST['contra']        
         if usuario.check_password(contra):                    
             result = comprar_filezilla(usuario, contra)
-            if result['correcto']:
-                if config('APP_MODE') == 'online':
-                    servicio = EstadoServicio.objects.get(usuario=usuario)
-                    serializer = ServiciosSerializer(servicio)
-                    data=serializer.data
-                    data['usuario'] = str(usuario)
-                    respuesta = actualizacion_remota('cambio_servicio', data)
-                    if respuesta['estado']:
-                        servicio.sync = True
-                        servicio.save()
+            if result['correcto']:                
                 servicio = EstadoServicio.objects.get(usuario=usuario)
+                perfil = Profile.objects.get(usuario=usuario)
             mensaje = result['mensaje']
             content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
             return render(request, 'portal/filezilla.html', content)
@@ -339,30 +307,18 @@ def sync_servicio(request, id):
     servicio = EstadoServicio.objects.get(usuario=usuario)
     serializer = ServiciosSerializer(servicio)
     data=serializer.data
-    data['usuario'] = str(usuario)
-    if servicio.sync:
-        respuesta = actualizacion_remota('check_servicio', data)
-        if respuesta['estado']:
-            mensaje = respuesta['mensaje']
-            content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-            return render(request, f'portal/{ id }.html', content)
-        else:
-            content = {'id': id}
-            return render(request, 'portal/sync.html', content)
+    data['usuario'] = str(usuario)    
+    respuesta = actualizacion_remota('check_servicio', data)
+    if respuesta['estado']:
+        servicio.sync = True
+        servicio.save()
+        mensaje = respuesta['mensaje']
+        content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+        return render(request, f'portal/{ id }.html', content)
     else:
-        respuesta = actualizacion_remota('cambio_servicio', data)
-        if respuesta['estado']:
-            servicio.sync = True
-            servicio.save()
-            servicio = EstadoServicio.objects.get(usuario=usuario)
-            mensaje = respuesta['mensaje']
-            content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-            return render(request, f'portal/{ id }.html', content)
-        else:
-            mensaje = 'Ocurrio algún error'
-            content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
-            return render(request, f'portal/{ id }.html', content)
-
+        content = {'id': id}
+        return render(request, 'portal/sync.html', content)
+    
 @login_required(login_url='/users/login/')
 def guardar_servicio(request):
     usuario = request.user
@@ -372,7 +328,9 @@ def guardar_servicio(request):
     data=serializer.data
     data['usuario'] = str(usuario)
     respuesta = actualizacion_remota('cambio_servicio', data)
-    servicio = EstadoServicio.objects.get(usuario=usuario)
+    if respuesta['estado']:
+        servicio.sync = True
+        servicio.save()
     mensaje = respuesta['mensaje']
     content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
     return render(request, f'portal/dashboard.html', content)
@@ -383,18 +341,17 @@ def sync_perfil(request):
     perfil = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)    
     if request.method == 'POST':
-        profile = Profile.objects.get(usuario=usuario)
-        if not profile.sync:
-            return render(request, 'portal/sync_perfil.html')
+        profile = Profile.objects.get(usuario=usuario)        
         data = {'usuario': usuario.username, 'coins': profile.coins}
         respuesta = actualizacion_remota('check_perfil', data)        
-        if not respuesta['estado']:
-            profile.sync = False
+        if respuesta['estado']:
+            profile.sync = True
             profile.save()
+            mensaje = respuesta['mensaje']
+            content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'mensaje': mensaje}
+            return render(request, 'portal/dashboard.html', content)
+        else:
             return render(request, 'portal/sync_perfil.html')
-        mensaje = respuesta['mensaje']
-        content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'mensaje': mensaje}
-        return render(request, 'portal/dashboard.html', content)
     else:
         mensaje = "Aqui no hay GET."
         content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'mensaje': mensaje}
