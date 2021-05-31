@@ -121,14 +121,14 @@
                 }                        
                 document.querySelector('.participants-list').appendChild(parListTag);
             });
-            if (activo === true) {
+            /* if (activo === true) {
                 setTimeout(roll, 3000);
                 function roll() {
                     socket.send(JSON.stringify({
                         'command': 'roll'
                     }))
                 };
-            }            
+            } */          
         } else {
             var resultado = document.querySelector('#resultado');
             resultado.innerText = data.code;
