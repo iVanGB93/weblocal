@@ -32,7 +32,8 @@ class WSConsumer(WebsocketConsumer):
         sorteo.save()
 
     def participants(self, data):
-        participants = Sorteo.objects.all()
+        mesActual = timezone.now().month
+        participants = Sorteo.objects.filter(mes=mesActual)
         content = {
             'command': 'participants',
             'participants': self.participants_to_json(participants),
