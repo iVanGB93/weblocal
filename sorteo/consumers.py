@@ -59,7 +59,7 @@ class WSConsumer(WebsocketConsumer):
 
     def roll(self, data):
         mesActual = 5
-        participants = Sorteo.objects.filter(eliminado=False, mes=mesActual)
+        participants = Sorteo.objects.filter(eliminado=False)
         codes = []
         for p in participants:
             codes.append(p.code)
