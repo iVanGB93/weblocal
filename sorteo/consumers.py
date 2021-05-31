@@ -26,13 +26,13 @@ class WSConsumer(WebsocketConsumer):
         self.commands[data['command']](self, data)
 
     def start(self, data):
-        mesActual = 5
+        mesActual = timezone.now().month
         sorteo = SorteoDetalle.objects.get(mes=mesActual)
         sorteo.activo = True
         sorteo.save()
 
     def participants(self, data):
-        mesActual = 5
+        mesActual = timezone.now().month
         participants = Sorteo.objects.filter(mes=mesActual)
         content = {
             'command': 'participants',
@@ -58,8 +58,8 @@ class WSConsumer(WebsocketConsumer):
         return result
 
     def roll(self, data):
-        mesActual = 5
-        participants = Sorteo.objects.filter(eliminado=False)
+        mesActual = timezone.now().month
+        participants = Sorteo.objects.filter(eliminado=False, mes=mesActual)
         codes = []
         for p in participants:
             codes.append(p.code)
