@@ -4,7 +4,7 @@
 <div class="col-10 col-lg-8 m-auto box overflow-hidden">
     <div class="p-3">
         <h3 class="text-center p-3">Editar publicación</h3>
-        <form action="{% url 'forum:editar' tema p.id %}" method="POST">
+        <form action="{% url 'forum:editar' tema p.id %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="input-group mb-3">
                 <label class="input-group-text" for="inputGroupSelect01">Tema</label>
@@ -71,5 +71,6 @@
             </a>
         <div class="col-12 text-end">
     </div>
+</div>
 </div>
 {% endblock contenido %}

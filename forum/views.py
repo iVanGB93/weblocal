@@ -44,28 +44,29 @@ def index(request, pk):
 
 def detalles(request, tema, pk):
     publicacion = Publicacion.objects.get(id=pk)
-    #publicacion.visitas = publicacion.visitas + 1
-    #publicacion.save()
+    if request.user != publicacion.autor:
+        publicacion.visitas = publicacion.visitas + 1
+        publicacion.save()
     color = tema_color(tema)
     data = {'p': publicacion, 'color': color, 'tema': tema}
     return render(request, 'forum/detalles.html', data)
 
 def crear(request, tema):
     color = tema_color(tema)
-    if request.method == 'POST':
+    if request.method == 'POST':        
         usuario = User.objects.get(username=request.user)
         tema = request.POST['tema']
         titulo = request.POST['titulo']
-        contenido = request.POST['contenido']
-        nueva = Publicacion(autor=usuario, tema=tema, titulo=titulo, contenido=contenido)
+        contenido = request.POST['contenido']       
+        nueva = Publicacion(autor=usuario, tema=tema, titulo=titulo, contenido=contenido)        
         if request.POST.get('online'):
             nueva.online = True
-        if request.POST['imagen1'] != '':
-            nueva.imagen1 = request.POST['imagen1']
-        if request.POST['imagen2'] != '':
-            nueva.imagen2 = request.POST['imagen2']       
-        if request.POST['imagen3'] != '':
-            nueva.imagen3 = request.POST['imagen3']
+        if request.FILES.get('imagen1'):
+            nueva.imagen1 = request.FILES['imagen1']
+        if request.FILES.get('imagen2'):
+            nueva.imagen2 = request.FILES['imagen2']       
+        if request.FILES.get('imagen3'):
+            nueva.imagen3 = request.FILES['imagen3']
         nueva.save()        
         data = {'p': nueva, 'color': color, 'tema': tema}
         return render(request, 'forum/detalles.html', data)
@@ -88,12 +89,12 @@ def editar(request, tema, pk):
             publicacion.online = True
         else:
             publicacion.online = False
-        if request.POST['imagen1'] != '':
-            publicacion.imagen1 = request.POST['imagen1']
-        if request.POST['imagen2'] != '':
-            publicacion.imagen2 = request.POST['imagen2']       
-        if request.POST['imagen3'] != '':
-            publicacion.imagen3 = request.POST['imagen3']
+        if request.FILES.get('imagen1'):
+            publicacion.imagen1 = request.FILES['imagen1']
+        if request.FILES.get('imagen2'):
+            publicacion.imagen2 = request.FILES['imagen2']       
+        if request.FILES.get('imagen3'):
+            publicacion.imagen3 = request.FILES['imagen3']
         publicacion.save()        
         content = {'p': publicacion, 'tema': tema, 'color': color}
         return redirect('forum:detalles', tema, pk)
