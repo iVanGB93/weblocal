@@ -67,7 +67,7 @@ def crear(request, tema):
         if request.POST['imagen3'] != '':
             nueva.imagen3 = request.POST['imagen3']
         nueva.save()        
-        data = {'p': nueva, 'color': color}
+        data = {'p': nueva, 'color': color, 'tema': tema}
         return render(request, 'forum/detalles.html', data)
     else:
         form = PublicacionForm()

@@ -5,8 +5,8 @@ app_name = 'forum'
 
 urlpatterns = [
     path('<str:pk>/', index, name='index'),
-    path('<str:tema>/nuevo/', crear, name='crear'),
     path('<str:tema>/<int:pk>/editar/', editar, name='editar'),
     path('<str:tema>/<int:pk>/eliminar/', eliminar, name='eliminar'),
     path('<str:tema>/<int:pk>/', detalles, name='detalles'),
+    path('<str:tema>/nuevo/', crear, name='crear'),
 ]
