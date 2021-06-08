@@ -5,13 +5,13 @@
     height: 100vh;
     width: 100%;
     z-index: -1;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .contenedor {
-    top: 60px;
-    position: relative;
+    padding-top: 40px;
     padding-bottom: 150px;    
-    bottom: -100px;
 }
 
 .blog-header-logo {
@@ -20,14 +20,17 @@
 }
 
 .box {
-    border: solid 1px rgba(90, 85, 32, 0.4);    
+    border: solid 1px rgba(90, 85, 32, 0.4);
     border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(136, 120, 69, 0.3);
     backdrop-filter: blur(10px);
     box-shadow: 0 10px 15px 5px rgba(25, 25, 25, 0.4);
-    margin: 10px;
     font-style: italic;
     color:rgb(0, 0, 0)
+}
+
+.articulo {
+    margin: 10px;
 }
 
 .box h1:hover {

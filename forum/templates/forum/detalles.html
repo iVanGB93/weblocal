@@ -1,35 +1,43 @@
-{% extends "web/base.html" %}
+{% extends "forum/baseForum.html" %}
 {% load static %}
-{% block title %} - Cotilleo{% endblock %}
-{% block content %}
-<link rel="stylesheet" href="{% static 'forum/style.css' %}">
-<div class="fondo" style="background-image: url({% static 'forum/fondo.jpg' %})"></div>
-<div class="contenedor">
-    <div class="row" style="padding-bottom: 30px">
-        {% for p in publicacion %}
-        <div class="col-10 col-lg-8 m-auto box">
-            <div class="box" style="margin-top: 40px;">
-                <h1 class="text-center">{{ p.titulo }}</h1>
-            </div>
-            <div class="box .fecha" style="text-align: right; padding-right: 30px;">
-                <span style="text-align: right;">Publicado el {{ p.fecha }}</span>
-            </div>
-            <div class=" box contenido">
-                <p class="fw-bolder">{{ p.contenido }}</p>
-            </div>
-            <div class="row text-align-center align-items-center imagenes">
-                <div class="col-12 col-md-4">
-                    <img src="{{ p.imagen1.url }}" alt="imagen1">
-                </div>
-                <div class="col-12 col-md-4">
-                    <img src="{{ p.imagen2.url }}" alt="imagen2">
-                </div>
-                <div class="col-12 col-md-4">
-                    <img src="{{ p.imagen3.url }}" alt="imagen3">
-                </div>
-            </div>        
-        </div>
-        {% endfor %}
+{% block contenido %}   
+<div class="col-10 col-lg-8 m-auto box overflow-hidden">
+    <h1 class="col-12 text-center">{{ p.titulo }}</h1>
+    <span class="col-12 col-md-6 offset-md-6 align-self-end">Publicado el {{ p.fecha }}</span>
+    <div class="col-12 contenido">
+        <p class="fw-bolder h5">{{ p.contenido }}</p>
     </div>
+    <span class="col-6 offset-6 col-md-3 offset-md-9 align-self-end fw-bolder">
+        {% if p.online %}
+        Publicada en internet
+        {% else %}
+        Solo local
+        {% endif %}
+    </span>
+    <!-- <span class="col-6 offset-6 col-md-3 offset-md-9 align-self-end">Vistas: {{ p.visitas }}</span> -->
+    <div class="row text-align-center align-items-center imagenes">
+        <div class="col-12 col-md-4">
+            <img src="{{ p.imagen1.url }}" alt="imagen1">
+        </div>
+        <div class="col-12 col-md-4">
+            <img src="{{ p.imagen2.url }}" alt="imagen2">
+        </div>
+        <div class="col-12 col-md-4">
+            <img src="{{ p.imagen3.url }}" alt="imagen3">
+        </div>
+    </div>
+    <div class="col-12 text-end p-3">
+        {% if user == p.autor %}
+        <a href="{% url 'forum:editar' tema p.id %}">
+            <button class="btn btn-{{ color }} mx-2">Editar</button>
+        </a>
+        <a href="{% url 'forum:eliminar' tema p.id %}">
+            <button class="btn btn-danger mx-2">Eliminar</button>
+        </a>
+        {% endif %}
+        <a href="{% url 'forum:index' tema %}">
+            <button class="btn btn-secondary mx-2">Atrás</button>
+        </a>
+    </div>    
 </div>
-{% endblock content %}
+{% endblock contenido %}

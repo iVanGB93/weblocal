@@ -1,0 +1,20 @@
+{% extends "forum/baseForum.html" %}
+{% load static %}
+{% block contenido %}    
+<div class="col-10 col-lg-8 m-auto box overflow-hidden p-3">
+    <div class="text-center">
+        <form action="{% url 'forum:eliminar' tema p.id %}" method="POST">
+            <h4 class="p-3">¿Seguro desea eliminar la publicación?</h4>
+            {% csrf_token %}
+            <div class="col-12 text-end">
+                <button class="btn btn-danger" type="submit">Eliminar</button>
+            </div>
+        </form>
+    </div>    
+    <div class="col-12 text-end py-2">
+        <a href="{% url 'forum:detalles' tema p.id %}">
+            <button class="btn btn-secondary mx-2">Atrás</button>
+        </a>
+    </div>
+</div>
+{% endblock contenido %}

@@ -1,0 +1,75 @@
+{% extends "forum/baseForum.html" %}
+{% load static %}
+{% block contenido %}    
+<div class="col-10 col-lg-8 m-auto box overflow-hidden">
+    <div class="p-3">
+        <h3 class="text-center p-3">Editar publicación</h3>
+        <form action="{% url 'forum:editar' tema p.id %}" method="POST">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="inputGroupSelect01">Tema</label>
+                <select class="form-select" required id="inputGroupSelect01" name="tema">            
+                    <option selected value={{ tema }}>{{ tema }}</option>            
+                    <option value="Noticia">Noticia</option>
+                    <option value="Internet">Internet</option>
+                    <option value="JovenClub">JovenClub</option>
+                    <option value="Emby">Emby</option>
+                    <option value="FileZilla">FileZilla</option>
+                    <option value="QbaRed">QbaRed</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="titulo" class="form-label">Título:</label>
+                <input class="form-control" id="titulo" name="titulo" type="text" placeholder="{{ p.titulo }}" aria-label="default input example">
+            </div>
+            <div class="mb-3">
+                <label for="contenido" class="form-label">Contenido:</label>
+                <textarea class="form-control" id="contenido" name="contenido" placeholder="{{ p.contenido }}" rows="4"></textarea>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" value="online" name="online" id="online" {% if p.online %} checked {% endif %}>
+                <label class="form-check-label" for="online">
+                    Publicar en internet
+                </label>
+            </div>    
+            <div class="row text-align-center align-items-center imagenes">
+                <div class="col-12 col-md-4">
+                    <img src="{{ p.imagen1.url }}" alt="imagen1">
+                </div>
+                <div class="col-12 col-md-4">
+                    <img src="{{ p.imagen2.url }}" alt="imagen2">
+                </div>
+                <div class="col-12 col-md-4">
+                    <img src="{{ p.imagen3.url }}" alt="imagen3">
+                </div>
+            </div>
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control" id="imagen1" name="imagen1">
+                    <label class="input-group-text" for="imagen1">Imagen-1</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-10 col-lg-8 m-auto">
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control" id="imagen2" name="imagen2">
+                    <label class="input-group-text" for="imagen2">Imagen-2</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-10 offset-md-2 col-lg-8 offset-lg-4 align-self-end">
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control" id="imagen3" name="imagen3">
+                    <label class="input-group-text" for="imagen3">Imagen-3</label>
+                </div>
+            </div>
+            <div class="col-12 text-end">
+                <button class="btn btn-{{ color }}" type="submit">Guardar</button>                
+            </div>
+        </form>
+        <div class="col-12 text-end py-2">
+            <a href="{% url 'forum:detalles' tema p.id %}">
+                <button class="btn btn-secondary mx-2">Atrás</button>
+            </a>
+        <div class="col-12 text-end">
+    </div>
+</div>
+{% endblock contenido %}
