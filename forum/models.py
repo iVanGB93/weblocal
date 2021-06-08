@@ -22,9 +22,9 @@ class Publicacion(models.Model):
     fecha = models.DateTimeField(default=timezone.now)
     online= models.BooleanField(default=False)
     visitas = models.PositiveIntegerField(default=0)
-    imagen1 = models.ImageField(_("Imagen1"), upload_to=upload_to, default='forum/image1.png')
-    imagen2 = models.ImageField(_("Imagen2"), upload_to=upload_to, default='forum/image1.png')
-    imagen3 = models.ImageField(_("Imagen3"), upload_to=upload_to, default='forum/image1.png')
+    imagen1 = models.ImageField(_("Imagen1"), upload_to=upload_to, default='defaultForum.png')
+    imagen2 = models.ImageField(_("Imagen2"), upload_to=upload_to, default='defaultForum.png')
+    imagen3 = models.ImageField(_("Imagen3"), upload_to=upload_to, default='defaultForum.png')
 
     def __str__(self):
         return "Usuario: " + self.autor.username + " tema: " + self.tema +  " título: " + self.titulo

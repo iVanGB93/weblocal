@@ -9,6 +9,9 @@
 /static/sorteo/
 /static/web/
 
+/media/forum/
+/media/usuario/
+
 /runserver.py
 
 *.ini
