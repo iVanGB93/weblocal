@@ -4,7 +4,7 @@
 <div class="col-10 col-lg-8 m-auto box overflow-hidden">
     <div class="p-3">
         <h3 class="text-center p-3">Editar publicación</h3>
-        <form action="{% url 'forum:editar' tema p.id %}" method="POST" enctype="multipart/form-data">
+        <form id="myform" action="{% url 'forum:editar' tema p.id %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="input-group mb-3">
                 <label class="input-group-text" for="inputGroupSelect01">Tema</label>
@@ -62,15 +62,26 @@
                 </div>
             </div>
             <div class="col-12 text-end">
-                <button class="btn btn-{{ color }}" type="submit">Guardar</button>                
+                <button id="boton" class="btn btn-{{ color }}" type="submit">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none'></span>
+                    Guardar
+                </button>                
             </div>
         </form>
         <div class="col-12 text-end py-2">
             <a href="{% url 'forum:detalles' tema p.id %}">
-                <button class="btn btn-secondary mx-2">Atrás</button>
+                <button id="boton2" class="btn btn-secondary mx-2">
+                    Atrás
+                </button>
             </a>
-        <div class="col-12 text-end">
     </div>
 </div>
-</div>
+<script>
+    const myform = document.getElementById("myform");
+    myform.addEventListener("submit", (e) => {       
+        document.getElementById('spinner').style.display = 'inline-block';
+        document.getElementById('boton').disabled=true;
+        document.getElementById('boton2').disabled=true;
+    });
+</script>
 {% endblock contenido %}
