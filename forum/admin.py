@@ -8,9 +8,9 @@ class PublicacionAdminConfig(admin.ModelAdmin):
     ordering = ('-fecha',)
     list_display = ('autor', 'tema', 'titulo', 'online', 'fecha')
     fieldsets = (
-        ('ID', {'fields': ('usuario', 'online')}),
+        ('ID', {'fields': ('autor', 'online')}),
         ('Publicacion', {'fields': ('tema', 'titulo', 'contenido')}),
-        ('Fecha', {'fields': ('mes', 'fecha')}),
+        ('Fecha', {'fields': ('fecha',)}),
         ('Imagenes', {'fields': ('imagen1', 'imagen2', 'imagen3')}),
     )
 
