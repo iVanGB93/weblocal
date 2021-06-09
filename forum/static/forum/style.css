@@ -45,9 +45,6 @@
     padding-right: 30px;
 }
 
-.box p {
-    padding: 30px;
-}
 .box p:hover {
     cursor: default;
     color: white;
