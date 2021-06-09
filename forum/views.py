@@ -1,6 +1,6 @@
-from django import forms
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from .models import Publicacion
 from .forms import PublicacionForm
 
@@ -53,10 +53,15 @@ def detalles(request, tema, pk):
 
 def crear(request, tema):
     color = tema_color(tema)
+    content = {'tema': tema, 'color': color}
     if request.method == 'POST':        
         usuario = User.objects.get(username=request.user)
         tema = request.POST['tema']
         titulo = request.POST['titulo']
+        if Publicacion.objects.filter(titulo=titulo).exists():
+            mensaje = 'Existe una publicación con este título'
+            content['mensaje'] =  mensaje
+            return render(request, 'forum/crear.html', content)
         contenido = request.POST['contenido']       
         nueva = Publicacion(autor=usuario, tema=tema, titulo=titulo, contenido=contenido)        
         if request.POST.get('online'):
@@ -68,21 +73,29 @@ def crear(request, tema):
         if request.FILES.get('imagen3'):
             nueva.imagen3 = request.FILES['imagen3']
         nueva.save()        
-        data = {'p': nueva, 'color': color, 'tema': tema}
-        return render(request, 'forum/detalles.html', data)
+        mensaje = 'Artículo publicado con éxito'
+        content['p'] = nueva
+        content['tema'] = tema
+        content['mensaje'] = mensaje    
+        return render(request, 'forum/detalles.html', content)
     else:
-        form = PublicacionForm()
-        content = {'form': form, 'tema': tema, 'color': color}
         return render(request, 'forum/crear.html', content)
 
 def editar(request, tema, pk):
     publicacion = Publicacion.objects.get(id=pk)
     color = tema_color(tema)
+    content = {'p': publicacion, 'tema': tema, 'color': color}
     if request.method == 'POST':
         tema = request.POST['tema']
         publicacion.tema = tema
         if request.POST['titulo'] != '':
-            publicacion.titulo = request.POST['titulo']
+            titulo = request.POST['titulo']
+            if titulo != publicacion.titulo:
+                if Publicacion.objects.filter(titulo=titulo).exists():
+                    mensaje = 'Existe una publicación con este título'
+                    content['mensaje'] =  mensaje
+                    return render(request, 'forum/editar.html', content)
+            publicacion.titulo = titulo
         if request.POST['contenido'] != '':
             publicacion.contenido = request.POST['contenido']
         if request.POST.get('online'):
@@ -95,11 +108,13 @@ def editar(request, tema, pk):
             publicacion.imagen2 = request.FILES['imagen2']       
         if request.FILES.get('imagen3'):
             publicacion.imagen3 = request.FILES['imagen3']
-        publicacion.save()        
+        publicacion.fecha = timezone.now()
+        publicacion.save()    
+        mensaje = 'Publicación modificada con éxito'
         content = {'p': publicacion, 'tema': tema, 'color': color}
+        content['mensaje'] =  mensaje    
         return redirect('forum:detalles', tema, pk)
     else:
-        content = {'p': publicacion, 'tema': tema, 'color': color}
         return render(request, 'forum/editar.html', content) 
 
 def eliminar(request, tema, pk):

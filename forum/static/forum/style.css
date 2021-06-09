@@ -14,9 +14,9 @@
     margin-bottom: 150px;    
 }
 
-.blog-header-logo {
+.logo {
     font-family: "Playfair Display", Georgia, "Times New Roman", serif/*rtl:Amiri, Georgia, "Times New Roman", serif*/;
-    font-size: 2.25rem;
+    font-size: 3rem;
 }
 
 .box {
@@ -29,10 +29,10 @@
     color:rgb(0, 0, 0)
 }
 
-.articulo {
+/* .articulo {
     margin: 10px;
 }
-
+ */
 .box h1:hover {
     cursor: default;
     color: white;
@@ -54,11 +54,6 @@
 }
 .contenido {
     min-height: 300px;
-}
-
-.imagenes {    
-    margin: 30px;
-    text-align: center;
 }
 
 .imagenes img {

@@ -10,7 +10,7 @@
 </div>
 <div class="p-1 text-white bg-light overflow-hidden box" style="background-image: url('{% static 'web/noticias/main.jpg' %}')">
     <div class="col-md-10 p-1 px-md-4 text-left" style="text-shadow: 0 0 3px white, 0 0 8px rgb(75, 150, 100);">
-        <h2 class="display-4 px-4 fw-bold">Cotilleo</h2>
+        <h2 class="display-4 px-4 fw-bold logo">Cotilleo</h2>
         <p class="d-none d-md-block p-0 lead my-3 fw-bold">Aquí encontrarás las últimas noticias sobre la Red.</p>      
     </div>
 </div>
@@ -27,36 +27,34 @@
 <div class="row">
     <div class="col-12 col-lg-9">
         <div class="row">
-        {% if not publicaciones %}
-        <h3 class="text-center m-4">No hay ninguna publicación de este tema.</h3>
-        {% endif %}
-        {% for p in publicaciones %}
-        <div class="col-12 col-sm-6 px-md-1">
-            <div class="row g-0 overflow-hidden position-relative box articulo" style="height: 200px;">
-                <div class="col p-4 d-flex flex-column position-static">
-                <strong class="d-inline-block mb-2 text-{{ color }}">{{ p.tema }} - {{ p.autor }}</strong>
-                <h3 class="mb-0">{{ p.titulo }}</h3>
-                <div class="mb-1">{{ p.fecha }}</div>
-                <p class="mb-auto p-0 overflow-hidden d-none d-md-block fw-bold" style="height: 50px;">{{ p.contenido }}</p>
-                <a href="{{ p.id }}" class="stretched-link">Click para detalles...</a>
+            {% if not publicaciones %}
+            <h3 class="text-center m-4">No hay ninguna publicación de este tema.</h3>
+            {% endif %}
+            {% for p in publicaciones %}
+            <div class="col-md-6">
+                <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-200 position-relative box" style="height: 200px;">
+                    <div class="col p-3 d-flex flex-column position-static">
+                        <strong class="d-inline-block mb-2 text-{{ color }}">{{ p.tema }} - {{ p.autor }}</strong>
+                        <h3 class="mb-0">{{ p.titulo }}</h3>
+                        <div class="mb-1">{{ p.fecha }}</div>
+                        <p class="card-text m-0">{{ p.contenido }}</p>
+                        <a href="{{ p.id }}" class="stretched-link">Click para detalles...</a>
+                    </div>
+                    <div class="col-auto d-none d-lg-block">
+                        <img src="{{ p.imagen1.url }}" width="200" height="200" class="img-fluid" alt="Responsive image">
+                    </div>
                 </div>
-                <div class="col-auto d-none d-lg-block">
-                    <img src="{{ p.imagen1.url }}" width="200" height="250" class="img-fluid" alt="Responsive image">
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+            </div>           
+            {% endfor %}
         </div>
     </div>
-    <div class="col-lg-2 m-auto d-none d-lg-block p-1 box text-center overflow-hidden">
-        <div class="row">            
-            <h3 class="text-center py-2">Ultimas:</h3>    
-            <ul class="list-group" style="list-style: none;">
-                {% for p in todas %}
-                <li class="list-item"><a href="{{ p.id }}" class="text-dark p-2">{{ p.titulo }}</a></li>
-                {% endfor %}
-            </ul>           
-        </div>
+    <div class="col-2 d-none d-lg-block my-1 mx-auto p-1 box text-center overflow-hidden">
+        <h3 class="text-center pt-2">Ultimas:</h3>    
+        <ul class="list-group" style="list-style: none;">
+            {% for p in todas %}
+            <li class="list-item py-1"><a href="{{ p.id }}" class="text-dark p-2">{{ p.titulo }}</a></li>
+            {% endfor %}
+        </ul>           
     </div>
 </div>
 {% endblock contenido %}

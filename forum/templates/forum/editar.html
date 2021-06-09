@@ -20,11 +20,11 @@
             </div>
             <div class="mb-3">
                 <label for="titulo" class="form-label">Título:</label>
-                <input class="form-control" id="titulo" name="titulo" type="text" placeholder="{{ p.titulo }}" aria-label="default input example">
+                <input class="form-control" id="titulo" autofocus name="titulo" type="text" value="{{ p.titulo }}" aria-label="default input example">
             </div>
             <div class="mb-3">
                 <label for="contenido" class="form-label">Contenido:</label>
-                <textarea class="form-control" id="contenido" name="contenido" placeholder="{{ p.contenido }}" rows="4"></textarea>
+                <textarea class="form-control" id="contenido" name="contenido" placeholder="{{ p.contenido }}" rows="8"></textarea>
             </div>
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" value="online" name="online" id="online" {% if p.online %} checked {% endif %}>
@@ -32,7 +32,7 @@
                     Publicar en internet
                 </label>
             </div>    
-            <div class="row text-align-center align-items-center imagenes">
+            <div class="row m-auto text-center imagenes py-2">
                 <div class="col-12 col-md-4">
                     <img src="{{ p.imagen1.url }}" alt="imagen1">
                 </div>
@@ -74,6 +74,7 @@
                     Atrás
                 </button>
             </a>
+        </div>
     </div>
 </div>
 <script>
