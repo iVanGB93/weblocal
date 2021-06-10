@@ -15,7 +15,7 @@
     </div>
 </div>
 <div class="row py-1 h4">
-    <div class="col-12 col-md-10 offset-md-1 d-md-flex d-block justify-content-between">
+    <div class="col-12 col-md-10 offset-md-1 d-md-flex d-block justify-content-between bg-dark border rounded py-1 px-3">
         <a class="link-warning" href="{% url 'forum:index' 'Noticia' %}">Noticias</a>
         <a class="link-light" href="{% url 'forum:index' 'Internet' %}">Internet</a>
         <a class="link-primary" href="{% url 'forum:index' 'JovenClub' %}">Joven Club</a>
@@ -32,7 +32,7 @@
             {% endif %}
             {% for p in publicaciones %}
             <div class="col-md-6">
-                <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-200 position-relative box" style="height: 200px;">
+                <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-200 position-relative box bg-dark text-{{ color }}" style="height: 200px;">
                     <div class="col p-3 d-flex flex-column position-static">
                         <strong class="d-inline-block mb-2 text-{{ color }}">{{ p.tema }} - {{ p.autor }}</strong>
                         <h3 class="mb-0">{{ p.titulo }}</h3>
@@ -48,11 +48,11 @@
             {% endfor %}
         </div>
     </div>
-    <div class="col-2 d-none d-lg-block my-1 mx-auto p-1 box text-center overflow-hidden">
-        <h3 class="text-center pt-2">Ultimas:</h3>    
+    <div class="col-2 d-none d-lg-block my-1 mx-auto p-1 box text-center overflow-hidden bg-dark">
+        <h3 class="text-center text-{{ color }} pt-2">Ultimas:</h3>    
         <ul class="list-group" style="list-style: none;">
             {% for p in todas %}
-            <li class="list-item py-1"><a href="{{ p.id }}" class="text-dark p-2">{{ p.titulo }}</a></li>
+            <li class="list-item py-1 text-white"><a href="{{ p.id }}" class="text-white p-2">{{ p.titulo }}</a></li>
             {% endfor %}
         </ul>           
     </div>

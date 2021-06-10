@@ -74,7 +74,8 @@ def detalles(request, tema, pk):
             comentario = Comentario(publicacion=publicacion, autor=request.user, contenido=request.POST['comentario'])
             comentario.save()
             comentarios = Comentario.objects.filter(publicacion=publicacion).all().order_by('-fecha')
-            content['mensaje'] = 'Comentario agregado con éxito.'        
+            content['mensaje'] = 'Comentario agregado con éxito.'
+            content['comentarios'] = comentarios
             return render(request, 'forum/detalles.html', content)
         if request.POST.get('opcion'):
             opcion = request.POST['opcion']      

@@ -22,33 +22,13 @@
 .box {
     border: solid 1px rgba(90, 85, 32, 0.4);
     border-radius: 5px;
-    background-color: rgba(136, 120, 69, 0.3);
+    background-color: rgba(187, 180, 156, 0.3);
     backdrop-filter: blur(10px);
     box-shadow: 0 10px 15px 5px rgba(25, 25, 25, 0.4);
     font-style: italic;
     color:rgb(0, 0, 0)
 }
 
-/* .articulo {
-    margin: 10px;
-}
- */
-.box h1:hover {
-    cursor: default;
-    color: white;
-    transform: scale(1.1)
-}
-
-.box .fecha {
-    cursor: default;
-    text-align: right;
-    padding-right: 30px;
-}
-
-.box p:hover {
-    cursor: default;
-    color: white;
-}
 .contenido {
     min-height: 300px;
 }
@@ -60,4 +40,12 @@
 }
 .imagenes img:hover {
     transform: scale(1.1)
+}
+
+.seccion {
+    background-color: rgb(50, 50, 50);
+    border-radius: 6px;
+    border: solid 1px;
+    margin: 15px;
+    padding: 10px;
 }

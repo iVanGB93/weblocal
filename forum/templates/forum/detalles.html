@@ -2,73 +2,79 @@
 {% load static %}
 {% block contenido %}   
 <div class="col-10 col-lg-8 m-auto box overflow-hidden">
-    <h1 class="col-12 text-center">{{ p.titulo }}</h1>
-    <hr class="featurette-divider mx-4">
-    <span class="col-12 col-md-6 offset-md-6 align-self-end">Publicado el {{ p.fecha }}</span>
-    <div class="col-12 contenido">
-        <p class="fw-bolder h5 p-5">{{ p.contenido }}</p>
+    <div class="seccion">
+        <h1 class="col-12 text-center text-{{ color }}">{{ p.titulo }}</h1>
     </div>
-    {% if encuesta != 'nada' %}
     <hr class="featurette-divider mx-4">
-    <div class="col-10 m-auto p-4 mx-4 fw-bolder">
-        <h3>Encuesta:</h3>
-        <form action="{% url 'forum:detalles' tema p.id %}" method="POST">
-            {% csrf_token %}
-            <div class="row py-1">
-                <div class="col-6 form-check">
-                    <input class="form-check-input" type="radio" {% if voto == 'opcion1' %}checked{% endif %} name="opcion" value="opcion1">
-                    <label class="form-check-label" for="opcion1">{{ encuesta.opcion1 }}</label>
+    <div class="seccion">
+        <span class="col-12 col-md-6 offset-md-6 align-self-end text-{{ color }}">Publicado el {{ p.fecha }}</span>
+    </div>
+    <div class="seccion">
+        <div class="col-12 contenido">
+            <p class="fw-bolder h5 p-5 text-{{ color }}">{{ p.contenido }}</p>
+        </div>
+        {% if encuesta != 'nada' %}
+        <hr class="featurette-divider mx-4">
+        <div class="col-10 m-auto p-4 mx-4 fw-bolder text-{{ color }}">
+            <h3>Encuesta:</h3>
+            <form action="{% url 'forum:detalles' tema p.id %}" method="POST">
+                {% csrf_token %}
+                <div class="row py-1">
+                    <div class="col-6 form-check">
+                        <input class="form-check-input" type="radio" {% if voto == 'opcion1' %}checked{% endif %} name="opcion" value="opcion1">
+                        <label class="form-check-label" for="opcion1">{{ encuesta.opcion1 }}</label>
+                    </div>
+                    <div class="col-6">{{ encuesta.voto1.all.count }}</div>
                 </div>
-                <div class="col-6">{{ encuesta.voto1.all.count }}</div>
-            </div>
-            <div class="row py-1">
-                <div class="col-6 form-check">
-                    <input class="form-check-input" type="radio" {% if voto == 'opcion2' %}checked{% endif %} name="opcion" value="opcion2">
-                    <label class="form-check-label" for="opcion2">{{ encuesta.opcion2 }}</label>
+                <div class="row py-1">
+                    <div class="col-6 form-check">
+                        <input class="form-check-input" type="radio" {% if voto == 'opcion2' %}checked{% endif %} name="opcion" value="opcion2">
+                        <label class="form-check-label" for="opcion2">{{ encuesta.opcion2 }}</label>
+                    </div>
+                    <div class="col-6">{{ encuesta.voto2.all.count }}</div>
                 </div>
-                <div class="col-6">{{ encuesta.voto2.all.count }}</div>
-            </div>
-            {% if encuesta.opcion3 %}
-            <div class="row py-1">
-                <div class="col-6 form-check">
-                    <input class="form-check-input" type="radio" {% if voto == 'opcion3' %}checked{% endif %} name="opcion" value="opcion3">
-                    <label class="form-check-label" for="opcion3">{{ encuesta.opcion3 }}</label>
+                {% if encuesta.opcion3 %}
+                <div class="row py-1">
+                    <div class="col-6 form-check">
+                        <input class="form-check-input" type="radio" {% if voto == 'opcion3' %}checked{% endif %} name="opcion" value="opcion3">
+                        <label class="form-check-label" for="opcion3">{{ encuesta.opcion3 }}</label>
+                    </div>
+                    <div class="col-6">{{ encuesta.voto3.all.count }}</div>
                 </div>
-                <div class="col-6">{{ encuesta.voto3.all.count }}</div>
-            </div>
-            {% endif %}
-            {% if encuesta.opcion4 %}
-            <div class="row py-1">
-                <div class="col-6 form-check">
-                    <input class="form-check-input" type="radio" {% if voto == 'opcion4' %}checked{% endif %} name="opcion" value="opcion4">
-                    <label class="form-check-label" for="opcion4">{{ encuesta.opcion4 }}</label>
-                </div>
-                <div class="col-6">{{ encuesta.voto4.all.count }}</div>
-            </div>
-            {% endif %}
-            {% if encuesta.opcion5 %}
-            <div class="row py-1">
-                <div class="col-6 form-check">
-                    <input class="form-check-input" type="radio" {% if voto == 'opcion5' %}checked{% endif %} name="opcion" value="opcion5">
-                    <label class="form-check-label" for="opcion5">{{ encuesta.opcion5 }}</label>
-                </div>
-                <div class="col-6">{{ encuesta.voto5.all.count }}</div>
-            </div>
-            {% endif %}
-            <div class="row py-1">
-                {% if user.is_authenticated %}
-                    {% if voto != 'no' %}
-                        <button class="col-4 m-auto btn btn-{{ color }}" disabled type="submit">Ya votó</button>
-                    {% else %}
-                        <button class="col-4 m-auto btn btn-{{ color }}" type="submit">Votar</button>
-                    {% endif %}
-                {% else %}
-                    <h4 class="py-2 text-center">Debe autenticarse para poder votar.</h4>
                 {% endif %}
-            </div>
-        </form>
+                {% if encuesta.opcion4 %}
+                <div class="row py-1">
+                    <div class="col-6 form-check">
+                        <input class="form-check-input" type="radio" {% if voto == 'opcion4' %}checked{% endif %} name="opcion" value="opcion4">
+                        <label class="form-check-label" for="opcion4">{{ encuesta.opcion4 }}</label>
+                    </div>
+                    <div class="col-6">{{ encuesta.voto4.all.count }}</div>
+                </div>
+                {% endif %}
+                {% if encuesta.opcion5 %}
+                <div class="row py-1">
+                    <div class="col-6 form-check">
+                        <input class="form-check-input" type="radio" {% if voto == 'opcion5' %}checked{% endif %} name="opcion" value="opcion5">
+                        <label class="form-check-label" for="opcion5">{{ encuesta.opcion5 }}</label>
+                    </div>
+                    <div class="col-6">{{ encuesta.voto5.all.count }}</div>
+                </div>
+                {% endif %}
+                <div class="row py-1">
+                    {% if user.is_authenticated %}
+                        {% if voto != 'no' %}
+                            <button class="col-4 m-auto btn btn-{{ color }}" disabled type="submit">Ya votó</button>
+                        {% else %}
+                            <button class="col-4 m-auto btn btn-{{ color }}" type="submit">Votar</button>
+                        {% endif %}
+                    {% else %}
+                        <h4 class="py-2 text-center">Debe autenticarse para poder votar.</h4>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
     <hr class="featurette-divider mx-4">
     <span class="col-6 offset-6 col-md-3 offset-md-9 align-self-end fw-bolder">
         {% if p.online %}
@@ -96,21 +102,23 @@
     {% endif %}
     </div>
     <hr class="featurette-divider mx-4">
-    <div class="col-10 m-auto p-4 mx-4 fw-bolder">
-        <form action="{% url 'forum:detalles' tema p.id %}" method="POST">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="comentario" class="form-label">Comentar:</label>
-                <textarea class="form-control" id="comentario" name="comentario" placeholder="escriba un comentario si desea..." required rows="3"></textarea>
-            </div>
-            <div class="row">
-                {% if user.is_authenticated %}
-                <button class="col-3 align-self-end m-auto btn btn-{{ color }}" type="submit">Enviar</button>
-                {% else %}
-                <h4 class="py-2 text-center">Debe autenticarse para poder comentar.</h4>
-                {% endif %}
-            </div>
-        </form>
+    <div class="seccion">
+        <div class="col-10 m-auto p-4 mx-4 fw-bolder text-{{ color }}">
+            <form action="{% url 'forum:detalles' tema p.id %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="comentario" class="form-label">Comentar:</label>
+                    <textarea class="form-control" id="comentario" name="comentario" placeholder="escriba un comentario si desea..." required rows="3"></textarea>
+                </div>
+                <div class="row">
+                    {% if user.is_authenticated %}
+                    <button class="col-3 align-self-end m-auto btn btn-{{ color }}" type="submit">Enviar</button>
+                    {% else %}
+                    <h4 class="py-2 text-center">Debe autenticarse para poder comentar.</h4>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
     </div>
     <hr class="featurette-divider mx-4">
     <div class="col-12 text-end py-3">
@@ -132,17 +140,17 @@
             {% if comentarios != 'no' %}
             <h3 class="py-2">Comentarios:</h3>
             {% for comentario in comentarios %}
-            <div class="py-2">
-                <h5 class="text-end">{{ comentario.autor.username }}<span>, fecha:{{ comentario.fecha }}</span></h5>
-                <p class="h5">{{ comentario.contenido }}</p>
-                {% if comentario.autor == request.user %}
-                <form action="{% url 'forum:detalles' tema p.id %}" method="POST">
-                    {% csrf_token %}
-                    <div class="row">
-                        <button class="col-3 align-self-end m-auto btn btn-{{ color }}" name="eliminar" value={{ comentario.id }} type="submit">Eliminar</button>
-                    </div>
-                </form>
-                {% endif %}
+            <div class="seccion text-{{ color }}">
+                    <p class="text-end">{{ comentario.autor.username }}<span>, fecha:{{ comentario.fecha }}</span></p>
+                    <p>{{ comentario.contenido }}</p>
+                    {% if comentario.autor == request.user %}
+                    <form action="{% url 'forum:detalles' tema p.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <button class="col-3 align-self-end m-auto btn btn-{{ color }}" name="eliminar" value={{ comentario.id }} type="submit">Eliminar</button>
+                        </div>
+                    </form>
+                    {% endif %}
             </div>
             {% endfor %}
             {% else %}
