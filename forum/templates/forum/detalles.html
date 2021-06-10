@@ -63,7 +63,6 @@
                         <button class="col-4 m-auto btn btn-{{ color }}" type="submit">Votar</button>
                     {% endif %}
                 {% else %}
-                    <button class="col-4 m-auto btn btn-{{ color }}" disabled type="submit">Votar</button>
                     <h4 class="py-2 text-center">Debe autenticarse para poder votar.</h4>
                 {% endif %}
             </div>
@@ -108,7 +107,6 @@
                 {% if user.is_authenticated %}
                 <button class="col-3 align-self-end m-auto btn btn-{{ color }}" type="submit">Enviar</button>
                 {% else %}
-                <button class="col-3 align-self-end m-auto btn btn-{{ color }}" disabled type="submit">Enviar</button>
                 <h4 class="py-2 text-center">Debe autenticarse para poder comentar.</h4>
                 {% endif %}
             </div>
