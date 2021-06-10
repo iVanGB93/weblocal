@@ -56,10 +56,15 @@
             </div>
             {% endif %}
             <div class="row py-1">
-                {% if voto != 'no' %}
-                    <button class="col-4 m-auto btn btn-{{ color }}" disabled type="submit">Ya votó</button>
+                {% if user.is_authenticated %}
+                    {% if voto != 'no' %}
+                        <button class="col-4 m-auto btn btn-{{ color }}" disabled type="submit">Ya votó</button>
+                    {% else %}
+                        <button class="col-4 m-auto btn btn-{{ color }}" type="submit">Votar</button>
+                    {% endif %}
                 {% else %}
-                    <button class="col-4 m-auto btn btn-{{ color }}" type="submit">Votar</button>
+                    <button class="col-4 m-auto btn btn-{{ color }}" disabled type="submit">Votar</button>
+                    <h4 class="py-2 text-center">Debe autenticarse para poder votar.</h4>
                 {% endif %}
             </div>
         </form>
@@ -73,9 +78,25 @@
         Solo local
         {% endif %}
     </span>
-    <span class="col-6 offset-6 col-md-3 offset-md-9 align-self-end fw-bolder">Vistas: {{ p.visitas }}</span>
+    <span class="col-6 offset-6 col-md-3 offset-md-9 align-self-end fw-bolder">Vistas: {{ p.visitas }}</span>    
+    <div class="row m-auto text-center imagenes py-2">
+    {% if p.imagen1.url != '/media/defaultForum.png' %}
+        <div class="col-12 col-md-4">
+            <img src="{{ p.imagen1.url }}" alt="imagen1">
+        </div>
+    {% endif %}
+    {% if p.imagen2.url != '/media/defaultForum.png' %}
+        <div class="col-12 col-md-4">
+            <img src="{{ p.imagen2.url }}" alt="imagen2">
+        </div>
+    {% endif %}
+    {% if p.imagen3.url != '/media/defaultForum.png' %}
+        <div class="col-12 col-md-4">
+            <img src="{{ p.imagen3.url }}" alt="imagen3">
+        </div>
+    {% endif %}
+    </div>
     <hr class="featurette-divider mx-4">
-    {% if user.is_authenticated %}
     <div class="col-10 m-auto p-4 mx-4 fw-bolder">
         <form action="{% url 'forum:detalles' tema p.id %}" method="POST">
             {% csrf_token %}
@@ -84,28 +105,14 @@
                 <textarea class="form-control" id="comentario" name="comentario" placeholder="escriba un comentario si desea..." required rows="3"></textarea>
             </div>
             <div class="row">
+                {% if user.is_authenticated %}
                 <button class="col-3 align-self-end m-auto btn btn-{{ color }}" type="submit">Enviar</button>
+                {% else %}
+                <button class="col-3 align-self-end m-auto btn btn-{{ color }}" disabled type="submit">Enviar</button>
+                <h4 class="py-2 text-center">Debe autenticarse para poder comentar.</h4>
+                {% endif %}
             </div>
         </form>
-    </div>
-    {% endif %}
-    <hr class="featurette-divider mx-4">
-    <div class="row m-auto text-center imagenes py-2">
-    {% if p.imagen1.url != '/media/defaultForum.png' %}
-    <div class="col-12 col-md-4">
-        <img src="{{ p.imagen1.url }}" alt="imagen1">
-    </div>
-    {% endif %}
-    {% if p.imagen2.url != '/media/defaultForum.png' %}
-    <div class="col-12 col-md-4">
-        <img src="{{ p.imagen2.url }}" alt="imagen2">
-    </div>
-    {% endif %}
-    {% if p.imagen3.url != '/media/defaultForum.png' %}
-    <div class="col-12 col-md-4">
-        <img src="{{ p.imagen3.url }}" alt="imagen3">
-    </div>
-    {% endif %}
     </div>
     <hr class="featurette-divider mx-4">
     <div class="col-12 text-end py-3">
