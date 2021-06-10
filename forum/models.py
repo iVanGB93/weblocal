@@ -28,4 +28,35 @@ class Publicacion(models.Model):
 
     def __str__(self):
         return "Usuario: " + self.autor.username + " tema: " + self.tema +  " título: " + self.titulo
+
+class Comentario(models.Model):
+    publicacion = models.ForeignKey(Publicacion, on_delete=models.CASCADE)
+    autor = models.ForeignKey(User, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(default=timezone.now)
+    contenido = models.TextField()
+
+    def __str__(self):
+        return "Comentario de " + self.autor.username + " en " + self.publicacion.titulo
+
+class RespuestaComentario(models.Model):
+    comentario = models.ForeignKey(Publicacion, on_delete=models.CASCADE)
+    autor = models.ForeignKey(User, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(default=timezone.now)
+    contenido = models.TextField()
+
+class Encuesta(models.Model):
+    publicacion = models.ForeignKey(Publicacion, on_delete=models.CASCADE)
+    opcion1 = models.CharField(max_length=60)
+    opcion2 = models.CharField(max_length=60)
+    opcion3 = models.CharField(max_length=60)
+    opcion4 = models.CharField(max_length=60)
+    opcion5 = models.CharField(max_length=60)
+    voto1 = models.ManyToManyField(User, related_name='Opcion1')
+    voto2 = models.ManyToManyField(User, related_name='Opcion2')
+    voto3 = models.ManyToManyField(User, related_name='Opcion3')
+    voto4 = models.ManyToManyField(User, related_name='Opcion4')
+    voto5 = models.ManyToManyField(User, related_name='Opcion5')
+
+    def __str__(self):
+        return "Encuesta de " + self.publicacion.titulo + " del usuario " + self.publicacion.autor.username
     

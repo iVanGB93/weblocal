@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Publicacion
+from .models import Publicacion, Encuesta, Comentario, RespuestaComentario
 
 class PublicacionAdminConfig(admin.ModelAdmin):
     model = Publicacion
@@ -15,3 +15,8 @@ class PublicacionAdminConfig(admin.ModelAdmin):
     )
 
 admin.site.register(Publicacion, PublicacionAdminConfig)
+
+
+admin.site.register(Encuesta)
+admin.site.register(Comentario)
+admin.site.register(RespuestaComentario)

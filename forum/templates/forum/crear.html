@@ -31,23 +31,46 @@
                 <label class="form-check-label" for="online">
                 Publicar en internet
                 </label>
-            </div>            
-            <div class="col-12 col-md-10 col-lg-8">
-                <div class="input-group mb-3">
-                    <input type="file" class="form-control" id="imagen1" name="imagen1">
-                    <label class="input-group-text" for="imagen1">Imagen-1</label>
-                </div>
+            </div>   
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="boton_encuesta" name="encuesta">
+                <label class="form-check-label" for="boton_encuesta">
+                Agregar encuesta
+                </label>
             </div>
-            <div class="col-12 col-md-10 col-lg-8 m-auto">
-                <div class="input-group mb-3">
-                    <input type="file" class="form-control" id="imagen2" name="imagen2">
-                    <label class="input-group-text" for="imagen2">Imagen-2</label>
+            <div class="col-12 mb-3 text-center" id="encuesta" style="display: none;">
+                <label for="encuesta" class="form-label">Escriba las opciones a continuación, mínimo 2 y máximo 5:</label>
+                <input class="form-control mb-2" id="opcion1" name="opcion1" type="text" placeholder="opción 1 necesaria">
+                <input class="form-control mb-2" id="opcion2" name="opcion2" type="text" placeholder="opción 2 necesaria">
+                <input class="form-control mb-2" name="opcion3" type="text" placeholder="opción 3">
+                <input class="form-control mb-2" name="opcion4" type="text" placeholder="opción 4">
+                <input class="form-control" name="opcion5" type="text" placeholder="opción 5">
+            </div>  
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="boton_imagen">
+                <label class="form-check-label" for="boton_imagen">
+                Agregar imágenes
+                </label>
+            </div>       
+            <div class="col-12 text-center" id="imagenes" style="display: none;">
+                <label for="imagen1" class="form-label">Seleccione las imágenes, máximo 3:</label>
+                <div class="col-12 col-md-10 col-lg-8">
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control" id="imagen1" name="imagen1">
+                        <label class="input-group-text" for="imagen1">Imagen-1</label>
+                    </div>
                 </div>
-            </div>
-            <div class="col-12 col-md-10 offset-md-2 col-lg-8 offset-lg-4 align-self-end">
-                <div class="input-group mb-3">
-                    <input type="file" class="form-control" id="imagen3" name="imagen3">
-                    <label class="input-group-text" for="imagen3">Imagen-3</label>
+                <div class="col-12 col-md-10 col-lg-8 m-auto">
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control" id="imagen2" name="imagen2">
+                        <label class="input-group-text" for="imagen2">Imagen-2</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-10 offset-md-2 col-lg-8 offset-lg-4 align-self-end">
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control" id="imagen3" name="imagen3">
+                        <label class="input-group-text" for="imagen3">Imagen-3</label>
+                    </div>
                 </div>
             </div>
             <div class="col-12 text-end"> 
@@ -57,6 +80,13 @@
                 </button>
             </div>
         </form>
+        <div class="col-12 text-end py-2">
+            <a href="{% url 'forum:index' tema %}">
+                <button id="boton2" class="btn btn-secondary mx-2">
+                    Atrás
+                </button>
+            </a>
+        </div>
     </div>
 </div>
 <script>
@@ -64,6 +94,22 @@
     myform.addEventListener("submit", (e) => {       
         document.getElementById('spinner').style.display = 'inline-block';
         document.getElementById('boton').disabled=true;
+    });
+    const boton_encuesta = document.getElementById("boton_encuesta");
+    const encuesta = document.getElementById("encuesta");
+    boton_encuesta.addEventListener("change", (e) => {
+        if (encuesta.style.display === 'inline-block')
+            encuesta.style.display = 'none';
+        else
+            encuesta.style.display = 'inline-block';
+    });
+    const boton_imagen = document.getElementById("boton_imagen");
+    const imagenes = document.getElementById("imagenes");
+    boton_imagen.addEventListener("change", (e) => {
+        if (imagenes.style.display === 'inline-block')
+            imagenes.style.display = 'none';
+        else
+            imagenes.style.display = 'inline-block';
     });
 </script>
 {% endblock contenido %}
