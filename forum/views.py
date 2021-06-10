@@ -106,7 +106,9 @@ def detalles(request, tema, pk):
 
 def crear(request, tema):
     color = tema_color(tema)
-    content = {'tema': tema, 'color': color}
+    voto = 'no'
+    comentarios = 'no'
+    content = {'voto': voto, 'comentarios': comentarios, 'tema': tema, 'color': color}
     if request.method == 'POST':      
         usuario = User.objects.get(username=request.user)
         tema = request.POST['tema']
@@ -143,10 +145,10 @@ def crear(request, tema):
                 if request.POST['opcion5'] != '':
                     encuesta.opcion5 = request.POST['opcion5']
                 encuesta.save()
+                content['encuesta'] = encuesta
         nueva.save()
         mensaje = 'Artículo publicado con éxito'
         content['p'] = nueva
-        content['tema'] = tema
         content['mensaje'] = mensaje    
         return render(request, 'forum/detalles.html', content)
     else:
