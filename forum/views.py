@@ -129,6 +129,7 @@ def crear(request, tema):
         if request.FILES.get('imagen3'):
             nueva.imagen3 = request.FILES['imagen3']   
         nueva.save()             
+        content['encuesta'] = 'nada'
         if request.POST.get('encuesta'):
             opcion1 = request.POST['opcion1']
             opcion2 = request.POST['opcion2']
