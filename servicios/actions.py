@@ -346,7 +346,7 @@ def comprar_filezilla(usuario, contraseña):
     profile = Profile.objects.get(usuario=usuario)
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
-    if servicio.jc == True:
+    if servicio.ftp == True:
         result['mensaje'] = 'Ya tiene el servicio activo.'
         return result
     if profile.coins >= 50:
