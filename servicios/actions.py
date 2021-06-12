@@ -251,7 +251,7 @@ def comprar_emby(usuario):
     profile = Profile.objects.get(usuario=usuario)
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
-    if servicio.jc == True:
+    if servicio.emby == True:
         result['mensaje'] = 'Ya tiene el servicio activo.'
         return result
     if profile.coins >= 100:
