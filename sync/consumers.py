@@ -34,12 +34,12 @@ class SyncWSConsumer(WebsocketConsumer):
             self.responder(respuesta)
 
     def saludo(self, data):
+        respuesta = {'estado': False}
         celula = data['identidad']
         print(f'{ celula } se ha conectado')
-        command = 'saludo'
-        data = {'mensaje': f'bienvenido {celula}, ya esta conectado'}
-        envia = {'command': command, 'data': data}
-        self.responder(envia)
+        respuesta['estado'] = True
+        respuesta['mensaje'] = f'Bienvenido {celula}, está conectado!!!'
+        self.responder(respuesta)
 
     def check_usuario(self, data):
         respuesta = {'estado': False}
@@ -126,10 +126,10 @@ class SyncWSConsumer(WebsocketConsumer):
                 perfil.sync = True
                 perfil.save()
                 respuesta['estado'] = True
-                respuesta['mensaje'] = 'Perfil actualizado con éxito'
+                respuesta['mensaje'] = f'Perfil de { usuario } actualizado con éxito'
                 self.responder(respuesta)
             else:
-                respuesta['mensaje'] = f'El perfil del usuario no existe.'
+                respuesta['mensaje'] = f'El perfil de { usuario } no existe.'
                 self.responder(respuesta)
     
     def coger_perfil(self, data):

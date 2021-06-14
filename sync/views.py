@@ -255,3 +255,105 @@ def control_recargas(request):
             return render(request, 'sync/control_recargas.html', content)
     else:
         return render(request, 'sync/control_recargas.html')
+
+@login_required(login_url='/users/login/')
+def control_sorteos(request):
+    return render(request, 'sync/control_sorteo.html')
+
+@login_required(login_url='/users/login/')
+def control_avanzado(request):
+    if request.method == 'POST':
+        if request.POST.get('chequeo'):
+            chequeo = request.POST['chequeo']
+            if chequeo == 'medula':
+                data = {'identidad': 'primera celula'}
+                respuesta = actualizacion_remota('saludo', data)
+                mensaje = respuesta['mensaje']
+                content = {'mensaje': mensaje}
+                return render(request, 'sync/control_avanzado.html', content)
+            elif chequeo == 'usuarios':
+                usuarios = User.objects.all()
+                for u in usuarios:
+                    data = {'usuario': u.username}
+                    respuesta = actualizacion_remota('check_usuario', data)
+                    if respuesta['estado'] == False:
+                        mensaje = respuesta['mensaje']
+                        content = {'mensaje': mensaje}
+                        return render(request, 'sync/control_avanzado.html', content)
+                mensaje = respuesta['mensaje']
+                content = {'mensaje': mensaje}
+                return render(request, 'sync/control_avanzado.html', content)
+            elif chequeo == 'perfiles':
+                perfiles = Profile.objects.all()
+                for p in perfiles:
+                    data = {'usuario': p.usuario.username, 'coins': p.coins}
+                    respuesta = actualizacion_remota('check_perfil', data)
+                    if respuesta['estado'] == False:
+                        mensaje = respuesta['mensaje']
+                        content = {'mensaje': mensaje}
+                        return render(request, 'sync/control_avanzado.html', content)
+                mensaje = respuesta['mensaje']
+                content = {'mensaje': mensaje}
+                return render(request, 'sync/control_avanzado.html', content)
+            elif chequeo == 'servicios':
+                servicios = EstadoServicio.objects.all()
+                for s in servicios:
+                    serializer = ServiciosSerializer(s)
+                    data=serializer.data
+                    data['usuario'] = s.usuario.username
+                    respuesta = actualizacion_remota('check_servicio', data)
+                    if respuesta['estado'] == False:
+                        mensaje = respuesta['mensaje']
+                        content = {'mensaje': mensaje}
+                        return render(request, 'sync/control_avanzado.html', content)
+                mensaje = respuesta['mensaje']
+                content = {'mensaje': mensaje}
+                return render(request, 'sync/control_avanzado.html', content)
+            else:
+                content = {'mensaje': 'Seleccione algo'}
+                return render(request, 'sync/control_avanzado.html', content)
+        if request.POST.get('accion'):
+            accion = request.POST['accion']
+            if accion == 'subir_usuarios':
+                usuarios = User.objects.all()
+                for u in usuarios:
+                    data = {'usuario': u.username, 'email': u.email, 'first_name': u.first_name, 'last_name': u.last_name}
+                    respuesta = actualizacion_remota('cambio_usuario', data)
+                    if respuesta['estado'] == False:
+                        mensaje = respuesta['mensaje']
+                        content = {'mensaje': mensaje}
+                        return render(request, 'sync/control_avanzado.html', content)
+                mensaje = respuesta['mensaje']
+                content = {'mensaje': mensaje}
+                return render(request, 'sync/control_avanzado.html', content)
+            elif accion == 'subir_perfiles':
+                perfiles = Profile.objects.all()
+                for p in perfiles:
+                    data = {'usuario': p.usuario.username, 'coins': p.coins}
+                    respuesta = actualizacion_remota('cambio_perfil', data)
+                    if respuesta['estado'] == False:
+                        mensaje = respuesta['mensaje']
+                        content = {'mensaje': mensaje}
+                        return render(request, 'sync/control_avanzado.html', content)
+                mensaje = respuesta['mensaje']
+                content = {'mensaje': mensaje}
+                return render(request, 'sync/control_avanzado.html', content)
+            elif accion == 'subir_servicios':
+                servicios = EstadoServicio.objects.all()
+                for s in servicios:
+                    serializer = ServiciosSerializer(s)
+                    data=serializer.data
+                    data['usuario'] = s.usuario.username
+                    respuesta = actualizacion_remota('cambio_servicio', data)
+                    if respuesta['estado'] == False:
+                        mensaje = respuesta['mensaje']
+                        content = {'mensaje': mensaje}
+                        return render(request, 'sync/control_avanzado.html', content)
+                mensaje = respuesta['mensaje']
+                content = {'mensaje': mensaje}
+                return render(request, 'sync/control_avanzado.html', content)
+            else:
+                content = {'mensaje': 'Seleccione algo'}
+                return render(request, 'sync/control_avanzado.html', content)
+    else:
+        return render(request, 'sync/control_avanzado.html')
