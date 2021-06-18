@@ -56,7 +56,7 @@
                             {{ servicio.int_time}}
                         {% else %}
                             {% if servicio.int_tipo == "internetHoras" %}
-                                <a href="https://login.qbared.com/status/">Horas: {{ servicio.int_horas }}</a> 
+                                <a href="https://login.qbared.com/status/">Horas compradas: {{ servicio.int_horas }}</a> 
                             {% else %}
                                 -
                             {% endif %}
@@ -154,7 +154,7 @@
             <div class="card-body">
                 <ul class="list-group">
                     <li class="list-group-item">El tipo mensual solo incluye el acceso al portal nauta para que usted ponga su propia cuenta cuando desee tener internet.</li>
-                    <li class="list-group-item">El tipo semanal es conexión a internet desde las 11am hasta las 3pm, serían 16 horas diarias.</li>
+                    <li class="list-group-item">El tipo semanal es conexión a internet desde las 11am hasta las 3am, serían 16 horas diarias.</li>
                     <li class="list-group-item">El tipo por horas es conexión a internet cuando usted desee usar el tiempo que tenga,siempre en el horario de 11am a 3pm.</li>
                     <li class="list-group-item">No olvide si activa el servicio tiene la oportunidad de ganar el sorteo del mes usando el código, mas información <a href="{% url 'sorteo:index' %}">-->aquí<--</a>.</li>
                     <li class="list-group-item">Duda y sugerencias, escribir a la administración.</li>

@@ -4,7 +4,7 @@
 <div class="col-8 col-md-6 m-auto my-5">
     {% if mensaje %}
         <div class="alert alert-warning text-center my-2" role="alert">                   
-            {{ mensaje }}                   
+            {{ mensaje }}
         </div>               
     {% endif %}
     <div class="card">
@@ -27,6 +27,7 @@
                 </button>
             </form>
         </div>
+        <a class="col-3 m-auto text-end mb-3" href="{% url 'sync:control' %}"><button class="form-control btn btn-secondary">Atras</button></a>
     </div>
 </div>
 <div class="col-8 col-md-6 m-auto my-5">
@@ -49,6 +50,7 @@
                 </button>
             </form>
         </div>
+        <a class="col-3 m-auto text-end mb-3" href="{% url 'sync:control' %}"><button class="form-control btn btn-secondary">Atras</button></a>
     </div>
 </div>
 <script>

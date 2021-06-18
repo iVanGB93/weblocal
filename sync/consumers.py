@@ -105,14 +105,14 @@ class SyncWSConsumer(WebsocketConsumer):
                 for p in perfil:
                     if p.coins != data['coins']:
                         locales = data['coins']
-                        respuesta['mensaje'] = f'No coinciden los coins, locales { locales } y remotos { p.coins }'
+                        respuesta['mensaje'] = f'No coinciden los coins de { usuario }, locales { locales } y remotos { p.coins }'
                         self.responder(respuesta)
                     else:
                         respuesta['mensaje'] = 'Perfiles sincronizados correctamente'
                         respuesta['estado'] = True
                         self.responder(respuesta)
             else:
-                respuesta['mensaje'] = f'El perfil del usuario no existe.'
+                respuesta['mensaje'] = f'El perfil del usuario { usuario } no existe.'
                 self.responder(respuesta)
 
     def cambio_perfil(self, data):
@@ -141,10 +141,10 @@ class SyncWSConsumer(WebsocketConsumer):
                 perfil = Profile.objects.get(usuario=usuario_local)
                 respuesta['coins'] = perfil.coins
                 respuesta['estado'] = True
-                respuesta['mensaje'] = 'Perfil actualizado con éxito'
+                respuesta['mensaje'] = f'Perfil de { usuario } actualizado con éxito'
                 self.responder(respuesta)
             else:
-                respuesta['mensaje'] = f'El perfil del usuario no existe.'
+                respuesta['mensaje'] = f'El perfil del usuario { usuario } no existe.'
                 self.responder(respuesta)
 
     def check_servicio(self, data):
@@ -181,16 +181,17 @@ class SyncWSConsumer(WebsocketConsumer):
                         s.sync = True
                         s.save()
                         respuesta['estado'] = True
-                        respuesta['mensaje'] = 'Servicios sincronizados'
+                        respuesta['mensaje'] = f'Servicios de { usuario } sincronizados'
                         self.responder(respuesta)
             else:
-                respuesta['mensaje'] = f'El servicio del usuario no existe.'
+                respuesta['mensaje'] = f'El servicio del usuario { usuario } no existe.'
                 self.responder(respuesta)
 
     def cambio_servicio(self, data):
         respuesta = {'estado': False}
+        usuario = data['usuario']
         if self.usuario_existe(data):    
-            usuario_local = User.objects.get(username=data['usuario'])
+            usuario_local = User.objects.get(username=usuario)
             if EstadoServicio.objects.filter(usuario=usuario_local).exists():
                 servicio = EstadoServicio.objects.filter(usuario=usuario_local)
                 for s in servicio:
@@ -212,10 +213,10 @@ class SyncWSConsumer(WebsocketConsumer):
                     s.sync = True
                     s.save()
                 respuesta['estado'] = True
-                respuesta['mensaje'] = 'Servicio sincronizado con éxito'
+                respuesta['mensaje'] = f'Servicio de { usuario } sincronizado con éxito'
                 self.responder(respuesta)
             else:
-                respuesta['mensaje'] = f'El servicio del usuario no existe.'
+                respuesta['mensaje'] = f'El servicio del usuario { usuario } no existe.'
                 self.responder(respuesta)
     
     def coger_servicios(self, data):
