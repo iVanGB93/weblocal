@@ -2,11 +2,12 @@ from django.shortcuts import render
 from .syncs import actualizacion_remota
 from django.contrib.auth.decorators import login_required
 from decouple import config
-from datetime import datetime
 from servicios.api.serializers import ServiciosSerializer
 from django.contrib.auth.models import User
+from django.utils import timezone
 from servicios.models import EstadoServicio, Recarga
 from users.models import Profile
+from sorteo.models import Sorteo, SorteoDetalle
 
 @login_required(login_url='/users/login/')
 def control(request):
@@ -258,7 +259,25 @@ def control_recargas(request):
 
 @login_required(login_url='/users/login/')
 def control_sorteos(request):
-    return render(request, 'sync/control_sorteo.html')
+    mesActual = timezone.now().month
+    if SorteoDetalle.objects.filter(mes=mesActual).exists():
+        sorteo = SorteoDetalle.objects.get(mes=mesActual)
+    else:
+        sorteo = 'nada'
+    content = {'sorteo': sorteo}
+    if request.method == 'POST':
+        accion = request.POST['accion']
+        if accion == 'reiniciar':
+            participantes = Sorteo.objects.filter(mes=mesActual)
+            for p in participantes:
+                p.eliminado = False
+                p.save()
+            sorteo.activo = False
+            sorteo.finalizado = False
+            sorteo.ganador = None
+            sorteo.recarga = None
+            sorteo.save()
+    return render(request, 'sync/control_sorteo.html', content)
 
 @login_required(login_url='/users/login/')
 def control_avanzado(request):
@@ -321,8 +340,15 @@ def control_avanzado(request):
                     respuesta = actualizacion_remota('cambio_usuario', data)
                     if respuesta['estado'] == False:
                         mensaje = respuesta['mensaje']
+                        if mensaje == f'El usuario { u.username } no existe.':
+                            data = {'usuario': u.username, 'email': u.email, 'password': u.username }
+                            respuesta = actualizacion_remota('nuevo_usuario', data)
+                            if respuesta['estado'] == False:
+                                mensaje = respuesta['mensaje']
+                                content = {'mensaje': mensaje}
+                                return render(request, 'sync/control_avanzado.html', content)
                         content = {'mensaje': mensaje}
-                        return render(request, 'sync/control_avanzado.html', content)
+                        return render(request, 'sync/control_avanzado.html', content)                    
                 mensaje = respuesta['mensaje']
                 content = {'mensaje': mensaje}
                 return render(request, 'sync/control_avanzado.html', content)

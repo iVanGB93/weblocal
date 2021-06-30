@@ -56,7 +56,10 @@ class WSConsumer(WebsocketConsumer):
         participants = Sorteo.objects.filter(mes=mesActual)
         respuesta['mensaje'] = 'participantes'
         respuesta['participantes'] = self.participants_to_json(participants)
-        self.responder_grupo(respuesta)
+        if data.get('individual'):
+            self.responder(respuesta)
+        else:
+            self.responder_grupo(respuesta)
     
     def participants_to_json(self, participants):
         result = []
@@ -113,6 +116,7 @@ class WSConsumer(WebsocketConsumer):
             else:
                 respuesta['estado'] = True
                 sorteo.finalizado = True
+                sorteo.activo = False
                 sorteo.save()
                 ganador = sorteo.ganador
                 respuesta['mensaje'] = f'Ya ha terminado el sorteo, ganador { ganador }.'
@@ -125,7 +129,7 @@ class WSConsumer(WebsocketConsumer):
     acciones = {
         'saludo': saludo,
         'empezar': empezar,
-        'participantes': participantes,        
+        'participantes': participantes,
         'sortear': sortear,
     }
 

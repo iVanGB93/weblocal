@@ -221,10 +221,10 @@
     <div class="card">
         <h5 class="card-header text-white bg-dark">Sorteos:</h5>
         <div class="card-body">
-            <h5 class="card-title">Ganador mes abril:</h5>
-            <p class="card-text d-flex justify-content-end">Erick.Roche</p>
-            <h5 class="card-title">Ganador mes mayo:</h5>
-            <p class="card-text d-flex justify-content-end">tsunami</p>
+            {% for s in sorteos %}
+                <h5 class="card-title">Ganador mes: {{ s.mes }}</h5>
+                <p class="card-text d-flex justify-content-end">{{ s.ganador }}</p>
+            {% endfor %}
         </div>
     </div>
 </div>

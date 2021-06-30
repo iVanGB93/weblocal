@@ -63,13 +63,15 @@
     const eliminados = [];
     var activo = JSON.parse(document.getElementById('activo').textContent);
     var finalizado = JSON.parse(document.getElementById('finalizado').textContent);
-    var socket = new ReconnectingWebSocket('ws://127.0.0.1:8000/ws/sorteo/running/');
+    var socket = new ReconnectingWebSocket('ws://172.16.0.10:8000/ws/sorteo/running/');
     socket.onopen = function(e) {
         console.log('socket conectado');
         if (activo === false) {
             socket.send(JSON.stringify({
                 'accion': 'participantes',
-                'data': 'nada'
+                'data': {
+                    'individual': true
+                }
             }))
         };
         if (finalizado === true) {

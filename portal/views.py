@@ -5,6 +5,7 @@ from decouple import config
 from users.models import Profile
 from .forms import EditUserForm
 from servicios.models import EstadoServicio, Oper
+from sorteo.models import SorteoDetalle
 from servicios.actions import *
 from sync.syncs import actualizacion_remota
 
@@ -19,7 +20,8 @@ def dashboard(request):
     perfil = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
     tiempo = timezone.now()
-    content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'tiempo': tiempo}
+    sorteos = SorteoDetalle.objects.all()
+    content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'tiempo': tiempo, 'sorteos': sorteos}
     return render(request, 'portal/dashboard.html', content)
 
 @login_required(login_url='/users/login/')
