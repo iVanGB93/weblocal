@@ -102,6 +102,8 @@ class WSConsumer(WebsocketConsumer):
                     recarga.save()
                     sorteo.ganador = ganador.usuario.username
                     sorteo.recarga = recarga.code
+                    sorteo.finalizado = True
+                    sorteo.activo = False
                     sorteo.save()          
                     send_mail('FELICIDADES desde QbaRed', f'Usted ha sido el ganador del sorteo del mes {sorteo.mes}, este es su código de recarga {sorteo.recarga}. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [ganador.usuario.email,])
                     self.responder_grupo(respuesta)                    

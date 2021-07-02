@@ -64,7 +64,7 @@
 </div>
 <script src="{% static 'sorteo/reconnecting-websocket.js' %}"></script>
 <script>
-    var socket = new ReconnectingWebSocket('ws://172.16.0.10:8000/ws/sorteo/running/');
+    var socket = new ReconnectingWebSocket('wss://qbared.com/ws/sorteo/running/');
     var resultado = document.querySelector('#resultado');
     var activo = false
     var finalizado = true
