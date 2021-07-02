@@ -53,9 +53,12 @@ class WSConsumer(WebsocketConsumer):
     def participantes(self, data):
         respuesta = {'estado': True, 'finalizado': False}
         mesActual = timezone.now().month
-        participants = Sorteo.objects.filter(mes=mesActual)
-        respuesta['mensaje'] = 'participantes'
-        respuesta['participantes'] = self.participants_to_json(participants)
+        if Sorteo.objects.filter(mes=mesActual).exists():
+            participants = Sorteo.objects.filter(mes=mesActual)
+            respuesta['mensaje'] = 'participantes'
+            respuesta['participantes'] = self.participants_to_json(participants)        
+        else:
+            respuesta['mensaje'] = 'Ningún participante registrado aún!!!'
         if data.get('individual'):
             self.responder(respuesta)
         else:
