@@ -223,7 +223,7 @@
         <div class="card-body">
             {% for s in sorteos %}
                 <h5 class="card-title">Ganador mes: {{ s.mes }}</h5>
-                <p class="card-text d-flex justify-content-end">{{ s.ganador }}</p>
+                <p class="card-text d-flex justify-content-end">{% if s.ganador == none %}Por determinar...{% else %}{{ s.ganador }}{% endif %}</p>
             {% endfor %}
         </div>
     </div>
