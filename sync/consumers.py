@@ -257,27 +257,31 @@ class SyncWSConsumer(WebsocketConsumer):
         usuario = data['usuario']
         if Recarga.objects.filter(code=code).exists():
             recarga = Recarga.objects.get(code=code)
-            if data.get('check') != None:          
+            if data.get('check') != None:
                 respuesta['mensaje'] = 'La recarga existe'
                 respuesta['estado'] = True
                 respuesta['code'] = recarga.code
                 respuesta['cantidad'] = recarga.cantidad
                 respuesta['activa'] = recarga.activa
-                respuesta['usuario'] = recarga.usuario
-                respuesta['fecha'] = recarga.fechaUso
+                respuesta['usuario'] = recarga.usuario.username
+                respuesta['fecha'] = str(recarga.fechaUso)
                 self.responder(respuesta)
             else:
-                recarga.activa = False
-                usuario = User.objects.get(username=usuario)
-                perfil = Profile.objects.get(usuario=usuario)
-                perfil.coins = perfil.coins + recarga.cantidad
-                perfil.save()
-                recarga.save()
-                respuesta['mensaje'] = 'Recarga realizada con éxito'
-                respuesta['estado'] = True
-                self.responder(respuesta)
+                if recarga.activa:
+                    recarga.activa = False
+                    usuario = User.objects.get(username=usuario)
+                    recarga.usuario = usuario
+                    recarga.fechaUso = timezone.now()
+                    recarga.sync = True  
+                    recarga.save()
+                    respuesta['mensaje'] = 'Recarga realizada con éxito'
+                    respuesta['estado'] = True
+                    self.responder(respuesta)
+                else:
+                    respuesta['mensaje'] = 'Esta recarga ya fue usada.'
+                    self.responder(respuesta)
         else:
-            respuesta['mensaje'] = 'La recarga no existe'
+            respuesta['mensaje'] = 'Esta recarga no existe.'
             self.responder(respuesta)
 
     def crear_recarga(self, data):

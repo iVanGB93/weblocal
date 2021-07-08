@@ -212,8 +212,12 @@ def control_recargas(request):
     if request.method == 'POST':
         if request.POST.get('code'):
             code = request.POST['code']
-            if config('APP_MODE') == 'online':
-                data = {'check': True, 'code': code}
+            if Recarga.objects.filter(code=code).exists():
+                recargas = Recarga.objects.filter(code=code)
+                content = {'recarga': recargas}
+                return render(request, 'sync/control_recargas.html', content)
+            else:            
+                data = {'usuario': str(request.user), 'check': True, 'code': code}
                 respuesta = actualizacion_remota('usar_recarga', data)
                 if respuesta['estado']:
                     recarga = {'mensaje': respuesta['mensaje'], 'code': respuesta['code'], 'cantidad': respuesta['cantidad'], 'activa': respuesta['activa'], 'usuario': respuesta['usuario'], 'fecha': respuesta['fecha']}
@@ -222,31 +226,14 @@ def control_recargas(request):
                     mensaje = respuesta['mensaje']
                     content = {'mensaje': mensaje}
                     return render(request, 'sync/control_recargas.html', content)
-            else:
-                if Recarga.objects.filter(code=code).exists():
-                    recargas = Recarga.objects.filter(code=code)
-                    content = {'recargas': recargas}
-                    return render(request, 'sync/control_recargas.html', content)
-                else:
-                    mensaje = 'La Recarga no se encuentra'
-                    content = {'mensaje': mensaje}
-                    return render(request, 'sync/control_recargas.html', content)
         elif request.POST.get('numero'):
             numero = request.POST['numero']
             cantidad = request.POST['cantidad']
             recargas = []
-            for n in range(int(numero)):
-                recarga = Recarga(cantidad=cantidad)
-                recargas.append(recarga)
-                data = {'code': recarga.code, 'cantidad': recarga.cantidad, 'fechaHecha': str(recarga.fechaHecha)}
-                if config('APP_MODE') == 'online':                
-                    respuesta = actualizacion_remota('crear_recarga', data)
-                    if respuesta['estado']:
-                        recarga.save()
-                    else:
-                        mensaje = respuesta['mensaje']
-                        content = {'mensaje': mensaje}
-                        return render(request, 'sync/control_recargas.html', content)
+            for _ in range(int(numero)):
+                recarga = Recarga(cantidad=cantidad)      
+                recargas.append(recarga)     
+                recarga.save()      
             mensaje = 'Recargas guardadas'
             content = {'recargas': recargas, 'mensaje': mensaje}
             return render(request, 'sync/control_recargas.html', content)

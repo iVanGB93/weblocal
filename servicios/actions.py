@@ -372,38 +372,54 @@ def recargar(code, usuario):
     if Recarga.objects.filter(code=code).exists():
         recarga = Recarga.objects.get(code=code)        
         if recarga.activa:
-                usuario = User.objects.get(username=usuario)
-                profile = Profile.objects.get(usuario=usuario.id)
-                cantidad = recarga.cantidad                   
-                profile.coins = profile.coins + cantidad
-                respuesta = actualizacion_remota('usar_recarga', {'usuario': usuario.username, 'code': code})
-                if respuesta['estado']:                    
-                    profile.save()
-                    recarga.activa = False
-                    recarga.fechaUso = timezone.now()
-                    recarga.usuario = usuario
-                    recarga.save()
-                    oper = Oper(tipo='RECARGA', usuario=usuario, codRec=code, cantidad=cantidad)
-                    oper.save()
-                    result['correcto'] = True
-                    result['mensaje'] = 'Cuenta Recargada con éxito'
-                    return result
-                else:
-                    result['mensaje'] = respuesta['mensaje']
-                    return result
+            usuario = User.objects.get(username=usuario)
+            profile = Profile.objects.get(usuario=usuario.id)
+            cantidad = recarga.cantidad                   
+            profile.coins = profile.coins + cantidad
+            profile.sync = False                           
+            profile.save()
+            recarga.activa = False
+            recarga.fechaUso = timezone.now()
+            recarga.usuario = usuario
+            recarga.save()
+            oper = Oper(tipo='RECARGA', usuario=usuario, codRec=code, cantidad=cantidad)
+            oper.save()
+            result['correcto'] = True
+            result['mensaje'] = 'Cuenta Recargada con éxito'
+            return result
         else:
             result['mensaje'] = 'Recarga usada'
             return result
     else:
-        result['mensaje'] = 'Recarga incorrecta'
-        return result
+        data = {'usuario': str(usuario), 'code': code, 'check': True}
+        respuesta = actualizacion_remota('usar_recarga', data=data)
+        if respuesta['conexion']:
+            if respuesta['estado']:
+                usuario = User.objects.get(username=usuario)
+                profile = Profile.objects.get(usuario=usuario.id)
+                cantidad = respuesta['cantidad']
+                profile.coins = profile.coins + cantidad
+                profile.sync = False                           
+                profile.save()
+                respuesta = actualizacion_remota('usar_recarga', {'usuario': usuario.username, 'code': code})
+                if respuesta['estado']:
+                    result['correcto'] = True
+                    result['mensaje'] = respuesta['mensaje']
+                    return result
+            else:
+                result['mensaje'] = respuesta['mensaje']
+                return result
+        else:
+            result['mensaje'] = 'Error de conexión, intente más tarde.'
+            return result
 
 def transferir(desde, hacia, cantidad):
     result = {'correcto': False, 'mensaje': ''}
     if User.objects.filter(username=hacia).exists():
         envia = User.objects.get(username=desde)        
         enviaProfile = Profile.objects.get(usuario=envia.id)        
-        coinsDesde = int(enviaProfile.coins)        
+        coinsDesde = int(enviaProfile.coins) 
+        cantidad = int(cantidad)
         if coinsDesde >= cantidad:
             if cantidad >= 20:
                 recibe = User.objects.get(username=hacia)
@@ -414,7 +430,6 @@ def transferir(desde, hacia, cantidad):
                 enviaProfile.save()
                 recibeProfile.sync = False
                 recibeProfile.save()
-                cantidad = str(cantidad)
                 oper = Oper(usuario=recibe, tipo="RECIBO", cantidad=cantidad, haciaDesde=desde)
                 oper.save()   
                 oper2 = Oper(usuario=envia, tipo="ENVIO", cantidad=cantidad, haciaDesde=hacia)
@@ -426,7 +441,7 @@ def transferir(desde, hacia, cantidad):
                 result['mensaje'] = 'La cantidad mínima es 20'
                 return result
         else:
-            result['mensaje'] = 'Su cantidad es insufuciente'
+            result['mensaje'] = 'Su cantidad es insuficiente'
             return result
     else:
         result['mensaje'] = 'El usuario de destino no existe'

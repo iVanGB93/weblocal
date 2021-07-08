@@ -5,7 +5,7 @@ import json
 
 
 medula = config('MEDULA')
-#medula = 'ws://172.16.0.11/ws/sync/'
+#medula = 'ws://127.0.0.1:8080/ws/sync/'
 
 def get_or_create_eventloop():
     try:
