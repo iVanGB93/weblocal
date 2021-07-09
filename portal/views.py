@@ -97,8 +97,7 @@ def contra(request):
 @login_required(login_url='/users/login/')
 def internet(request):
     usuario = request.user
-    servicio = EstadoServicio.objects.get(usuario=usuario)
-    content = {'servicio': servicio, 'color_msg': 'danger'} 
+    content = {'color_msg': 'danger'} 
     if request.method == 'POST':
         tipo = request.POST['tipo']
         horas = request.POST['cantidad_horas']
@@ -107,7 +106,6 @@ def internet(request):
             if usuario.check_password(contra):
                 result = comprar_internet(usuario, tipo, contra, horas)
                 if result['correcto']:                   
-                    content['servicio']= EstadoServicio.objects.get(usuario=usuario)
                     content['color_msg'] = 'success'
                 content['mensaje'] = result['mensaje']
                 return render(request, 'portal/internet.html', content)
@@ -123,14 +121,12 @@ def internet(request):
 @login_required(login_url='/users/login/')
 def jovenclub(request):
     usuario = request.user
-    servicio = EstadoServicio.objects.get(usuario=usuario)
-    content = {'servicio': servicio, 'color_msg': 'danger'} 
+    content = {'color_msg': 'danger'} 
     if request.method == 'POST':
         contra = request.POST['contra']
         if usuario.check_password(contra):
             result = comprar_jc(usuario)
             if result['correcto']:                
-                content['servicio'] = EstadoServicio.objects.get(usuario=usuario)
                 content['color_msg'] = 'success'
             content['mensaje'] = result['mensaje']
             return render(request, 'portal/jovenclub.html', content)
@@ -143,14 +139,12 @@ def jovenclub(request):
 @login_required(login_url='/users/login/')
 def emby(request):
     usuario = request.user
-    servicio = EstadoServicio.objects.get(usuario=usuario)
-    content = {'servicio': servicio, 'color_msg': 'danger'} 
+    content = {'color_msg': 'danger'} 
     if request.method == 'POST':
         contra = request.POST['contra']
         if usuario.check_password(contra):
             result = comprar_emby(usuario)
             if result['correcto']:                
-                content['servicio'] = EstadoServicio.objects.get(usuario=usuario)
                 content['color_msg'] = 'success'
             content['mensaje'] = result['mensaje']
             return render(request, 'portal/emby.html', content)
@@ -163,14 +157,12 @@ def emby(request):
 @login_required(login_url='/users/login/')
 def filezilla(request):
     usuario = request.user
-    servicio = EstadoServicio.objects.get(usuario=usuario)
-    content = {'servicio': servicio, 'color_msg': 'danger'} 
+    content = {'color_msg': 'danger'} 
     if request.method == 'POST':
         contra = request.POST['contra']        
         if usuario.check_password(contra):                    
             result = comprar_filezilla(usuario, contra)
             if result['correcto']:
-                content['servicio'] = EstadoServicio.objects.get(usuario=usuario)
                 content['color_msg'] = 'success'
             content['mensaje'] = result['mensaje']
             return render(request, 'portal/filezilla.html', content)
@@ -238,43 +230,54 @@ def operaciones(request):
 @login_required(login_url='/users/login/')
 def cambiar_auto(request, id):
     usuario = request.user
-    perfil = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
-    if id == 'internet':
-        if servicio.int_auto:
-            servicio.int_auto = False
-            servicio.save()
+    content = {'servicio': servicio, 'color_msg': 'success'}
+    if servicio.sync:
+        if id == 'internet':
+            if servicio.int_auto:
+                servicio.int_auto = False
+                servicio.sync = False
+                servicio.save()
+            else:
+                servicio.int_auto = True
+                servicio.sync = False
+                servicio.save()
+        elif id == 'jovenclub':
+            if servicio.jc_auto:
+                servicio.jc_auto = False
+                servicio.sync = False
+                servicio.save()
+            else:
+                servicio.jc_auto = True
+                servicio.sync = False
+                servicio.save()
+        elif id == 'emby':
+            if servicio.emby_auto:
+                servicio.emby_auto = False
+                servicio.sync = False
+                servicio.save()
+            else:
+                servicio.emby_auto = True
+                servicio.sync = False
+                servicio.save()
+        elif id == 'filezilla':
+            if servicio.ftp_auto:
+                servicio.ftp_auto = False
+                servicio.sync = False
+                servicio.save()
+            else:
+                servicio.ftp_auto = True
+                servicio.sync = False
+                servicio.save()
         else:
-            servicio.int_auto = True
-            servicio.save()
-    elif id == 'jovenclub':
-        if servicio.jc_auto:
-            servicio.jc_auto = False
-            servicio.save()
-        else:
-            servicio.jc_auto = True
-            servicio.save()
-    elif id == 'emby':
-        if servicio.emby_auto:
-            servicio.emby_auto = False
-            servicio.save()
-        else:
-            servicio.emby_auto = True
-            servicio.save()
-    elif id == 'filezilla':
-        if servicio.ftp_auto:
-            servicio.ftp_auto = False
-            servicio.save()
-        else:
-            servicio.ftp_auto = True
-            servicio.save()
-    else:
-        mensaje = 'Ocurrio algún error'
-        content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio, 'color_msg': 'danger'}
+            content['mensaje'] = 'Ocurrio algún error'
+            return render(request, f'portal/{ id }.html', content)
+        content['mensaje'] = 'Activación automática cambiada con éxito'
+        content['servicio'] = EstadoServicio.objects.get(usuario=usuario)
         return render(request, f'portal/{ id }.html', content)
-    mensaje = 'Activación automática cambiada con éxito'
-    content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio, 'color_msg': 'success'}
-    return render(request, f'portal/{ id }.html', content)
+    else:
+        content['mensaje'] = 'Debe sincronizar sus servicios para realizar cambios.'
+        return render(request, f'portal/{ id }.html', content)
     
 @login_required(login_url='/users/login/')
 def sync_servicio(request, id):

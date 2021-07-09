@@ -11,7 +11,7 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Mi cuenta:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.ftp %}
+                        {% if user.estadoservicio.ftp %}
                         <span class="badge rounded-pill bg-success">Activa</span>
                         {% else %}
                         <span class="badge rounded-pill bg-danger">No activa</span>
@@ -22,7 +22,7 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Sincronización:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.sync %}
+                        {% if user.estadoservicio.sync %}
                         <span class="badge rounded-pill bg-success mx-2">OK</span>
                         <form id="myform_sync" action="{% url 'portal:sync_servicio' 'filezilla' %}" method="POST">
                             {% csrf_token %}
@@ -47,8 +47,8 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Restante:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.ftp_time %}
-                            {{ servicio.ftp_time}}
+                        {% if user.estadoservicio.ftp_time %}
+                            {{ user.estadoservicio.ftp_time}}
                         {% else %}
                             -
                         {% endif %}
@@ -58,7 +58,7 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Autopago:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.ftp_auto %}
+                        {% if user.estadoservicio.ftp_auto %}
                         <span class="badge rounded-pill bg-success mx-2">ON</span>
                         <form id="myform_auto" action="{% url 'portal:auto' 'filezilla' %}" method="POST">
                             {% csrf_token %}
@@ -94,7 +94,7 @@
                 </div>      
             </div>
         </div>       
-        {% if not servicio.ftp %}
+        {% if not user.estadoservicio.ftp %}
         <div class="my-3"> 
             <h4 class="fw-bold">Activar el servicio FileZilla:</h4>
             <form id="myform" action="{% url 'portal:filezilla' %}" method="post">

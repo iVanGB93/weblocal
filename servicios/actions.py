@@ -90,13 +90,13 @@ def activarFTP(username, pwd, group):
 #Fin FILEZILLA
 
 def comprar_internet(usuario, tipo, contra, horas):
-    result = {'correcto': False, 'mensaje': ''}
-    profile = Profile.objects.get(usuario=usuario)
+    result = {'correcto': False}
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
     if servicio.internet == True:
         result['mensaje'] = 'Ya tiene el servicio activo.'
         return result
+    profile = Profile.objects.get(usuario=usuario)
     if tipo == 'mensual':
         user_coins = int(profile.coins)
         if user_coins >= 200:
@@ -213,13 +213,16 @@ def comprar_internet(usuario, tipo, contra, horas):
         return result
 
 def comprar_jc(usuario):
-    result = {'correcto': False, 'mensaje': ''}
-    profile = Profile.objects.get(usuario=usuario)
+    result = {'correcto': False}
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
     if servicio.jc == True:
         result['mensaje'] = 'Ya tiene el servicio activo.'
         return result
+    if not servicio.sync:
+        result['mensaje'] = 'Debe tener los servicios sincronizados para comprar.'
+        return result
+    profile = Profile.objects.get(usuario=usuario)
     if profile.coins >= 100:
         profile.coins = profile.coins - 100
         client = paramiko.SSHClient()
@@ -228,6 +231,7 @@ def comprar_jc(usuario):
             client.connect(config('MK2_IP'), username=config('MK2_USER'), password=config('MK2_PASSWORD'))
             stdin, stdout, stderr = client.exec_command(f'/ip firewall address-list set [find comment={usuario.username}] disable=no')
             client.close()
+            profile.sync = False
             profile.save()
             servicio.jc = True
             servicio.jc_time = timezone.now() + timedelta(days=30)
@@ -247,7 +251,7 @@ def comprar_jc(usuario):
         return result
 
 def comprar_emby(usuario):
-    result = {'correcto': False, 'mensaje': ''}
+    result = {'correcto': False}
     profile = Profile.objects.get(usuario=usuario)
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
@@ -342,7 +346,7 @@ def comprar_emby(usuario):
         return result
 
 def comprar_filezilla(usuario, contraseña):
-    result = {'correcto': False, 'mensaje': ''}
+    result = {'correcto': False}
     profile = Profile.objects.get(usuario=usuario)
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
@@ -368,7 +372,7 @@ def comprar_filezilla(usuario, contraseña):
         return result
 
 def recargar(code, usuario):
-    result = {'correcto': False, 'mensaje': ''}
+    result = {'correcto': False}
     if Recarga.objects.filter(code=code).exists():
         recarga = Recarga.objects.get(code=code)        
         if recarga.activa:
@@ -414,7 +418,7 @@ def recargar(code, usuario):
             return result
 
 def transferir(desde, hacia, cantidad):
-    result = {'correcto': False, 'mensaje': ''}
+    result = {'correcto': False}
     if User.objects.filter(username=hacia).exists():
         envia = User.objects.get(username=desde)        
         enviaProfile = Profile.objects.get(usuario=envia.id)        

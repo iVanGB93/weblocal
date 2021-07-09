@@ -1,13 +1,12 @@
 from channels.generic.websocket import WebsocketConsumer
-from asgiref.sync import async_to_sync
 import json
 from django.utils import timezone
-from datetime import datetime
-from django.core.mail import send_mail
 
 from django.contrib.auth.models import User
 from servicios.models import EstadoServicio, Oper, Recarga
 from users.models import Profile
+from servicios.actions import *
+
 
 class SyncWSConsumer(WebsocketConsumer):
     def connect(self):
@@ -314,6 +313,25 @@ class SyncWSConsumer(WebsocketConsumer):
         respuesta['estado'] = True
         self.responder(respuesta)
 
+    def comprar_servicio(self, data):
+        respuesta = {'estado': False}
+        usuario = data['usuario']
+        servicio = data['servicio']
+        if servicio == 'internet':
+            if data.get('horas'):
+                result = comprar_internet(usuario, data['tipo'], data['contraseña'], data['horas'])
+            else:
+                result = comprar_internet(usuario, data['tipo'], data['contraseña'])
+        elif servicio == 'jc':
+            result = comprar_jc(usuario)
+        elif servicio == 'emby':
+            result = comprar_emby(usuario)
+        elif servicio == 'ftp':
+            result = comprar_filezilla(usuario, data['contraseña'])
+        respuesta['estado'] = result['correcto']
+        respuesta['mensaje'] = result['mensaje']
+        self.responder(respuesta)
+
     acciones = {
         'saludo': saludo,
         'check_usuario': check_usuario,
@@ -330,6 +348,7 @@ class SyncWSConsumer(WebsocketConsumer):
         'usar_recarga': usar_recarga,
         'crear_recarga': crear_recarga,
         'nueva_operacion': nueva_operacion,
+        'comprar_servicio': comprar_servicio,        
     }  
 
     def receive(self, text_data):

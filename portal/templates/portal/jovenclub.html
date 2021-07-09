@@ -11,7 +11,7 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Mi cuenta</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.jc %}
+                        {% if user.estadoservicio.jc %}
                         <span class="badge rounded-pill bg-success">Activa</span>
                         {% else %}
                         <span class="badge rounded-pill bg-danger">No activa</span>
@@ -22,7 +22,7 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Sincronización:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.sync %}
+                        {% if user.estadoservicio.sync %}
                         <span class="badge rounded-pill bg-success mx-2">OK</span>
                         <form id="myform_sync" action="{% url 'portal:sync_servicio' 'jovenclub' %}" method="POST">
                             {% csrf_token %}
@@ -47,8 +47,8 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Restante:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.jc_time %}
-                            {{ servicio.jc_time}}
+                        {% if user.estadoservicio.jc_time %}
+                            {{ user.estadoservicio.jc_time}}
                         {% else %}
                             -
                         {% endif %}
@@ -58,7 +58,7 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Autopago:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.jc_auto %}
+                        {% if user.estadoservicio.jc_auto %}
                         <span class="badge rounded-pill bg-success mx-2">ON</span>
                         <form id="myform_auto" action="{% url 'portal:auto' 'jovenclub' %}" method="POST">
                             {% csrf_token %}
@@ -94,7 +94,7 @@
                 </div>      
             </div>
         </div>        
-        {% if not servicio.jc %}
+        {% if not user.estadoservicio.jc %}
         <div class="my-3"> 
             <h4 class="fw-bold">Activar el servicio Joven Club:</h4>
             <form id="myform" action="{% url 'portal:jovenclub' %}" method="post">            

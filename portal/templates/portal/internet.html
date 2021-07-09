@@ -11,7 +11,7 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Mi cuenta:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.internet %}
+                        {% if user.estadoservicio.internet %}
                         <span class="badge rounded-pill bg-success">Activa</span>
                         {% else %}
                         <span class="badge rounded-pill bg-danger">No activa</span>
@@ -22,7 +22,7 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Sincronización:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.sync %}
+                        {% if user.estadoservicio.sync %}
                         <span class="badge rounded-pill bg-success mx-1">OK</span>
                         <form id="myform_sync" action="{% url 'portal:sync_servicio' 'internet' %}" method="POST">
                             {% csrf_token %}
@@ -47,11 +47,11 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Restante:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.int_time %}
-                            {{ servicio.int_time}}
+                        {% if user.estadoservicio.int_time %}
+                            {{ user.estadoservicio.int_time}}
                         {% else %}
-                            {% if servicio.int_tipo == "internetHoras" %}
-                                <a href="https://login.qbared.com/status/">Horas compradas: {{ servicio.int_horas }}</a> 
+                            {% if user.estadoservicio.int_tipo == "internetHoras" %}
+                                <a href="https://login.qbared.com/status/">Horas compradas: {{ user.estadoservicio.int_horas }}</a> 
                             {% else %}
                                 -
                             {% endif %}
@@ -62,7 +62,7 @@
                 <div class="row m-auto">
                     <h5 class="col-6 card-title d-flex justify-content-start">Autopago:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
-                        {% if servicio.int_auto %}
+                        {% if user.estadoservicio.int_auto %}
                         <span class="badge rounded-pill bg-success mx-1">ON</span>
                         <form id="myform_auto" action="{% url 'portal:auto' 'internet' %}" method="POST">
                             {% csrf_token %}
@@ -115,7 +115,7 @@
         {{ mensaje }}                   
     </div>               
 {% endif %}
-{% if not servicio.internet %}
+{% if not user.estadoservicio.internet %}
 <div class="row my-3">       
     <div class="col-8 col-md-4 m-auto text-center"> 
         <h4 class="fw-bold">Activar el servicio Internet:</h4>
