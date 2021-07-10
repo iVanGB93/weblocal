@@ -272,7 +272,7 @@ def control_avanzado(request):
         if request.POST.get('chequeo'):
             chequeo = request.POST['chequeo']
             if chequeo == 'medula':
-                data = {'identidad': 'primera celula'}
+                data = {'identidad': 'local de iVan'}
                 respuesta = actualizacion_remota('saludo', data)
                 mensaje = respuesta['mensaje']
                 content = {'mensaje': mensaje}
