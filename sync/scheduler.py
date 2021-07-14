@@ -34,6 +34,6 @@ chequeo_conexion_online()
 
 def chequeo_conexiones():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(chequeo_conexion_online, 'interval', minutes=3)
-    scheduler.add_job(chequeo_conexion_servicios, 'interval', minutes=30)
+    scheduler.add_job(chequeo_conexion_online, 'interval', minutes=4)
+    scheduler.add_job(chequeo_conexion_servicios, 'interval', minutes=40)
     scheduler.start()
