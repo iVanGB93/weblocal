@@ -31,6 +31,12 @@ def perfil(request):
     content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     usuario = User.objects.get(username=request.user)
     if request.method == 'POST':
+        if request.FILES.get('imagen'):
+            perfil = Profile.objects.get(usuario=usuario)
+            perfil.imagen = request.FILES['imagen']
+            perfil.save()
+            content['mensaje'] = 'Imagen guardada con éxito'
+            return render(request, 'portal/perfil.html', content)
         form = EditUserForm(request.POST)
         if form.is_valid():
             usuario.email = request.POST['email']

@@ -9,7 +9,7 @@ def chequeo_conexion_online():
     servidor = config('NOMBRE_SERVIDOR')
     ip_online = config('IP_ONLINE')
     if EstadoConexion.objects.filter(id=1).exists():
-        conexion = EstadoConexion.objects.get(servidor=servidor)
+        conexion = EstadoConexion.objects.get(id=1)
     else:
         conexion = EstadoConexion(id=1, servidor=servidor, ip_online=ip_online)
     response = os.popen(f"ping { ip_online }").read()
