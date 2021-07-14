@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from .models import Comentario, Encuesta, Publicacion
+from users.models import Notificacion
+
 
 def tema_color(tema):
     if tema == "Emby":
@@ -38,7 +40,10 @@ def index(request, pk):
     todas = Publicacion.objects.all().order_by('-fecha')[:20]
     color = tema_color(pk)
     tema = pk
-    data = {'publicaciones': publicaciones, 'todas': todas, 'color': color, 'tema': tema}
+    data = {'notificaciones': False, 'publicaciones': publicaciones, 'todas': todas, 'color': color, 'tema': tema}
+    if request.user.is_authenticated:
+        data['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+        data['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     return render(request, 'forum/index.html', data)
 
 def detalles(request, tema, pk):
@@ -62,7 +67,10 @@ def detalles(request, tema, pk):
                 voto = 'opcion5'
     if Comentario.objects.filter(publicacion=publicacion).exists():
         comentarios = Comentario.objects.filter(publicacion=publicacion).all().order_by('-fecha')
-    content = {'p': publicacion, 'voto': voto, 'encuesta': encuesta, 'comentarios': comentarios, 'color': color, 'tema': tema}
+    content = {'notificaciones': False, 'p': publicacion, 'voto': voto, 'encuesta': encuesta, 'comentarios': comentarios, 'color': color, 'tema': tema}
+    if request.user.is_authenticated:
+        content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+        content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':  
         if request.POST.get('eliminar'):
             comentario = Comentario.objects.get(id=request.POST['eliminar'])
@@ -109,7 +117,10 @@ def crear(request, tema):
     color = tema_color(tema)
     voto = 'no'
     comentarios = 'no'
-    content = {'voto': voto, 'comentarios': comentarios, 'tema': tema, 'color': color}
+    content = {'notificaciones': False, 'voto': voto, 'comentarios': comentarios, 'tema': tema, 'color': color}
+    if request.user.is_authenticated:
+        content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+        content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':      
         usuario = User.objects.get(username=request.user)
         tema = request.POST['tema']
@@ -162,7 +173,10 @@ def editar(request, tema, pk):
     encuesta = 'nada'
     if Encuesta.objects.filter(publicacion=publicacion).exists():
         encuesta = Encuesta.objects.get(publicacion=publicacion)
-    content = {'p': publicacion, 'encuesta': encuesta, 'tema': tema, 'color': color}
+    content = {'notificaciones': False, 'p': publicacion, 'encuesta': encuesta, 'tema': tema, 'color': color}
+    if request.user.is_authenticated:
+        content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+        content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         tema = request.POST['tema']
         publicacion.tema = tema
@@ -217,7 +231,10 @@ def editar(request, tema, pk):
 def eliminar(request, tema, pk):
     publicacion = Publicacion.objects.get(id=pk)
     color = tema_color(tema)
-    content = {'p': publicacion, 'tema': tema, 'color': color}
+    content = {'notificaciones': False, 'p': publicacion, 'tema': tema, 'color': color}
+    if request.user.is_authenticated:
+        content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+        content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         publicacion.delete()
         publicaciones = Publicacion.objects.filter(tema=pk).order_by('-fecha')

@@ -52,17 +52,19 @@ def correoOper(sender, instance, **kwargs):
 
 @receiver(post_save, sender=EstadoServicio)
 def actualizar_servicios(sender, instance, **kwargs):
-    if instance.sync == False:
-        serializer = ServiciosSerializer(instance)
-        data=serializer.data
-        data['usuario'] = instance.usuario.username
-        respuesta = actualizacion_remota('cambio_servicio', data)
-        if respuesta['estado']:
-            instance.sync = True
-            instance.save()
-        else:
-            mensaje = respuesta['mensaje']
-            send_mail(f'Falló al subir el servicio', f'El servicio del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])    
+    online = config('APP_MODE')
+    if online == 'online':        
+        if instance.sync == False:
+            serializer = ServiciosSerializer(instance)
+            data=serializer.data
+            data['usuario'] = instance.usuario.username
+            respuesta = actualizacion_remota('cambio_servicio', data)
+            if respuesta['estado']:
+                instance.sync = True
+                instance.save()
+            else:
+                mensaje = respuesta['mensaje']
+                send_mail(f'Falló al subir el servicio', f'El servicio del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])    
 
 @receiver(post_save, sender=Recarga)
 def actualizar_recarga(sender, instance, **kwargs):

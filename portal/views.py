@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from decouple import config
-from users.models import Profile
+from users.models import Profile, Notificacion
 from .forms import EditUserForm
 from servicios.models import EstadoServicio, Oper
 from sorteo.models import SorteoDetalle
@@ -18,11 +18,17 @@ def index(request):
 def dashboard(request):
     tiempo = timezone.now()
     sorteos = SorteoDetalle.objects.all()
-    content = {'tiempo': tiempo, 'sorteos': sorteos}
+    content = {'notificaciones': False, 'tiempo': tiempo, 'sorteos': sorteos}
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     return render(request, 'portal/dashboard.html', content)
 
 @login_required(login_url='/users/login/')
 def perfil(request):
+    form = EditUserForm()
+    content = {'notificaciones': False, 'form': form}
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     usuario = User.objects.get(username=request.user)
     if request.method == 'POST':
         form = EditUserForm(request.POST)
@@ -35,28 +41,23 @@ def perfil(request):
                 respuesta = actualizacion_remota('cambio_usuario', data)          
                 if respuesta['estado']:
                     usuario.save()
-                form = EditUserForm()
-                mensaje = respuesta['mensaje']
-                content = {'mensaje': mensaje, 'form': form}
+                content['mensaje'] = respuesta['mensaje']
                 return render(request, 'portal/perfil.html', content)
             else:                
                 usuario.save()
-                form = EditUserForm()
-                mensaje = 'Perfil editado con éxito'
-                content = {'mensaje': mensaje, 'form': form}
+                content['mensaje'] = 'Perfil editado con éxito'
                 return render(request, 'portal/perfil.html', content)
         else:
-            mensaje = form.errors
-            form = EditUserForm()
-            content = {'mensaje': mensaje, 'form': form}
+            content['mensaje'] = form.errors
             return render(request, 'portal/perfil.html', content)
     else:
-        form = EditUserForm()
-        content = {'form': form}
         return render(request, 'portal/perfil.html', content)
 
 @login_required(login_url='/users/login/')
 def contra(request):
+    content = {'notificaciones': False}
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':        
         usuario = User.objects.get(username=request.user)
         contra = request.POST['actual']
@@ -70,34 +71,31 @@ def contra(request):
                         if respuesta['estado']:
                             usuario.set_password(nueva)
                             usuario.save()
-                        mensaje = respuesta['mensaje']
-                        content = {'mensaje': mensaje}
+                        content['mensaje'] = respuesta['mensaje']
                         return render(request, 'portal/cambiarcontra.html', content)
                     else:
                         usuario.set_password(nueva)
                         usuario.save()
-                        mensaje = 'Contraseña cambiada con éxito.'
-                        content = {'mensaje': mensaje}
+                        content['mensaje'] = 'Contraseña cambiada con éxito.'
                         return render(request, 'portal/cambiarcontra.html', content)
                 else:
-                    mensaje = 'La contraseña debe tener al menos 8 caracteres.'
-                    content = {'mensaje': mensaje}
+                    content['mensaje'] = 'La contraseña debe tener al menos 8 caracteres.'
                     return render(request, 'portal/cambiarcontra.html', content)
             else:
-                mensaje = 'Las contraseñas nuevas no coinciden.'
-                content = {'mensaje': mensaje}
+                content['mensaje'] = 'Las contraseñas nuevas no coinciden.'
                 return render(request, 'portal/cambiarcontra.html', content)
         else:
-            mensaje = 'Contraseña actual incorrecta.'
-            content = {'mensaje': mensaje}
+            content['mensaje'] = 'Contraseña actual incorrecta.'
             return render(request, 'portal/cambiarcontra.html', content)
     else:
-        return render(request, 'portal/cambiarcontra.html')
+        return render(request, 'portal/cambiarcontra.html', content)
 
 @login_required(login_url='/users/login/')
 def internet(request):
     usuario = request.user
-    content = {'color_msg': 'danger'} 
+    content = {'notificaciones': False, 'color_msg': 'danger'} 
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         tipo = request.POST['tipo']
         horas = request.POST['cantidad_horas']
@@ -107,6 +105,8 @@ def internet(request):
                 result = comprar_internet(usuario, tipo, contra, horas)
                 if result['correcto']:                   
                     content['color_msg'] = 'success'
+                    notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Pago por el servicio de Internet")
+                    notificacion.save()
                 content['mensaje'] = result['mensaje']
                 return render(request, 'portal/internet.html', content)
             else:
@@ -121,13 +121,17 @@ def internet(request):
 @login_required(login_url='/users/login/')
 def jovenclub(request):
     usuario = request.user
-    content = {'color_msg': 'danger'} 
+    content = {'notificaciones': False, 'color_msg': 'danger'} 
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         contra = request.POST['contra']
         if usuario.check_password(contra):
             result = comprar_jc(usuario)
             if result['correcto']:                
                 content['color_msg'] = 'success'
+                notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Pago por el servicio de Joven Club")
+                notificacion.save()
             content['mensaje'] = result['mensaje']
             return render(request, 'portal/jovenclub.html', content)
         else:
@@ -139,7 +143,9 @@ def jovenclub(request):
 @login_required(login_url='/users/login/')
 def emby(request):
     usuario = request.user
-    content = {'color_msg': 'danger'} 
+    content = {'notificaciones': False, 'color_msg': 'danger'} 
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         contra = request.POST['contra']
         if usuario.check_password(contra):
@@ -157,7 +163,9 @@ def emby(request):
 @login_required(login_url='/users/login/')
 def filezilla(request):
     usuario = request.user
-    content = {'color_msg': 'danger'} 
+    content = {'notificaciones': False, 'color_msg': 'danger'} 
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha') 
     if request.method == 'POST':
         contra = request.POST['contra']        
         if usuario.check_password(contra):                    
@@ -176,7 +184,9 @@ def filezilla(request):
 def recarga(request):
     usuario = request.user
     perfil = Profile.objects.get(usuario=usuario)
-    content = {'color_msg': 'danger'}
+    content = {'notificaciones': False, 'color_msg': 'danger'} 
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         code = request.POST['code']
         if len(code) != 8:
@@ -200,7 +210,9 @@ def recarga(request):
 def transferencia(request):
     usuario = request.user
     perfil = Profile.objects.get(usuario=usuario)
-    content = {'color_msg': 'danger'}
+    content = {'notificaciones': False, 'color_msg': 'danger'} 
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         if not perfil.sync:
             content['mensaje'] = "Sincronice su perfil en dashboard para poder transferir"
@@ -218,20 +230,24 @@ def transferencia(request):
 @login_required(login_url='/users/login/')
 def operaciones(request):
     usuario = request.user
+    content = {'notificaciones': False} 
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if User.objects.filter(username=usuario).exists():
         opers = Oper.objects.filter(usuario=usuario).order_by('-fecha')[:10]
-        content = {'opers': opers}
+        content['opers'] = opers
         return render(request, 'portal/operaciones.html', content)
     else:
-        mensaje = 'Usuario no existe'
-        content = {'mensaje': mensaje}
+        content['mensaje'] = 'Usuario no existe'
         return render (request, 'portal/operaciones.html', content)
 
 @login_required(login_url='/users/login/')
 def cambiar_auto(request, id):
     usuario = request.user
     servicio = EstadoServicio.objects.get(usuario=usuario)
-    content = {'servicio': servicio, 'color_msg': 'success'}
+    content = {'notificaciones': False, 'servicio': servicio, 'color_msg': 'success'}
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if servicio.sync:
         if id == 'internet':
             if servicio.int_auto:
@@ -282,26 +298,27 @@ def cambiar_auto(request, id):
 @login_required(login_url='/users/login/')
 def sync_servicio(request, id):
     usuario = request.user
-    perfil = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
     serializer = ServiciosSerializer(servicio)
     data=serializer.data
     data['usuario'] = str(usuario)    
     respuesta = actualizacion_remota('check_servicio', data)
+    content = {'notificaciones': False}
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if respuesta['estado']:
         servicio.sync = True
         servicio.save()
-        mensaje = respuesta['mensaje']
-        content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio, 'color_msg': 'success'}
+        content['mensaje'] = respuesta['mensaje']
+        content['color_msg'] = 'success'
         return render(request, f'portal/{ id }.html', content)
     else:
-        content = {'id': id}
+        content['id'] = id
         return render(request, 'portal/sync.html', content)
     
 @login_required(login_url='/users/login/')
 def guardar_servicio(request):
     usuario = request.user
-    perfil = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
     serializer = ServiciosSerializer(servicio)
     data=serializer.data
@@ -311,14 +328,17 @@ def guardar_servicio(request):
         servicio.sync = True
         servicio.save()
     mensaje = respuesta['mensaje']
-    content = {'mensaje': mensaje, 'perfil': perfil, 'servicio': servicio}
+    content = {'notificaciones': False, 'mensaje': mensaje}
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     return render(request, f'portal/dashboard.html', content)
 
 @login_required(login_url='/users/login/')
 def sync_perfil(request):    
     usuario = User.objects.get(username=request.user)
-    perfil = Profile.objects.get(usuario=usuario)
-    servicio = EstadoServicio.objects.get(usuario=usuario)    
+    content = {'notificaciones': False}
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         profile = Profile.objects.get(usuario=usuario)        
         data = {'usuario': usuario.username, 'coins': profile.coins}
@@ -326,31 +346,29 @@ def sync_perfil(request):
         if respuesta['estado']:
             profile.sync = True
             profile.save()
-            mensaje = respuesta['mensaje']
-            content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'mensaje': mensaje}
+            content['mensaje'] = respuesta['mensaje']
             return render(request, 'portal/dashboard.html', content)
         else:
-            return render(request, 'portal/sync_perfil.html')
+            return render(request, 'portal/sync_perfil.html', content)
     else:
-        mensaje = "Aqui no hay GET."
-        content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'mensaje': mensaje}
+        content['mensaje'] = "Aqui no hay GET."
         return render(request, 'portal/dashboard.html', content)
 
 @login_required(login_url='/users/login/')
 def guardar_perfil(request):
     usuario = User.objects.get(username=request.user)
     perfil = Profile.objects.get(usuario=usuario)
-    servicio = EstadoServicio.objects.get(usuario=usuario)   
+    content = {'notificaciones': False}
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         data = {'usuario': usuario.username, 'coins': perfil.coins}
         respuesta = actualizacion_remota('cambio_perfil', data)            
         if respuesta['estado']:
             perfil.sync = True
-            perfil.save()    
-        mensaje = respuesta['mensaje']
-        content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'mensaje': mensaje}
+            perfil.save()
+        content['mensaje'] = respuesta['mensaje']
         return render(request, 'portal/dashboard.html', content)
     else:
-        mensaje = "Aqui no hay GET."
-        content = {'usuario': usuario, 'perfil': perfil, 'servicio': servicio, 'mensaje': mensaje}
+        content['mensaje'] = "Aqui no hay GET."
         return render(request, 'portal/dashboard.html', content)
