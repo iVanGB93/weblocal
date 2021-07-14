@@ -8,12 +8,8 @@ def chequeo_conexion_online():
     print("CHEQUEANDO SI ESTA ONLINE EL SERVER")
     servidor = config('NOMBRE_SERVIDOR')
     ip_online = config('IP_ONLINE')
-    if EstadoConexion.objects.filter(servidor=servidor).exists():
-        conexion = EstadoConexion.objects.get(servidor=servidor)
-        conexion.ip_online = ip_online
-    else:
-        conexion = EstadoConexion(servidor=servidor)
-        conexion.ip_online = ip_online
+    conexion = EstadoConexion.objects.get(servidor=servidor)
+    conexion.ip_online = ip_online
     ip = conexion.ip_online
     response = os.popen(f"ping { ip }").read()
     if "recibidos = 4" in response:
