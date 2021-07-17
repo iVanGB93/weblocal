@@ -67,9 +67,9 @@
             {% endif %}
             {% for r in recargas %}
                 <p>Recarga {{ r.code }} por {{ r.cantidad }} coins. {% if r.activa %}
-                    <button class="btn btn-success">Activa</button>
+                    Activa
                     {% else %}
-                    <buton class="btn btn-danger">No activa</buton>
+                    No activa
                     {% endif %}, Usuario: {{ r.usuario }}, Fecha: {{ r.FechaUso }}</p></br>
             {% endfor %}
         </div>
