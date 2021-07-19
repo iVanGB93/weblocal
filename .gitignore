@@ -11,6 +11,7 @@
 
 /media/forum/
 /media/usuario/
+/media/usuarios/
 
 /runserver.py
 
@@ -18,3 +19,4 @@
 *.pyc
 
 __pycache__
+migrations

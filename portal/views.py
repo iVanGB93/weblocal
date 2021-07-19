@@ -348,7 +348,9 @@ def guardar_servicio(request):
 @login_required(login_url='/users/login/')
 def sync_perfil(request):    
     usuario = User.objects.get(username=request.user)
-    content = {'notificaciones': False}
+    conexion = EstadoConexion.objects.get(id=1)
+    sorteos = SorteoDetalle.objects.all()
+    content = {'notificaciones': False, 'sorteos': sorteos, 'conexion': conexion}
     content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
     content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
