@@ -2,6 +2,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from decouple import config
 import os
 
+from django.utils import timezone
+
 from .models import EstadoConexion
 
 def chequeo_conexion_online():
@@ -12,6 +14,10 @@ def chequeo_conexion_online():
         conexion = EstadoConexion.objects.get(id=1)
     else:
         conexion = EstadoConexion(id=1, servidor=servidor, ip_online=ip_online)
+        conexion.ip_internet = config('IP_INTERNET')
+        conexion.ip_jc = config('IP_JC')
+        conexion.ip_emby = config('IP_EMBY')
+        conexion.ip_ftp = config('IP_FTP')
     response = os.popen(f"ping { ip_online }").read()
     if "recibidos = 4" in response:
         print("SERVIDOR ONLINE")
@@ -23,8 +29,38 @@ def chequeo_conexion_online():
 
 
 def chequeo_conexion_servicios():
-    print("CHEQUEANDO LOS SERVICIOS")
-
+    print("CHEQUEANDO LOS SERVICIOS")    
+    conexion = EstadoConexion.objects.get(id=1)
+    response = os.popen(f"ping { conexion.ip_internet }").read()
+    if "recibidos = 4" in response:
+        print("INTERNET ONLINE")
+        conexion.internet = True
+    else:
+        print("INTERNET CAIDO")
+        conexion.internet = False
+    response = os.popen(f"ping { conexion.ip_jc }").read()
+    if "recibidos = 4" in response:
+        print("JC ONLINE")
+        conexion.jc = True
+    else:
+        print("JC CAIDO")
+        conexion.jc = False
+    response = os.popen(f"ping { conexion.ip_emby }").read()
+    if "recibidos = 4" in response:
+        print("EMBY ONLINE")
+        conexion.emby = True
+    else:
+        print("EMBY CAIDO")
+        conexion.emby = False
+    response = os.popen(f"ping { conexion.ip_ftp }").read()
+    if "recibidos = 4" in response:
+        print("FTP ONLINE")
+        conexion.ftp = True
+    else:
+        print("FTP CAIDO")
+        conexion.ftp = False
+    conexion.fecha_internet = timezone.now()
+    conexion.save()
 
 chequeo_conexion_online()
 

@@ -45,6 +45,9 @@ def index(request):
                             usuario = User.objects.get(username=oper.usuario)
                             send_mail('Sorteo QbaRed', f'Usted esta participando en el sorteo de QbaRed con el código {code}, obtenido por el servicio {oper.servicio}. Suerte!!!', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
                             send_mail('Sorteo QbaRed', f'Se registro {usuario.username} con  el código {code}, obtenido por el servicio {oper.servicio}.', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+                            dato = f"Participación en el sorteo guardada, código { code }"
+                            notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido=dato)
+                            notificacion.save()
                             content['message'] = 'Se ha agregado su participación',
                             content['success'] = 'success'
                             return render(request, 'sorteo/index.html', content)

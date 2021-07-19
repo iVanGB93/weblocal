@@ -10,17 +10,16 @@
                     <h6 class="card-title col-12 col-md-8">
                         Estado del servicio:
                     </h6>
-                    <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
-                    <!-- {% if servicio.internet %}
+                    {% if conexion.internet %}
                         <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
                     {% else %}
                         <span class="badge rounded-pill bg-danger col-8 col-md-4 m-auto text-center">Fuera de línea</span>
-                    {% endif %} -->
+                    {% endif %}
                 </div>
                 <hr class="dropdown-divider" />
                 <div class="row p-1">
                     <p class="card-text col-12 col-md-6">Ultimo chequeo:</p>
-                    <p class="card-text col-12 col-md-6 text-center">{{ tiempo|date:"d/m/Y-H:m:s" }}</p>
+                    <p class="card-text col-12 col-md-6 text-center">{{ conexion.fecha_internet|date:"d/m/Y-H:m:s" }}</p>
                 </div> 
                 <hr class="dropdown-divider" />
                 <div class="row p-1">
@@ -49,17 +48,16 @@
                     <h6 class="card-title col-12 col-md-8">
                         Estado del servicio:
                     </h6>
-                    <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
-                        <!-- {% if servicio.jc %}
+                    {% if conexion.jc %}
                         <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
                     {% else %}
                         <span class="badge rounded-pill bg-danger col-8 col-md-4 m-auto text-center">Fuera de línea</span>
-                    {% endif %} -->
+                    {% endif %}
                 </div>
                 <hr class="dropdown-divider" />
                 <div class="row p-1">
                     <p class="card-text col-12 col-md-6">Ultimo chequeo:</p>
-                    <p class="card-text col-12 col-md-6 text-center">{{ tiempo }}</p>
+                    <p class="card-text col-12 col-md-6 text-center">{{ conexion.fecha_internet }}</p>
                 </div> 
                 <hr class="dropdown-divider" />
                 <div class="row p-1">
@@ -90,17 +88,16 @@
                     <h6 class="card-title col-12 col-md-8">
                         Estado del servicio:
                     </h6>
-                    <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
-                        <!-- {% if servicio.emby %}
+                    {% if conexion.emby %}
                         <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
                     {% else %}
                         <span class="badge rounded-pill bg-danger col-8 col-md-4 m-auto text-center">Fuera de línea</span>
-                    {% endif %} -->
+                    {% endif %}
                 </div>
                 <hr class="dropdown-divider" />
                 <div class="row p-1">
                     <p class="card-text col-12 col-md-6">Ultimo chequeo:</p>
-                    <p class="card-text col-12 col-md-6 text-center">{{ tiempo }}</p>
+                    <p class="card-text col-12 col-md-6 text-center">{{ conexion.fecha_internet }}</p>
                 </div> 
                 <hr class="dropdown-divider" />
                 <div class="row p-1">
@@ -129,17 +126,16 @@
                     <h6 class="card-title col-12 col-md-8">
                         Estado del servicio:
                     </h6>
-                    <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
-                    <!-- {% if servicio.ftp %}
+                    {% if servicio.ftp %}
                         <span class="badge rounded-pill bg-success col-8 col-md-4 m-auto text-center">En línea</span>
                     {% else %}
                         <span class="badge rounded-pill bg-danger col-8 col-md-4 m-auto text-center">Fuera de línea</span>
-                    {% endif %} -->
+                    {% endif %}
                 </div>
                 <hr class="dropdown-divider" />
                 <div class="row p-1">
                     <p class="card-text col-12 col-md-6">Ultimo chequeo:</p>
-                    <p class="card-text col-12 col-md-6 text-center">{{ tiempo }}</p>
+                    <p class="card-text col-12 col-md-6 text-center">{{ conexion.fecha_internet }}</p>
                 </div> 
                 <hr class="dropdown-divider" />
                 <div class="row p-1">

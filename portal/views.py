@@ -16,9 +16,9 @@ def index(request):
 
 @login_required(login_url='/users/login/')
 def dashboard(request):
-    tiempo = timezone.now()
     sorteos = SorteoDetalle.objects.all()
-    content = {'notificaciones': False, 'tiempo': tiempo, 'sorteos': sorteos}
+    conexion = EstadoConexion.objects.get(id=1)
+    content = {'notificaciones': False, 'conexion': conexion, 'sorteos': sorteos}
     content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
     content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     return render(request, 'portal/dashboard.html', content)
@@ -35,6 +35,8 @@ def perfil(request):
             perfil = Profile.objects.get(usuario=usuario)
             perfil.imagen = request.FILES['imagen']
             perfil.save()
+            notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido="Imagen de perfil cambiada")
+            notificacion.save()
             content['mensaje'] = 'Imagen guardada con éxito'
             return render(request, 'portal/perfil.html', content)
         form = EditUserForm(request.POST)
@@ -46,10 +48,14 @@ def perfil(request):
                 data = {'usuario': usuario.username, 'email': usuario.email, 'first_name': usuario.first_name, 'last_name': usuario.last_name}       
                 respuesta = actualizacion_remota('cambio_usuario', data)          
                 if respuesta['estado']:
+                    notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido="Detalles de perfil editados")
+                    notificacion.save()
                     usuario.save()
                 content['mensaje'] = respuesta['mensaje']
                 return render(request, 'portal/perfil.html', content)
-            else:                
+            else:            
+                notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido="Detalles de perfil editados")
+                notificacion.save()    
                 usuario.save()
                 content['mensaje'] = 'Perfil editado con éxito'
                 return render(request, 'portal/perfil.html', content)
@@ -76,11 +82,15 @@ def contra(request):
                         respuesta = actualizacion_remota('nueva_contraseña', data)
                         if respuesta['estado']:
                             usuario.set_password(nueva)
+                            notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido="Contraseña de usuario cambiada")
+                            notificacion.save()
                             usuario.save()
                         content['mensaje'] = respuesta['mensaje']
                         return render(request, 'portal/cambiarcontra.html', content)
                     else:
                         usuario.set_password(nueva)
+                        notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido="Contraseña de usuario cambiada")
+                        notificacion.save()
                         usuario.save()
                         content['mensaje'] = 'Contraseña cambiada con éxito.'
                         return render(request, 'portal/cambiarcontra.html', content)
@@ -110,9 +120,7 @@ def internet(request):
             if usuario.check_password(contra):
                 result = comprar_internet(usuario, tipo, contra, horas)
                 if result['correcto']:                   
-                    content['color_msg'] = 'success'
-                    notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Pago por el servicio de Internet")
-                    notificacion.save()
+                    content['color_msg'] = 'success'                    
                 content['mensaje'] = result['mensaje']
                 return render(request, 'portal/internet.html', content)
             else:
@@ -135,9 +143,7 @@ def jovenclub(request):
         if usuario.check_password(contra):
             result = comprar_jc(usuario)
             if result['correcto']:                
-                content['color_msg'] = 'success'
-                notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Pago por el servicio de Joven Club")
-                notificacion.save()
+                content['color_msg'] = 'success'                
             content['mensaje'] = result['mensaje']
             return render(request, 'portal/jovenclub.html', content)
         else:

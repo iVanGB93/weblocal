@@ -2,7 +2,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Recarga, Oper, EstadoServicio
 from django.contrib.auth.models import User
-from users.models import Profile
+from users.models import Profile, Notificacion
 from django.core.mail import send_mail
 from sync.syncs import actualizacion_remota
 from sync.models import EstadoConexion
@@ -125,7 +125,10 @@ def comprar_internet(usuario, tipo, contra, horas):
                 servicio.int_tipo = 'internetMensual'
                 servicio.sync = False
                 servicio.save()
+                profile.sync = False
                 profile.save()
+                notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet mensual activado")
+                notificacion.save()
                 code = crearOper(usuario.username, 'internetMensual', 200)
                 send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
                 result['mensaje'] = 'Servicio activado con éxito.'
@@ -158,7 +161,10 @@ def comprar_internet(usuario, tipo, contra, horas):
                 servicio.int_tipo = 'internetSemanal'
                 servicio.sync = False
                 servicio.save()
+                profile.sync = False
                 profile.save()
+                notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet semanal activado")
+                notificacion.save()
                 code = crearOper(usuario.username, 'internetSemanal', 300)
                 send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
                 result['mensaje'] = 'Servicio activado con éxito.'
@@ -201,7 +207,11 @@ def comprar_internet(usuario, tipo, contra, horas):
                     servicio.int_time = None
                     servicio.sync = False
                     servicio.save()
+                    profile.sync = False
                     profile.save() 
+                    contenido = f"Internet por { horas} horas activado"
+                    notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido=contenido)
+                    notificacion.save()
                     send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
                     result['mensaje'] = 'Servicio activado con éxito.'
                     result['correcto'] = True
@@ -252,6 +262,8 @@ def comprar_jc(usuario):
             servicio.jc_time = timezone.now() + timedelta(days=30)
             servicio.sync = False
             servicio.save()
+            notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Joven Club activado")
+            notificacion.save()
             code = crearOper(usuario.username, "Joven-Club", 100)
             send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de Joven Club, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
             #crearLog(usuario.username, "ActivacionLOG.txt", f'Se activó correctamente el usuario: { usuario.username } al Mikrotik Joven-Club.')
@@ -290,12 +302,15 @@ def comprar_emby(usuario):
         resp = connect.json()
         usuarioID = resp['Id']
         if connect.status_code == 200:
+            profile.sync = False
             profile.save()
             servicio.emby = True
             servicio.emby_id = usuarioID
             servicio.emby_time = timezone.now() + timedelta(days=30)
             servicio.sync = False
             servicio.save()
+            notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Emby activado")
+            notificacion.save()
             url = f'{ emby_ip }/Users/{ usuarioID}/Configuration?api_key={ emby_api_key }'
             json = {
                         "PlayDefaultAudioTrack": True,
@@ -385,6 +400,7 @@ def comprar_filezilla(usuario, contraseña):
     if profile.coins >= 50:
         profile.coins = profile.coins - 50
         activarFTP(usuario, contraseña, group='usuarios')
+        profile.sync = False
         profile.save()
         servicio.ftp = True
         servicio.ftp_time = timezone.now() + timedelta(days=30)
@@ -393,6 +409,8 @@ def comprar_filezilla(usuario, contraseña):
         send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])            
         servicio.sync = False
         servicio.save()
+        notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Filezilla activado")
+        notificacion.save()
         result['mensaje'] = 'Servicio activado con éxito.'
         result['correcto'] = True
         return result
@@ -422,6 +440,9 @@ def recargar(code, usuario):
             recarga.fechaUso = timezone.now()
             recarga.usuario = usuario
             recarga.save()
+            contenido = f"Cuenta recargado con { cantidad } coins"
+            notificacion = Notificacion(usuario=usuario, tipo="RECARGA", contenido=contenido)
+            notificacion.save()
             oper = Oper(tipo='RECARGA', usuario=usuario, codRec=code, cantidad=cantidad)
             oper.save()
             result['correcto'] = True
@@ -437,13 +458,21 @@ def recargar(code, usuario):
             if respuesta['estado']:
                 usuario = User.objects.get(username=usuario)
                 profile = Profile.objects.get(usuario=usuario.id)
-                cantidad = respuesta['cantidad']
-                profile.coins = profile.coins + cantidad
-                profile.sync = False                           
-                profile.save()
+                cantidad = respuesta['cantidad']                
                 respuesta = actualizacion_remota('usar_recarga', {'usuario': usuario.username, 'code': code})
                 if respuesta['estado']:
+                    profile.coins = profile.coins + cantidad
+                    profile.sync = False                           
+                    profile.save()
+                    contenido = f"Cuenta recargado con { cantidad } coins"
+                    notificacion = Notificacion(usuario=usuario, tipo="RECARGA", contenido=contenido)
+                    notificacion.save()
+                    oper = Oper(tipo='RECARGA', usuario=usuario, codRec=code, cantidad=cantidad)
+                    oper.save()
                     result['correcto'] = True
+                    result['mensaje'] = respuesta['mensaje']
+                    return result
+                else:
                     result['mensaje'] = respuesta['mensaje']
                     return result
             else:
@@ -477,8 +506,14 @@ def transferir(desde, hacia, cantidad):
                 enviaProfile.save()
                 recibeProfile.sync = False
                 recibeProfile.save()
+                contenido = f"Usted transfirió { cantidad } coins a { recibe.username }"
+                notificacion = Notificacion(usuario=envia, tipo="ENVIO", contenido=contenido)
+                notificacion.save()
                 oper = Oper(usuario=recibe, tipo="RECIBO", cantidad=cantidad, haciaDesde=desde)
-                oper.save()   
+                oper.save()  
+                contenido = f"Usted recibió { cantidad } coins de { envia.username }"
+                notificacion = Notificacion(usuario=recibe, tipo="RECIBO", contenido=contenido)
+                notificacion.save() 
                 oper2 = Oper(usuario=envia, tipo="ENVIO", cantidad=cantidad, haciaDesde=hacia)
                 oper2.save()      
                 result['mensaje']= 'Transferencia realizada con éxito'

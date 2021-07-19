@@ -6,6 +6,7 @@ class EstadoConexion(models.Model):
     ip_online = models.GenericIPAddressField(blank=True, null=True)
     internet = models.BooleanField(default=False)
     ip_internet = models.GenericIPAddressField(blank=True, null=True)
+    fecha_internet = models.DateTimeField(blank=True, null=True)
     jc = models.BooleanField(default=False)
     ip_jc = models.GenericIPAddressField(blank=True, null=True)
     emby = models.BooleanField(default=False)

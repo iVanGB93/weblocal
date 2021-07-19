@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from .models import Comentario, Encuesta, Publicacion
@@ -113,14 +114,14 @@ def detalles(request, tema, pk):
             publicacion.save()
         return render(request, 'forum/detalles.html', content)
 
+@login_required(login_url='/users/login/')
 def crear(request, tema):
     color = tema_color(tema)
     voto = 'no'
     comentarios = 'no'
-    content = {'notificaciones': False, 'voto': voto, 'comentarios': comentarios, 'tema': tema, 'color': color}
-    if request.user.is_authenticated:
-        content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
-        content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
+    content = {'notificaciones': False, 'voto': voto, 'comentarios': comentarios, 'tema': tema, 'color': color}    
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':      
         usuario = User.objects.get(username=request.user)
         tema = request.POST['tema']
@@ -160,6 +161,9 @@ def crear(request, tema):
                 encuesta.save()
                 content['encuesta'] = encuesta
         nueva.save()
+        dato = f"Publicación de { nueva.tema } guardada"
+        notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido=dato)
+        notificacion.save()
         mensaje = 'Artículo publicado con éxito'
         content['p'] = nueva
         content['mensaje'] = mensaje    
@@ -167,16 +171,17 @@ def crear(request, tema):
     else:
         return render(request, 'forum/crear.html', content)
 
+@login_required(login_url='/users/login/')
 def editar(request, tema, pk):
+    usuario = User.objects.get(username=request.user)
     publicacion = Publicacion.objects.get(id=pk)
     color = tema_color(tema)
     encuesta = 'nada'
     if Encuesta.objects.filter(publicacion=publicacion).exists():
         encuesta = Encuesta.objects.get(publicacion=publicacion)
-    content = {'notificaciones': False, 'p': publicacion, 'encuesta': encuesta, 'tema': tema, 'color': color}
-    if request.user.is_authenticated:
-        content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
-        content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
+    content = {'notificaciones': False, 'p': publicacion, 'encuesta': encuesta, 'tema': tema, 'color': color}    
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
         tema = request.POST['tema']
         publicacion.tema = tema
@@ -221,6 +226,9 @@ def editar(request, tema, pk):
         else:  
             if encuesta != 'nada':            
                 encuesta.delete()
+        dato = f"Publicación de { publicacion.tema } editada"
+        notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido=dato)
+        notificacion.save()
         mensaje = 'Publicación modificada con éxito'
         content = {'p': publicacion, 'tema': tema, 'color': color}
         content['mensaje'] =  mensaje    
@@ -228,14 +236,18 @@ def editar(request, tema, pk):
     else:
         return render(request, 'forum/editar.html', content) 
 
+@login_required(login_url='/users/login/')
 def eliminar(request, tema, pk):
+    usuario = User.objects.get(username=request.user)
     publicacion = Publicacion.objects.get(id=pk)
     color = tema_color(tema)
-    content = {'notificaciones': False, 'p': publicacion, 'tema': tema, 'color': color}
-    if request.user.is_authenticated:
-        content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
-        content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
+    content = {'notificaciones': False, 'p': publicacion, 'tema': tema, 'color': color}    
+    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
     if request.method == 'POST':
+        dato = f"Publicación de { publicacion.tema } eliminada"
+        notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido=dato)
+        notificacion.save()
         publicacion.delete()
         publicaciones = Publicacion.objects.filter(tema=pk).order_by('-fecha')
         todas = Publicacion.objects.all().order_by('-fecha')[:20]

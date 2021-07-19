@@ -45,7 +45,7 @@
               <a class="mx-2" style="text-decoration: none" href="{% url 'portal:dashboard' %}">
                 <p class="text-white mx-2 fs-5 fst-italic m-auto">{{ user}}, {{ user.profile.coins }} coins</p>
               </a>              
-              <img id="boton_notificaciones" class="img-fluid rounded mx-2" style="width: 50px; cursor: pointer;" src="{{ user.profile.imagen.url }}" alt="imagen_de_perfil">
+              <img id="boton_notificaciones" class="img-fluid rounded mx-2" style="width: 50px; height: 50px; cursor: pointer;" src="{{ user.profile.imagen.url }}" alt="imagen_de_perfil">
                 <span class="bot-0 start-100 translate-middle badge rounded-pill bg-danger">
                   {{ notificaciones_nuevas.count }}           
                 </span>
