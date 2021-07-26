@@ -3,7 +3,6 @@ from decouple import config
 import os
 
 from django.utils import timezone
-
 from .models import EstadoConexion
 
 def chequeo_conexion_online():
