@@ -12,15 +12,8 @@ import subprocess
 import hashlib
 import requests
 import paramiko
+import routeros_api
 import os
-
-def crearLog(usuario, nombre, texto):
-    dir = os.path.join("C:\\","WEB", "LOG", usuario)
-    if not os.path.exists(dir):
-        os.mkdir(dir)
-    log = open(f'c:/WEB/LOG/{usuario}/{nombre}', "a")
-    log.write('\n' + texto + '  fecha: ' + datetime.now().strftime(' %d-%b-%Y  Hora: %H:%M'))
-    log.close()
 
 def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
@@ -90,12 +83,37 @@ def activarFTP(username, pwd, group):
     subprocess.run([exe_path, '/reload-config'], shell=True)
 #Fin FILEZILLA
 
+def conectar_mikrotik(ip, username, password, usuario, contraseña, perfil, horas):
+    result = {'estado': False}
+    try:
+        connection = routeros_api.RouterOsApiPool(ip, username=username, password=password, plaintext_login=True)
+        api = connection.get_api()
+    except:
+        result['mensaje'] = 'Falló la conexión con el mikrotik, intente más tarde.'
+        return result
+    lista_usuarios = api.get_resource('/ip/hotspot/user')
+    usuario = lista_usuarios.get(name=usuario)
+    if horas == None:
+        horas = '0'
+    else:
+        horas = horas    
+    if usuario != []:
+        if horas == '0':
+            lista_usuarios.set(id=usuario[0]['id'], password=contraseña, profile=perfil, disabled='false', limit_uptime=horas)
+            result['estado'] = True
+            return result
+        else:
+            lista_usuarios.remove(id=usuario[0]['id'])
+    lista_usuarios.add(name=usuario, password=contraseña, profile=perfil, limit_uptime=horas)
+    result['estado'] = True
+    return result
+    
+
 def comprar_internet(usuario, tipo, contra, horas):
     result = {'correcto': False}
     online = config('APP_MODE')
     if online == 'online':
-        servidor = config('NOMBRE_SERVIDOR')
-        conexion = EstadoConexion.objects.get(servidor=servidor)
+        conexion = EstadoConexion.objects.get(id=1)
         if not conexion.online:
             result['mensaje'] = "Compra de servicios deshabilitado, intente más tarde."
             return result
@@ -110,16 +128,8 @@ def comprar_internet(usuario, tipo, contra, horas):
         if user_coins >= 200:
             profile.coins = profile.coins - 200
             perfil = config('INTERNET_PERFIL_MENSUAL_PORTAL')
-            client = paramiko.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            try:
-                client.connect(config('MK1_IP'), username=config('MK1_USER'), password=config('MK1_PASSWORD'))
-                stdin, stdout, stderr = client.exec_command(f'/ip hotspot user set { usuario.username } disable="no" password={ contra } profile={ perfil } limit-uptime=0')
-                for line in stdout:                
-                    if "no such item" in line:
-                        stdin, stdout, stderr = client.exec_command(f'/ip hotspot user add name={ usuario.username } password={ contra } profile={ perfil }')
-                client.close()
-                #crearLog(usuario.username, "ActivacionLOG.txt", f'Se activó correctamente el usuario: { usuario.username } al Mikrotik con prefil: { perfil }.')
+            resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, None)
+            if resultado['estado']:    
                 servicio.internet = True  
                 servicio.int_time = timezone.now() + timedelta(days=30)
                 servicio.int_tipo = 'internetMensual'
@@ -134,9 +144,8 @@ def comprar_internet(usuario, tipo, contra, horas):
                 result['mensaje'] = 'Servicio activado con éxito.'
                 result['correcto'] = True
                 return result
-            except:
-                #crearLog("ERROR CON MIKROTIK", "ActivacionLOG.txt", f'Problema en la conexion con el mikrotik del usuario: { usuario.username }.') 
-                result['mensaje'] = 'No se pudo conectar al mikrotik de internet.'
+            else:
+                result['mensaje'] = resultado['mensaje']
                 return result
         else:
             result['mensaje'] = 'No tiene suficientes coins.'
@@ -146,16 +155,8 @@ def comprar_internet(usuario, tipo, contra, horas):
         if user_coins >= 300:
             profile.coins = profile.coins - 300
             perfil = config('INTERNET_PERFIL_SEMANAL')
-            client = paramiko.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            try:
-                client.connect(config('MK1_IP'), username=config('MK1_USER'), password=config('MK1_PASSWORD'))
-                stdin, stdout, stderr = client.exec_command(f'/ip hotspot user set { usuario.username } disable="no" password={ contra } profile={ perfil } limit-uptime=0')
-                for line in stdout:                
-                    if "no such item" in line:
-                        stdin, stdout, stderr = client.exec_command(f'/ip hotspot user add name={ usuario.username } password={ contra } profile={ perfil }')
-                client.close()
-                #crearLog(usuario.username, "ActivacionLOG.txt", f'Se activó correctamente el usuario: { usuario.username } al Mikrotik con prefil: { perfil }.')
+            resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, None)
+            if resultado['estado']:    
                 servicio.internet = True  
                 servicio.int_time = timezone.now() + timedelta(days=7)
                 servicio.int_tipo = 'internetSemanal'
@@ -170,62 +171,47 @@ def comprar_internet(usuario, tipo, contra, horas):
                 result['mensaje'] = 'Servicio activado con éxito.'
                 result['correcto'] = True
                 return result
-            except:
-                #crearLog("ERROR CON MIKROTIK", "ActivacionLOG.txt", f'Problema en la conexion con el mikrotik del usuario: { usuario.username }.') 
-                result['mensaje'] = 'No se pudo conectar al mikrotik de internet.'
-                return result            
+            else:
+                result['mensaje'] = resultado['mensaje']
+                return result          
         else:
             result['mensaje'] = 'No tiene suficientes coins.'
             return result
-    elif tipo == 'horas':
-        try:
-            cantidad_horas = int(horas)
-            if cantidad_horas <5:
-                result['mensaje'] = 'Mínimo 5 horas.'
-                return result
-            cantidad = cantidad_horas * 10
-            horasMK = f'{horas}:00:00'
-            user_coins = int(profile.coins)
-            if user_coins >= cantidad:
-                profile.coins = profile.coins - cantidad            
-                client = paramiko.SSHClient()
-                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                try:
-                    client.connect(config('MK1_IP'), username=config('MK1_USER'), password=config('MK1_PASSWORD'))
-                    perfil = config('INTERNET_PERFIL_HORAS')
-                    stdin, stdout, stderr = client.exec_command(f'/ip hotspot user set { usuario.username } password={ contra } profile={ perfil } limit-uptime={ horasMK } disable=no')
-                    stdin, stdout, stderr = client.exec_command(f'/ip hotspot user reset-counters { usuario.username }')
-                    for line in stdout:
-                        if "no such item" in line:
-                            stdin, stdout, stderr = client.exec_command(f'/ip hotspot user add name={ usuario.username } password={ contra } profile={ perfil } limit-uptime={ horasMK }')
-                    code = crearOper(usuario.username, 'internetHoras', cantidad)
-                    #crearLog(usuario.username, "ActivacionLOG.txt", f'Se actualizó correctamente el usuario: { usuario.username } en el Mikrotik con { horas} horas.')
-                    client.close()            
-                    servicio.internet = True
-                    servicio.int_horas = horas
-                    servicio.int_tipo = 'internetHoras'
-                    servicio.int_time = None
-                    servicio.sync = False
-                    servicio.save()
-                    profile.sync = False
-                    profile.save() 
-                    contenido = f"Internet por { horas} horas activado"
-                    notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido=contenido)
-                    notificacion.save()
-                    send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
-                    result['mensaje'] = 'Servicio activado con éxito.'
-                    result['correcto'] = True
-                    return result
-                except:                
-                    #crearLog("ERROR CON MIKROTIK", "ActivacionLOG.txt", f'Problema en la conexion con el mikrotik del usuario: { usuario.username }.')
-                    result['mensaje'] = 'No se pudo conectar al mikrotik de internet.'
-                    return result
-            else:
-                result['mensaje'] = 'No tiene suficientes coins.'
-                return result
-        except ValueError:
-            result['mensaje'] = 'Defina bien las horas'
+    elif tipo == 'horas':        
+        cantidad_horas = int(horas)
+        if cantidad_horas <5:
+            result['mensaje'] = 'Mínimo 5 horas.'
             return result
+        cantidad = cantidad_horas * 10
+        horasMK = f'{horas}:00:00'
+        user_coins = int(profile.coins)
+        if user_coins >= cantidad:
+            profile.coins = profile.coins - cantidad            
+            perfil = config('INTERNET_PERFIL_HORAS')
+            resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, horasMK)
+            if resultado['estado']:    
+                code = crearOper(usuario.username, 'internetHoras', cantidad)
+                servicio.internet = True
+                servicio.int_horas = horas
+                servicio.int_tipo = 'internetHoras'
+                servicio.int_time = None
+                servicio.sync = False
+                servicio.save()
+                profile.sync = False
+                profile.save() 
+                contenido = f"Internet por { horas} horas activado"
+                notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido=contenido)
+                notificacion.save()
+                send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                result['mensaje'] = 'Servicio activado con éxito.'
+                result['correcto'] = True
+                return result
+            else:
+                result['mensaje'] = resultado['mensaje']
+                return result 
+        else:
+            result['mensaje'] = 'No tiene suficientes coins.'
+            return result        
     else:
         result['mensaje'] = 'Error de solicitud'
         return result

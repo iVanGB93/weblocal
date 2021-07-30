@@ -5,21 +5,12 @@ from .models import EstadoServicio, Oper
 from users.models import Profile
 from django.contrib.auth.models import User
 from decouple import config
-from datetime import datetime, timedelta
-import paramiko
+from datetime import timedelta
 import requests
 import xml.etree.ElementTree
 import subprocess
-import hashlib
+import routeros_api
 import os
-
-def crearLog(usuario, nombre, texto):
-    dir = os.path.join("C:\\","WEB", "LOG", usuario)
-    if not os.path.exists(dir):
-        os.mkdir(dir)
-    log = open(f'c:/WEB/LOG/{usuario}/{nombre}', "a")
-    log.write('\n' + texto + '  fecha: ' + datetime.now().strftime(' %d-%b-%Y  Hora: %H:%M'))
-    log.close()
 
 def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
@@ -28,20 +19,27 @@ def crearOper(usuario, servicio, cantidad):
     code = nuevaOper.code
     return code
 
-def quitarMk(ip, comando):
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+def conectar_mikrotik(ip, username, password, usuario, servicio):
+    result = {'estado': False}
     try:
-        client.connect(ip, username=config('MK1_USER'), password=config('MK1_PASSWORD'))
-        stdin, stdout, stderr = client.exec_command(comando)
-        for line in stdout:            
-            if "no such item" in line:
-                return False
-        client.close()
-        return True
+        connection = routeros_api.RouterOsApiPool(ip, username=username, password=password, plaintext_login=True)
+        api = connection.get_api()
     except:
-        crearLog("ERROR CON MIKROTIK", "DesActivacionLOG.txt", f'Problema en la conexion con el mikrotik para desactivar un usuario.')
-        return False
+        result['mensaje'] = 'Falló la conexión con el mikrotik, intente más tarde.'
+        return result
+    if servicio == 'internet':
+        lista_usuarios = api.get_resource('/ip/hotspot/user')
+        usuario = lista_usuarios.get(name=usuario)
+    else:
+        lista_usuarios = api.get_resource('/ip/firewall/address-list')
+        usuario = lista_usuarios.get(comment=usuario)     
+    if usuario != []:        
+        lista_usuarios.set(id=usuario[0]['id'], disabled='true')
+        result['estado'] = True
+        return result
+    else:
+        result['mensaje'] = "No estaba el usuario"
+        return result
 
 #FILEZILLA
 user_xml_fmt = '''
@@ -117,18 +115,18 @@ def chequeoInternet():
                             i.sync = False
                             i.save()
                             code = crearOper(usuario.username, "internetSemanal", 300)
-                            send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                            send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                         else:
-                            comando = f'/ip hotspot user set { usuario.username } disable=yes'
-                            if quitarMk(config('MK1_IP'), comando):                            
-                                crearLog(usuario.username, "DesactivacionLOG.txt", f'Se desactivó correctamente al usuario: { usuario.username } el internet.')        
+                            resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
+                            if resultado['estado']:
+                                i.internet = False
+                                i.time = None
+                                i.sync = False
+                                i.save()
+                                send_mail('QbaRed - Rechazo de pago', f'No se pudo reanudar su servicio { i.int_tipo }, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
                             else:
-                                crearLog(usuario.username, "DesactivacionLOG.txt", f'No se encontro al usuario: { usuario.username } para desactivarle el internet.')
-                            i.internet = False
-                            i.int_auto = False
-                            i.sync = False
-                            i.save()
-                            send_mail('QbaRed - Rechazo de pago', f'No se pudo reanudar su servicio { i.int_tipo }, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                                mensaje = resultado['mensaje']
+                                send_mail('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
                     if i.int_tipo == "internetMensual":
                         if profile.coins >= 200:
                             profile.coins = profile.coins - 200
@@ -138,28 +136,29 @@ def chequeoInternet():
                             i.sync = False
                             i.save()
                             code = crearOper(usuario.username, "internetMensual", 200)
-                            send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                            send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                         else:
-                            comando = f'/ip hotspot user set { usuario.username } disable=yes'
-                            if quitarMk(config('MK1_IP'), comando):
-                                crearLog(usuario.username, "DesactivacionLOG.txt", f'Se desactivó correctamente al usuario: { usuario.username } el internet.')        
+                            resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
+                            if resultado['estado']:
+                                i.internet = False
+                                i.int_time = None
+                                i.sync = False
+                                i.save()
+                                send_mail('QbaRed - Rechazo de pago', f'No se pudo reanudar su servicio { i.int_tipo }, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
                             else:
-                                crearLog(usuario.username, "DesactivacionLOG.txt", f'No se encontro al usuario: { usuario.username } para desactivarle el internet.')
-                            i.internet = False
-                            i.int_auto = False
-                            i.sync = False
-                            i.save()
-                            send_mail('QbaRed - Rechazo de pago', f'No se pudo reanudar su servicio { i.int_tipo }, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                                mensaje = resultado['mensaje']
+                                send_mail('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
                 else:                    
-                    comando = f'/ip hotspot user set { usuario.username } disable=yes'
-                    if quitarMk(config('MK1_IP'), comando):
-                        crearLog(usuario.username, "DesactivacionLOG.txt", f'Se desactivó correctamente al usuario: { usuario.username } el internet.')        
+                    resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
+                    if resultado['estado']:
+                        i.internet = False
+                        i.int_time = None
+                        i.sync = False
+                        i.save()
+                        send_mail('QbaRed - Tiempo agotado', f'Se termino el tiempo del { i.int_tipo }, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])    
                     else:
-                        crearLog(usuario.username, "DesactivacionLOG.txt", f'No se encontro al usuario: { usuario.username } para desactivarle el internet.')                
-                    i.internet = False
-                    i.sync = False
-                    i.save()
-                    send_mail('QbaRed - Tiempo agotado', f'Se termino el tiempo del { i.int_tipo }, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])    
+                        mensaje = resultado['mensaje']
+                        send_mail('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
 
 def chequeo():    
     emb = EstadoServicio.objects.filter(emby=True)
@@ -183,30 +182,27 @@ def chequeo():
                         e.sync = False
                         e.save()
                         code = crearOper(usuario.username, "Emby", 100)
-                        send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio emby, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                        send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio emby, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                     else:
-                        send_mail('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio emby, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])                       
+                        send_mail('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio emby, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])                       
                         connect = requests.delete(url=url)
                         if connect.status_code == 200:
-                            crearLog(usuario.username, "DesactivacionLOG.txt", f'Se eliminó correctamente al usuario: { usuario.username } del Emby.')
                             e.emby = False
-                            e.emby_auto = False
+                            e.emby_time = None
                             e.sync = False
                             e.save()
                         else:           
-                            crearLog(usuario.username, "DesactivacionLOG.txt", f'Problema en la desactivacion del Emby.')
-                            send_mail(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+                            send_mail(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, ['ivanguachbeltran@gmail.com'])
                 else:
-                    send_mail('QbaRed - Tiempo agotado', 'Se terminó el tiempo de su servicio emby, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                    send_mail('QbaRed - Tiempo agotado', 'Se terminó el tiempo de su servicio emby, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])
                     connect = requests.delete(url=url)
                     if connect.status_code == 200:
-                        crearLog(usuario.username, "DesactivacionLOG.txt", f'Se eliminó correctamente al usuario: { usuario.username } del Emby.')
                         e.emby = False
+                        e.emby_time = None
                         e.sync = False
                         e.save()
                     else:                                 
-                        crearLog(usuario.username, "DesactivacionLOG.txt", f'Problema en la desactivacion del Emby.')
-                        send_mail(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+                        send_mail(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, ['ivanguachbeltran@gmail.com'])
     for j in jclub:   
         exp = j.jc_time
         if exp:
@@ -222,29 +218,26 @@ def chequeo():
                         j.sync = False
                         j.save()
                         code = crearOper(usuario.username, "Joven Club", 100)
-                        send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio JovenClub, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                        send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio JovenClub, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                     else:
-                        comando = f'/ip firewall address-list set [find comment={usuario.username}] disable=yes'
-                        if quitarMk(config('MK2_IP'), comando):
-                            crearLog(usuario.username, "DesactivacionLOG.txt", f'Se desactivó correctamente al usuario: { usuario.username } el Joven-Club.')
+                        resultado = conectar_mikrotik(config('MK2_IP'), config('MK2_USER'), config('MK2_PASSWORD'), usuario.username, 'joven-club')
+                        if resultado['estado']:
+                            j.jc = False
+                            j.jc_time = None
+                            j.sync = False
+                            j.save()
+                            send_mail('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio JovenClub, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
                         else:
-                            crearLog(usuario.username, "DesactivacionLOG.txt", f'No se encontro al usuario: { usuario.username } para desactivarle el Joven-Club.')
+                            mensaje = resultado['mensaje']
+                            send_mail('Error al quitar servicio', f'No se pudo quitar el servicio Joven Club, MENSAJE: { mensaje }', None, [usuario.email])
+                else:
+                    resultado = conectar_mikrotik(config('MK2_IP'), config('MK2_USER'), config('MK2_PASSWORD'), usuario.username, 'joven-club')
+                    if resultado['estado']:
                         j.jc = False
-                        j.jc_auto = False
+                        j.jc_time = None
                         j.sync = False
                         j.save()
-                        send_mail('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio JovenClub, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
-                else:
-                    comando = f'/ip firewall address-list set [find comment={usuario.username}] disable=yes'
-                    if quitarMk(config('MK2_IP'), comando):
-                        crearLog(usuario.username, "DesactivacionLOG.txt", f'Se desactivó correctamente al usuario: { usuario.username } el Joven-Club.')
-                    else:    
-                        crearLog(usuario.username, "DesactivacionLOG.txt", f'No se encontro al usuario: { usuario.username } para desactivarle el Joven-Club.')
-                    j.jc = False
-                    j.jc_auto = False
-                    j.sync = False
-                    j.save()
-                    send_mail('QbaRed - Tiempo agotado', 'Se termino el tiempo de su servicio Joven Club, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                        send_mail('QbaRed - Tiempo agotado', 'Se termino el tiempo de su servicio Joven Club, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])
     for f in filezilla:   
         exp = f.ftp_time       
         if exp:
@@ -264,17 +257,16 @@ def chequeo():
                     else:
                         quitarFTP(usuario.username)                          
                         f.ftp = False
-                        f.ftp_auto = False
+                        f.ftp_time = None
                         f.sync = False
                         f.save() 
                         send_mail('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio FileZilla, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
-                        crearLog(usuario.username, "DesActivacionLOG.txt", f'Se elimino de FileZilla a: { usuario.username }.')               
                 else:
                     quitarFTP(usuario.username)                          
                     f.ftp = False
+                    f.ftp_time = None
                     f.sync = False
-                    f.save()               
-                    crearLog(usuario.username, "DesActivacionLOG.txt", f'Se elimino de FileZilla a: { usuario.username }.')               
+                    f.save()          
 
 def tiempoAcabado():
     scheduler = BackgroundScheduler()

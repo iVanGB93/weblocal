@@ -39,6 +39,7 @@ async def conectar(url, accion, data):
         return respuesta
     except TypeError:
         respuesta['mensaje'] = f'ERROR {TypeError}'
+        return respuesta
     except:
         respuesta['mensaje'] = 'NADA QUE DECIR, SOLO PROBLEMAS'
         return respuesta

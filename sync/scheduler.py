@@ -3,6 +3,7 @@ from decouple import config
 import os
 
 from django.utils import timezone
+from .syncs import actualizacion_remota
 from .models import EstadoConexion
 
 def chequeo_conexion_online():
@@ -17,12 +18,13 @@ def chequeo_conexion_online():
         conexion.ip_jc = config('IP_JC')
         conexion.ip_emby = config('IP_EMBY')
         conexion.ip_ftp = config('IP_FTP')
-    response = os.popen(f"ping { ip_online }").read()
-    if "recibidos = 4" in response:
+    data = {'identidad': servidor}
+    respuesta = actualizacion_remota('saludo', data)
+    if respuesta['estado']:
         print("SERVIDOR ONLINE")
         conexion.online = True
     else:
-        print("NO TIENE INTERNET EL SERVIDOR")
+        print("NO TIENE INTERNET EL SERVIDOR", respuesta['mensaje'])
         conexion.online = False
     conexion.save()
 

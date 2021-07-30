@@ -48,7 +48,7 @@
                     <h5 class="col-6 card-title d-flex justify-content-start">Restante:</h5>
                     <h5 class="col-6 card-title d-flex justify-content-end">
                         {% if user.estadoservicio.jc_time %}
-                            {{ user.estadoservicio.jc_time}}
+                        <p class="m-auto fw-bolder" id="tiempo_restante"></p>
                         {% else %}
                             -
                         {% endif %}
@@ -132,7 +132,23 @@
         </div>
     </div>
 </div>
-<script>    
+{{ user.estadoservicio.jc_time|json_script:"fecha" }}
+<script>
+    var fecha = JSON.parse(document.getElementById('fecha').textContent);
+    var countDownDate = new Date(fecha).getTime();
+    var x = setInterval(function() {
+    var now = new Date().getTime();
+    var distance = countDownDate - now;
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    document.getElementById("tiempo_restante").innerHTML = days + "d--" + hours + "h " + minutes + "m " + seconds + "s";
+    if (distance < 0) {
+        clearInterval(x);
+        document.getElementById("tiempo_restante").innerHTML = "Terminado";
+    }
+    }, 1000);
     const myform_sync = document.getElementById("myform_sync");
     myform_sync.addEventListener("submit", (e) => {       
         document.getElementById('spinner_sync').style.display = 'inline-block';

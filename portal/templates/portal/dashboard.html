@@ -11,7 +11,7 @@
                     <h6 class="card-title col-8">
                         Servicio:
                     </h6>
-                    {% if conexion.internet %}
+                    {% if conexion.internet and  conexion.online %}
                         <span class="badge rounded-pill bg-success col-4 m-auto text-center">ON</span>
                     {% else %}
                         <span class="badge rounded-pill bg-danger col-4 m-auto text-center">OFF</span>

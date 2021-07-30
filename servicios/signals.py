@@ -39,15 +39,15 @@ def correoOper(sender, instance, **kwargs):
     data = {'code': instance.code, 'tipo': instance.tipo, 'usuario': usuario, 'servicio': servicio, 'cantidad': instance.cantidad, 'codRec': codRec, 'haciaDesde': haciaDesde, 'fecha': fecha}
     respuesta = actualizacion_remota('nueva_operacion', data)
     if not respuesta['estado']:
-        send_mail(f'Falló al subir el servicio', f'La operación de { instance.tipo } del usuario {usuario} no se pudo sincronizar con internet. Fecha: { fecha}.', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])    
+        send_mail(f'Falló al subir el servicio', f'La operación de { instance.tipo } del usuario {usuario} no se pudo sincronizar con internet. Fecha: { fecha}.', None, ['ivanguachbeltran@gmail.com'])    
     if instance.tipo == 'PAGO':
-        send_mail(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+        send_mail(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
     elif instance.tipo == 'RECARGA':
-        send_mail(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+        send_mail(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
     elif instance.tipo == 'ENVIO':
-        send_mail(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+        send_mail(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
     elif instance == 'RECIBO':
-        send_mail(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+        send_mail(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
 
 
 @receiver(post_save, sender=EstadoServicio)
@@ -64,7 +64,7 @@ def actualizar_servicios(sender, instance, **kwargs):
                 instance.save()
             else:
                 mensaje = respuesta['mensaje']
-                send_mail(f'Falló al subir el servicio', f'El servicio del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])    
+                send_mail(f'Falló al subir el servicio', f'El servicio del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])    
 
 @receiver(post_save, sender=Recarga)
 def actualizar_recarga(sender, instance, **kwargs):
@@ -77,10 +77,10 @@ def actualizar_recarga(sender, instance, **kwargs):
                     instance.save()
                 else:
                     mensaje = respuesta['mensaje']
-                    send_mail(f'Falló sync recarga', f'Recarga del usuario {instance.usuario.username} código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+                    send_mail(f'Falló sync recarga', f'Recarga del usuario {instance.usuario.username} código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])
             else:
                 data = {'code': instance.code, 'cantidad': instance.cantidad, 'fechaHecha': str(instance.fechaHecha)}
                 respuesta = actualizacion_remota('crear_recarga', data)
                 if not respuesta['estado']:                   
                     mensaje = respuesta['mensaje']
-                    send_mail(f'Falló sync recarga', f'Crear recarga, código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])
+                    send_mail(f'Falló sync recarga', f'Crear recarga, código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])
