@@ -92,18 +92,18 @@ def conectar_mikrotik(ip, username, password, usuario, contraseña, perfil, hora
         result['mensaje'] = 'Falló la conexión con el mikrotik, intente más tarde.'
         return result
     lista_usuarios = api.get_resource('/ip/hotspot/user')
-    usuario = lista_usuarios.get(name=usuario)
+    usuario_mk = lista_usuarios.get(name=usuario)
     if horas == None:
         horas = '0'
     else:
-        horas = horas    
-    if usuario != []:
+        horas = horas
+    if usuario_mk != []:
         if horas == '0':
-            lista_usuarios.set(id=usuario[0]['id'], password=contraseña, profile=perfil, disabled='false', limit_uptime=horas)
+            lista_usuarios.set(id=usuario_mk[0]['id'], password=contraseña, profile=perfil, disabled='false', limit_uptime=horas)
             result['estado'] = True
             return result
         else:
-            lista_usuarios.remove(id=usuario[0]['id'])
+            lista_usuarios.remove(id=usuario_mk[0]['id'])
     lista_usuarios.add(name=usuario, password=contraseña, profile=perfil, limit_uptime=horas)
     result['estado'] = True
     return result
