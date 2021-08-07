@@ -1,7 +1,7 @@
 from sync.syncs import actualizacion_remota
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Profile
+from .models import Profile, Notificacion
 from django.contrib.auth.models import  User
 from django.core.mail import send_mail
 from decouple import config
@@ -31,4 +31,17 @@ def actualizar_profile(sender, instance, **kwargs):
                 instance.save()
             else:
                 mensaje = respuesta['mensaje']
-                send_mail(f'Falló al subir el perfil', f'El perfil del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])    
+                send_mail(f'Falló al subir el perfil desde local_iVan', f'El perfil del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', 'RedCentroHabanaCuba@gmail.com', ['ivanguachbeltran@gmail.com'])    
+
+@receiver(post_save, sender=Notificacion)
+def actualizar_notificacion(sender, instance, **kwargs):
+    if config('APP_MODE') == 'online':
+        if instance.sync == False:
+            data = {'usuario': instance.usuario.username, 'tipo': instance.tipo, 'contenido': instance.contenido}
+            respuesta = actualizacion_remota('crear_notificacion', data)
+            if respuesta['estado']:
+                instance.sync = True
+                instance.save()
+            else:
+                mensaje = respuesta['mensaje']
+                send_mail(f'Falló al subir una notificacion desde local_iVan', f'La notificacion { instance.contenido } del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])    
