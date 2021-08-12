@@ -1,27 +1,27 @@
 {% extends "portal/basePortal.html" %}
 {% load static %}
 {% block contenido %}   
-<div class="row my-1">    
-    <div class="col-10 col-md-5 mt-0 mb-2 m-auto">
+<div class="row m-1">    
+    <div class="col-10 col-md-4 mt-0 mb-2 m-auto">
         <div class="card">
             <div class="card-header text-white bg-dark">
                 INTERNET - {{ user }}
             </div>
             <div class="card-body">                
                 <div class="row m-auto">
-                    <h5 class="col-6 card-title d-flex justify-content-start">Mi cuenta:</h5>
-                    <h5 class="col-6 card-title d-flex justify-content-end">
+                    <h6 class="col-6 card-title d-flex justify-content-start">Mi cuenta:</h6>
+                    <h6 class="col-6 card-title d-flex justify-content-end">
                         {% if user.estadoservicio.internet %}
                         <span class="badge rounded-pill bg-success">Activa</span>
                         {% else %}
                         <span class="badge rounded-pill bg-danger">No activa</span>
                         {% endif %}
-                    </h5>
+                    </h6>
                 </div>
                 <hr class="dropdown-divider" />
                 <div class="row m-auto">
-                    <h5 class="col-6 card-title d-flex justify-content-start">Sincronización:</h5>
-                    <h5 class="col-6 card-title d-flex justify-content-end">
+                    <h6 class="col-6 card-title d-flex justify-content-start">Sincronización:</h6>
+                    <h6 class="col-6 card-title d-flex justify-content-end">
                         {% if user.estadoservicio.sync %}
                         <span class="badge rounded-pill bg-success mx-1">OK</span>
                         <form id="myform_sync" action="{% url 'portal:sync_servicio' 'internet' %}" method="POST">
@@ -41,12 +41,12 @@
                             </button>
                         </form>
                         {% endif %}
-                    </h5>
+                    </h6>
                 </div>    
                 <hr class="dropdown-divider" />
                 <div class="row m-auto">
-                    <h5 class="col-6 card-title d-flex justify-content-start">Restante:</p></h5>
-                    <h5 class="col-6 card-title d-flex justify-content-end">
+                    <h6 class="col-6 card-title d-flex justify-content-start">Restante:</h6>
+                    <h6 class="col-6 card-title d-flex justify-content-end">
                         {% if user.estadoservicio.int_time %}
                             <p class="m-auto fw-bolder" id="tiempo_restante"></p>
                         {% else %}
@@ -56,12 +56,12 @@
                                 -
                             {% endif %}
                         {% endif %}
-                    </h5>
+                    </h6>
                 </div>  
                 <hr class="dropdown-divider" /> 
                 <div class="row m-auto">
-                    <h5 class="col-6 card-title d-flex justify-content-start">Autopago:</h5>
-                    <h5 class="col-6 card-title d-flex justify-content-end">
+                    <h6 class="col-6 card-title d-flex justify-content-start">Autopago:</h6>
+                    <h6 class="col-6 card-title d-flex justify-content-end">
                         {% if user.estadoservicio.int_auto %}
                         <span class="badge rounded-pill bg-success mx-1">ON</span>
                         <form id="myform_auto" action="{% url 'portal:auto' 'internet' %}" method="POST">
@@ -81,38 +81,58 @@
                             </button>
                         </form>
                         {% endif %}
-                    </h5>
+                    </h6>
                 </div>  
             </div>
         </div>
     </div>
-    <div class="col-10 col-md-5 mt-0 m-auto text-center">
+    <div class="col-10 col-md-4 mt-0 m-auto text-center">
         <div class="card">
             <div class="card-header text-white bg-dark">
-                Costo:
+                Opciones:
             </div>
             <div class="card-body">
                 <div class="row m-auto">
-                    <h5 class="col-6 card-title d-flex justify-content-start">Mensual(solo portal)</h5>
-                    <h5 class="col-6 card-title d-flex justify-content-end">200 coins</h5>
+                    <h6 class="col-6 card-title d-flex justify-content-start">16 horas(11am a 3am):</h6>
+                    <h6 class="col-6 card-title d-flex justify-content-end">300 coins</h6>
                 </div>   
                 <hr class="dropdown-divider" />
                 <div class="row m-auto">
-                    <h5 class="col-6 card-title d-flex justify-content-start">Semanal</h5>
-                    <h5 class="col-6 card-title d-flex justify-content-end">300 coins</h5>
+                    <h6 class="col-6 card-title d-flex justify-content-start">24 horas:</h6>
+                    <h6 class="col-6 card-title d-flex justify-content-end">400 coins</h6>
                 </div>
                 <hr class="dropdown-divider" />
                 <div class="row m-auto">
-                    <h5 class="col-6 card-title d-flex justify-content-start">Por horas</h5>
-                    <h5 class="col-6 card-title d-flex justify-content-end">10 coins X hora</h5>
+                    <h6 class="col-6 card-title d-flex justify-content-start">Por horas:</h6>
+                    <h6 class="col-6 card-title d-flex justify-content-end">10 coins X hora</h6>
                 </div>   
+            </div>
+        </div>        
+    </div>
+    <div class="col-10 col-md-4 mt-0 m-auto text-center">
+        <div class="card">
+            <div class="card-header text-white bg-dark">
+                Duración:
+            </div>
+            <div class="card-body">
+                <div class="row m-auto">
+                    <h6 class="text-center card-title">Horas</h6>
+                </div>   
+                <hr class="dropdown-divider" />
+                <div class="row m-auto">
+                    <h6 class="text-center card-title">Semanal</h6>
+                </div>   
+                <hr class="dropdown-divider" />
+                <div class="row m-auto">
+                    <h6 class="text-center card-title">Mensual</h6>
+                </div>
             </div>
         </div>        
     </div>        
 </div>        
 {% if mensaje %}
     <div class="alert alert-{{ color_msg }} text-center m-auto my-2 col-8 col-md-4" role="alert">                   
-        {{ mensaje }}                   
+        {{ mensaje }}               
     </div>               
 {% endif %}
 {% if not user.estadoservicio.internet %}
@@ -121,11 +141,16 @@
         <h4 class="fw-bold">Activar el servicio Internet:</h4>
         <form id="myform" action="{% url 'portal:internet' %}" method="post">
             {% csrf_token %}
-            <select class="form-select mb-3" name="tipo" aria-label="Default select example">
+            <select class="form-select mb-3" name="tipo">
                 <option selected>Seleccione el tipo</option>
-                <option value="mensual">Mensual</option>
-                <option value="semanal">Semanal</option>
+                <option value="16h">16 horas</option>
+                <option value="24h">24 horas</option>
                 <option value="horas">Horas</option>
+            </select>
+            <select class="form-select mb-3" name="duracion">
+                <option selected>Seleccione la duración</option>
+                <option value="semanal">Semanal</option>
+                <option value="mensual">Mensual</option>
             </select>
             <div class="input-group mb-3">
                 <span class="col-5 col-md-4 input-group-text" id="inputGroup-sizing-default">Horas:</span>
@@ -144,14 +169,16 @@
 </div>
 {% endif %}
 <div class="row py-5">
-    <div class="col-10 col-md-8 m-auto text-center">
+    <div class="col-10 col-md-10 m-auto text-center">
         <div class="card">
             <div class="card-header text-white bg-dark">Información:</div>
             <div class="card-body">
-                <ul class="list-group">
-                    <li class="list-group-item">El tipo mensual solo incluye el acceso al portal nauta para que usted ponga su propia cuenta cuando desee tener internet.</li>
-                    <li class="list-group-item">El tipo semanal es conexión a internet desde las 11am hasta las 3am, serían 16 horas diarias.</li>
-                    <li class="list-group-item">El tipo por horas es conexión a internet cuando usted desee usar el tiempo que tenga,siempre en el horario de 11am a 3pm.</li>
+                <ul class="list-group text-start">
+                    <li class="list-group-item">Si escoge el tipo horas debe especificar la cantidad de horas.</li>
+                    <li class="list-group-item">Si escoge el tipo horas no seleccione nada en la opción duración.</li>
+                    <li class="list-group-item">Si no escoge el tipo horas no escribe nada en el formulario horas.</li>
+                    <li class="list-group-item">Si escoge la duración mensual sería el costo de 4 semanas y tendría 30 días, 2 extras.</li>
+                    <li class="list-group-item">El tipo por horas es conexión a internet cuando usted desee usar el tiempo que tenga disponible.</li>
                     <li class="list-group-item">No olvide si activa el servicio tiene la oportunidad de ganar el sorteo del mes usando el código, mas información <a href="{% url 'sorteo:index' %}">-->aquí<--</a>.</li>
                     <li class="list-group-item">Duda y sugerencias, escribir a la administración.</li>
                 </ul>

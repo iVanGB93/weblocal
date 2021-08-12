@@ -109,7 +109,7 @@ def conectar_mikrotik(ip, username, password, usuario, contraseña, perfil, hora
     return result
     
 
-def comprar_internet(usuario, tipo, contra, horas):
+def comprar_internet(usuario, tipo, contra, duracion, horas):
     result = {'correcto': False}
     online = config('APP_MODE')
     if online == 'online':
@@ -123,59 +123,81 @@ def comprar_internet(usuario, tipo, contra, horas):
         result['mensaje'] = 'Ya tiene el servicio activo.'
         return result
     profile = Profile.objects.get(usuario=usuario)
-    if tipo == 'mensual':
-        user_coins = int(profile.coins)
-        if user_coins >= 200:
-            profile.coins = profile.coins - 200
-            perfil = config('INTERNET_PERFIL_MENSUAL_PORTAL')
-            resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, None)
-            if resultado['estado']:    
-                servicio.internet = True  
-                servicio.int_time = timezone.now() + timedelta(days=30)
-                servicio.int_tipo = 'internetMensual'
-                servicio.sync = False
-                servicio.save()
-                profile.sync = False
-                profile.save()
-                notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet mensual activado")
-                notificacion.save()
-                code = crearOper(usuario.username, 'internetMensual', 200)
-                send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
-                result['mensaje'] = 'Servicio activado con éxito.'
-                result['correcto'] = True
+    if tipo == '16h':
+        if duracion == 'semanal':            
+            user_coins = int(profile.coins)
+            if user_coins < 300:
+                result['mensaje'] = 'No tiene suficientes coins, necesita 300, por favor recargue.'
                 return result
             else:
-                result['mensaje'] = resultado['mensaje']
-                return result
-        else:
-            result['mensaje'] = 'No tiene suficientes coins.'
-            return result
-    elif tipo == 'semanal':
-        user_coins = int(profile.coins)
-        if user_coins >= 300:
-            profile.coins = profile.coins - 300
-            perfil = config('INTERNET_PERFIL_SEMANAL')
-            resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, None)
-            if resultado['estado']:    
-                servicio.internet = True  
                 servicio.int_time = timezone.now() + timedelta(days=7)
-                servicio.int_tipo = 'internetSemanal'
-                servicio.sync = False
-                servicio.save()
-                profile.sync = False
-                profile.save()
-                notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet semanal activado")
-                notificacion.save()
-                code = crearOper(usuario.username, 'internetSemanal', 300)
-                send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
-                result['mensaje'] = 'Servicio activado con éxito.'
-                result['correcto'] = True
+                profile.coins = profile.coins - 300
+                costo = 300
+        if duracion == 'mensual':            
+            user_coins = int(profile.coins)
+            if user_coins < 1200:
+                result['mensaje'] = 'No tiene suficientes coins, necesita 1200, por favor recargue.'
                 return result
             else:
-                result['mensaje'] = resultado['mensaje']
-                return result          
+                servicio.int_time = timezone.now() + timedelta(days=30)
+                profile.coins = profile.coins - 1200
+                costo = 1200
+        perfil = config('INTERNET_PERFIL_SEMANAL')
+        resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, None)
+        if resultado['estado']:    
+            servicio.internet = True
+            servicio.int_tipo = 'internet-16h'
+            servicio.sync = False
+            servicio.save()
+            profile.sync = False
+            profile.save()
+            notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet 16 horas activado.")
+            notificacion.save()
+            code = crearOper(usuario.username, 'interne-16h', costo)
+            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            result['mensaje'] = 'Servicio activado con éxito.'
+            result['correcto'] = True
+            return result
         else:
-            result['mensaje'] = 'No tiene suficientes coins.'
+            result['mensaje'] = resultado['mensaje']
+            return result        
+    elif tipo == '24h':
+        if duracion == 'semanal':            
+            user_coins = int(profile.coins)
+            if user_coins < 400:
+                result['mensaje'] = 'No tiene suficientes coins, necesita 400, por favor recargue.'
+                return result
+            else:
+                servicio.int_time = timezone.now() + timedelta(days=7)
+                profile.coins = profile.coins - 400
+                costo = 400
+        if duracion == 'mensual':            
+            user_coins = int(profile.coins)
+            if user_coins < 1600:
+                result['mensaje'] = 'No tiene suficientes coins, necesita 1600, por favor recargue.'
+                return result
+            else:
+                servicio.int_time = timezone.now() + timedelta(days=30)
+                profile.coins = profile.coins - 1600
+                costo = 1600
+        perfil = config('INTERNET_PERFIL_SEMANAL')
+        resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, None)
+        if resultado['estado']:    
+            servicio.internet = True  
+            servicio.int_tipo = 'internet-24h'
+            servicio.sync = False
+            servicio.save()
+            profile.sync = False
+            profile.save()
+            notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet 24 horas activado")
+            notificacion.save()
+            code = crearOper(usuario.username, 'internet-24h', costo)
+            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            result['mensaje'] = 'Servicio activado con éxito.'
+            result['correcto'] = True
+            return result
+        else:
+            result['mensaje'] = resultado['mensaje']
             return result
     elif tipo == 'horas':        
         cantidad_horas = int(horas)
@@ -202,7 +224,7 @@ def comprar_internet(usuario, tipo, contra, horas):
                 contenido = f"Internet por { horas} horas activado"
                 notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido=contenido)
                 notificacion.save()
-                send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                 result['mensaje'] = 'Servicio activado con éxito.'
                 result['correcto'] = True
                 return result
@@ -251,8 +273,7 @@ def comprar_jc(usuario):
             notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Joven Club activado")
             notificacion.save()
             code = crearOper(usuario.username, "Joven-Club", 100)
-            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de Joven Club, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
-            #crearLog(usuario.username, "ActivacionLOG.txt", f'Se activó correctamente el usuario: { usuario.username } al Mikrotik Joven-Club.')
+            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de Joven Club, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
             result['mensaje'] = 'Servicio activado con éxito.'
             result['correcto'] = True
             return result
@@ -357,7 +378,7 @@ def comprar_emby(usuario):
             connect = requests.post(url=url, data=json)
             #crearLog(usuario.username, "ActivacionLOG.txt", f'Se agregó correctamente el usuario: { usuario.username } al Emby.')
             code = crearOper(usuario.username, "Emby", 100)
-            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
             result['mensaje'] = 'Servicio activado con éxito.'
             result['correcto'] = True
             return result
@@ -392,7 +413,7 @@ def comprar_filezilla(usuario, contraseña):
         servicio.ftp_time = timezone.now() + timedelta(days=30)
         code = crearOper(usuario.username, 'FileZilla', 50)
         #crearLog(usuario, "ActivacionLOG.txt", f'El usuario: { usuario.username } pago por FTP.')
-        send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])            
+        send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])            
         servicio.sync = False
         servicio.save()
         notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Filezilla activado")

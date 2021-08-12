@@ -2,7 +2,7 @@
 {% load static %}
 {% block contenido %}
 <div>
-<div class="row px-2">
+<div class="row m-1">
     <div class="col-6 col-md-3 m-auto mb-2">
         <div class="card m-auto" style="max-width: 300px;">
             <h5 class="card-header text-white bg-dark">Internet</h5>
@@ -128,67 +128,69 @@
     <h6 class="col-auto card-header text-white bg-dark">↑↑ Ultimo chequeo: {{ conexion.fecha_internet|date:"d/m/Y-H:m" }} ↑↑</h6>
 </div>
 </div>
-<div class="container col-11 m-auto p-3">
-    {% if mensaje %}
-    <div class="alert alert-success text-center" role="alert">                   
-        {{ mensaje }}                   
+{% if mensaje %}
+    <div class="alert alert-{{ color_msg }} text-center col-8 m-auto" role="alert">                   
+        {{ mensaje }}                  
     </div>               
     {% endif %}
-    <div class="card">
-        <h5 class="card-header text-white bg-dark">Mis datos:</h5>        
-        <div class="card-body">
-            <div class="row">
-                <div class="col-7 col-md-8 col-lg-9">
-                    <h5 class="card-title">Sincronización de perfil:</h5>
-                </div>
-                <div class="col-5 col-md-4 col-lg-3">
-                    <p class="card-text d-flex justify-content-end">
-                        {% if user.profile.sync %}
-                        Sincronizado
-                        <form id="myform" action="{% url 'portal:sync_perfil' %}" method="POST">
-                            {% csrf_token%}
-                            <button id="boton" class="form-control btn btn-info" type="submit">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none;'></span>
-                                Chequear
-                            </button>
-                        </form>
-                        {% else %}
-                        Incorrecto
-                        <form id="myform" action="{% url 'portal:sync_perfil' %}" method="POST">
-                            {% csrf_token%}
-                            <button id="boton" class="form-control btn btn-danger" type="submit">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none;'></span>
-                                Sincronizar
-                            </button>
-                        </form>
-                        {% endif %}
-                    </p>
-                </div>
-            </div>          
-            <h5 class="card-title">Nombre de usuario:</h5>
-            <p class="card-text d-flex justify-content-end">{{ user.username }}</p>
-            <h5 class="card-title">Correo:</h5>
-            <p class="card-text d-flex justify-content-end">{{ user.email }}</p>
-            {% if user.first_name %}
-            <h5 class="card-title">Nombre y apellidos:</h5>
-            <p class="card-text d-flex justify-content-end">{{ user.first_name }} {{ user.last_name }}</p>
-            {% endif %}
-            <h5 class="card-title">Ultima sesión:</h5>
-            <p class="card-text d-flex justify-content-end">{{ user.last_login }}</p>
-            <h5 class="card-title">Fecha de registro:</h5>
-            <p class="card-text d-flex justify-content-end">{{ user.date_joined }}</p>            
-            <a class="d-flex justify-content-end" href="{% url 'portal:perfil' %}">Editar</a>
+<div class="row m-1">
+    <div class="container col-6 m-auto mt-0 p-3">    
+        <div class="card">
+            <h5 class="card-header text-white bg-dark">Mis datos:</h5>        
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-7 col-md-8 col-lg-9">
+                        <h5 class="card-title">Sincronización de perfil:</h5>
+                    </div>
+                    <div class="col-5 col-md-4 col-lg-3">
+                        <p class="card-text d-flex justify-content-end">
+                            {% if user.profile.sync %}
+                            Sincronizado
+                            <form id="myform" action="{% url 'portal:sync_perfil' %}" method="POST">
+                                {% csrf_token%}
+                                <button id="boton" class="form-control btn btn-info" type="submit">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none;'></span>
+                                    Chequear
+                                </button>
+                            </form>
+                            {% else %}
+                            Incorrecto
+                            <form id="myform" action="{% url 'portal:sync_perfil' %}" method="POST">
+                                {% csrf_token%}
+                                <button id="boton" class="form-control btn btn-danger" type="submit">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="spinner" style='display: none;'></span>
+                                    Sincronizar
+                                </button>
+                            </form>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>          
+                <h5 class="card-title">Nombre de usuario:</h5>
+                <p class="card-text d-flex justify-content-end">{{ user.username }}</p>
+                <h5 class="card-title">Correo:</h5>
+                <p class="card-text d-flex justify-content-end">{{ user.email }}</p>
+                {% if user.first_name %}
+                <h5 class="card-title">Nombre y apellidos:</h5>
+                <p class="card-text d-flex justify-content-end">{{ user.first_name }} {{ user.last_name }}</p>
+                {% endif %}
+                <h5 class="card-title">Ultima sesión:</h5>
+                <p class="card-text d-flex justify-content-end">{{ user.last_login }}</p>
+                <h5 class="card-title">Fecha de registro:</h5>
+                <p class="card-text d-flex justify-content-end">{{ user.date_joined }}</p>            
+                <a class="d-flex justify-content-end" href="{% url 'portal:perfil' %}">Editar</a>
+            </div>
         </div>
     </div>
-</div>
-<div class="container col-11 m-auto p-3">
-    <div class="card">
-        <h5 class="card-header text-white bg-dark">Sorteos:</h5>
-        <div class="card-body">
-            {% for s in sorteos %}
-                <h5 class="card-title">Ganador mes: {{ s.mes }}</h5>
-                <p class="card-text d-flex justify-content-end">{% if s.ganador == none %}Por determinar...{% else %}{{ s.ganador }}{% endif %}</p>
-            {% endfor %}
+    <div class="container col-6 m-auto mt-0 p-3">
+        <div class="card">
+            <h5 class="card-header text-white bg-dark">Sorteos:</h5>
+            <div class="card-body">
+                {% for s in sorteos %}
+                    <h5 class="card-title">Ganador mes: {{ s.mes }}</h5>
+                    <p class="card-text d-flex justify-content-end">{% if s.ganador == none %}Por determinar...{% else %}{{ s.ganador }}{% endif %}</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
