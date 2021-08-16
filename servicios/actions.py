@@ -153,7 +153,7 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
             profile.save()
             notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet 16 horas activado.")
             notificacion.save()
-            code = crearOper(usuario.username, 'interne-16h', costo)
+            code = crearOper(usuario.username, 'internet-16h', costo)
             send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
             result['mensaje'] = 'Servicio activado con éxito.'
             result['correcto'] = True
