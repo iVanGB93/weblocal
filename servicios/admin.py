@@ -7,7 +7,7 @@ from .models import Oper, Recarga, EstadoServicio
 class EstadosServiciosAdminConfig(admin.ModelAdmin):
     model = EstadoServicio
     search_fields = ['usuario__username']
-    list_filter = ('internet', 'emby', 'jc', 'ftp', 'sync')
+    list_filter = ('internet', 'emby', 'jc', 'ftp', 'sync', 'int_tipo')
     ordering = ('usuario',)
     list_display = ('usuario', 'internet', 'emby', 'jc', 'ftp', 'sync')
     fieldsets = (

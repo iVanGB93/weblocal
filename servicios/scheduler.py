@@ -105,8 +105,8 @@ def chequeoInternet():
             if exp <= timezone.now():
                 usuario = User.objects.get(username=i.usuario)
                 profile = Profile.objects.get(usuario=usuario.id)
-                if i.int_auto:                    
-                    if i.int_tipo == "internetSemanal":
+                if i.int_auto:                 
+                    if i.int_tipo == "internet-16h":
                         if profile.coins >= 300:
                             profile.coins = profile.coins - 300
                             i.int_time = timezone.now() + timedelta(days=7)
@@ -114,7 +114,7 @@ def chequeoInternet():
                             profile.save()
                             i.sync = False
                             i.save()
-                            code = crearOper(usuario.username, "internetSemanal", 300)
+                            code = crearOper(usuario.username, "internet-16h", 300)
                             send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                         else:
                             resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
@@ -127,15 +127,15 @@ def chequeoInternet():
                             else:
                                 mensaje = resultado['mensaje']
                                 send_mail('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
-                    if i.int_tipo == "internetMensual":
-                        if profile.coins >= 200:
-                            profile.coins = profile.coins - 200
-                            i.int_time = timezone.now() + timedelta(days=30)
+                    if i.int_tipo == "internet-24h":
+                        if profile.coins >= 400:
+                            profile.coins = profile.coins - 400
+                            i.int_time = timezone.now() + timedelta(days=7)
                             profile.sync = False
                             profile.save()
                             i.sync = False
                             i.save()
-                            code = crearOper(usuario.username, "internetMensual", 200)
+                            code = crearOper(usuario.username, "internet-24h", 400)
                             send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                         else:
                             resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
