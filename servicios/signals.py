@@ -36,10 +36,17 @@ def correoOper(sender, instance, **kwargs):
         haciaDesde = 'None'
     cantidad = instance.cantidad
     fecha = str(instance.fecha)
-    data = {'code': instance.code, 'tipo': instance.tipo, 'usuario': usuario, 'servicio': servicio, 'cantidad': instance.cantidad, 'codRec': codRec, 'haciaDesde': haciaDesde, 'fecha': fecha}
-    respuesta = actualizacion_remota('nueva_operacion', data)
-    if not respuesta['estado']:
-        send_mail(f'Falló al subir el servicio', f'La operación de { instance.tipo } del usuario {usuario} no se pudo sincronizar con internet. Fecha: { fecha}.', None, ['ivanguachbeltran@gmail.com'])    
+    online = config('APP_MODE')
+    if online == 'online': 
+        if instance.sync == False:
+            data = {'code': instance.code, 'tipo': instance.tipo, 'usuario': usuario, 'servicio': servicio, 'cantidad': instance.cantidad, 'codRec': codRec, 'haciaDesde': haciaDesde, 'fecha': fecha}
+            respuesta = actualizacion_remota('nueva_operacion', data)
+            if not respuesta['estado']:
+                mensaje = respuesta['mensaje']
+                send_mail(f'Falló al subir el servicio', f'La operación de { instance.tipo } del usuario {usuario} no se pudo sincronizar con internet, mensaje: { mensaje }. Fecha: { fecha}.', None, ['ivanguachbeltran@gmail.com'])    
+            else:
+                instance.sync = True
+                instance.save()
     if instance.tipo == 'PAGO':
         send_mail(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
     elif instance.tipo == 'RECARGA':
