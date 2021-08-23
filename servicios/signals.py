@@ -37,25 +37,24 @@ def correoOper(sender, instance, **kwargs):
     cantidad = instance.cantidad
     fecha = str(instance.fecha)
     online = config('APP_MODE')
-    if online == 'online': 
+    if online == 'online':
         if instance.sync == False:
             data = {'code': instance.code, 'tipo': instance.tipo, 'usuario': usuario, 'servicio': servicio, 'cantidad': instance.cantidad, 'codRec': codRec, 'haciaDesde': haciaDesde, 'fecha': fecha}
             respuesta = actualizacion_remota('nueva_operacion', data)
             if not respuesta['estado']:
                 mensaje = respuesta['mensaje']
-                send_mail(f'Falló al subir el servicio', f'La operación de { instance.tipo } del usuario {usuario} no se pudo sincronizar con internet, mensaje: { mensaje }. Fecha: { fecha}.', None, ['ivanguachbeltran@gmail.com'])    
-            else:
+                send_mail(f'Falló al subir el servicio', f'La operación de { instance.tipo } del usuario {usuario}, cantidad { cantidad }, no se pudo sincronizar con internet, mensaje: { mensaje }. Fecha: { fecha}.', None, ['ivanguachbeltran@gmail.com'])    
+            else:                
+                if instance.tipo == 'PAGO':
+                    send_mail(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                elif instance.tipo == 'RECARGA':
+                    send_mail(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                elif instance.tipo == 'ENVIO':
+                    send_mail(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                elif instance == 'RECIBO':
+                    send_mail(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
                 instance.sync = True
                 instance.save()
-    if instance.tipo == 'PAGO':
-        send_mail(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
-    elif instance.tipo == 'RECARGA':
-        send_mail(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
-    elif instance.tipo == 'ENVIO':
-        send_mail(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
-    elif instance == 'RECIBO':
-        send_mail(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
-
 
 @receiver(post_save, sender=EstadoServicio)
 def actualizar_servicios(sender, instance, **kwargs):
