@@ -376,7 +376,6 @@ def comprar_emby(usuario):
                         "SimultaneousStreamLimit": 1
                     }
             connect = requests.post(url=url, data=json)
-            #crearLog(usuario.username, "ActivacionLOG.txt", f'Se agregó correctamente el usuario: { usuario.username } al Emby.')
             code = crearOper(usuario.username, "Emby", 100)
             send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
             result['mensaje'] = 'Servicio activado con éxito.'

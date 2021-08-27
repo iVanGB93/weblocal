@@ -6,7 +6,7 @@ app_name='servicios'
 
 urlpatterns = [
     path('<str:pk>/', ServiciosView.as_view(), name="servicios"),
-    path('internet/<str:pk>/', InternetView.as_view(), name="internet"),    
+    path('<str:pk>/compra_internet/', InternetView.as_view(), name="internet"),    
     path('jovenclub/<str:pk>/', JovenClubView.as_view(), name="jovenclub"),    
     path('emby/<str:pk>/', EmbyView.as_view(), name="emby"),    
     path('filezilla/<str:pk>/', FileZillaView.as_view(), name="filezilla"),    
