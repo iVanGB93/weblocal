@@ -3,10 +3,11 @@ from django.dispatch import receiver
 from servicios.models import Oper, EstadoServicio, Recarga
 from django.contrib.auth.models import  User
 from servicios.api.serializers import ServiciosSerializer
-from sync.syncs import actualizacion_remota
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from decouple import config
 
+from sync.syncs import actualizacion_remota
+from sync.actions import EmailSending
 
 @receiver(post_save, sender=User)
 def crearServicios(sender, instance, **kwargs):
@@ -43,16 +44,21 @@ def correoOper(sender, instance, **kwargs):
             respuesta = actualizacion_remota('nueva_operacion', data)
             if not respuesta['estado']:
                 mensaje = respuesta['mensaje']
-                send_mail(f'Falló al subir el servicio', f'La operación de { instance.tipo } del usuario {usuario}, cantidad { cantidad }, no se pudo sincronizar con internet, mensaje: { mensaje }. Fecha: { fecha}.', None, ['ivanguachbeltran@gmail.com'])    
+                email = EmailMessage(f'Falló al subir el servicio', f'La operación de { instance.tipo } del usuario {usuario}, cantidad { cantidad }, no se pudo sincronizar con internet, mensaje: { mensaje }. Fecha: { fecha}.', None, ['ivanguachbeltran@gmail.com'])    
+                EmailSending(email).start()
             else:                
                 if instance.tipo == 'PAGO':
-                    send_mail(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                    email = EmailMessage(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                    EmailSending(email).start()
                 elif instance.tipo == 'RECARGA':
-                    send_mail(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                    email = EmailMessage(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                    EmailSending(email).start()
                 elif instance.tipo == 'ENVIO':
-                    send_mail(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                    email = EmailMessage(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                    EmailSending(email).start()
                 elif instance == 'RECIBO':
-                    send_mail(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                    email = EmailMessage(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                    EmailSending(email).start()
                 instance.sync = True
                 instance.save()
 
@@ -70,7 +76,8 @@ def actualizar_servicios(sender, instance, **kwargs):
                 instance.save()
             else:
                 mensaje = respuesta['mensaje']
-                send_mail(f'Falló al subir el servicio', f'El servicio del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])    
+                email = EmailMessage(f'Falló al subir el servicio', f'El servicio del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])    
+                EmailSending(email).start()
 
 @receiver(post_save, sender=Recarga)
 def actualizar_recarga(sender, instance, **kwargs):
@@ -83,10 +90,12 @@ def actualizar_recarga(sender, instance, **kwargs):
                     instance.save()
                 else:
                     mensaje = respuesta['mensaje']
-                    send_mail(f'Falló sync recarga', f'Recarga del usuario {instance.usuario.username} código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])
+                    email = EmailMessage(f'Falló sync recarga', f'Recarga del usuario {instance.usuario.username} código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])
+                    EmailSending(email).start()
             else:
                 data = {'code': instance.code, 'cantidad': instance.cantidad, 'fechaHecha': str(instance.fechaHecha)}
                 respuesta = actualizacion_remota('crear_recarga', data)
                 if not respuesta['estado']:                   
                     mensaje = respuesta['mensaje']
-                    send_mail(f'Falló sync recarga', f'Crear recarga, código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])
+                    email = EmailMessage(f'Falló sync recarga', f'Crear recarga, código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])
+                    EmailSending(email).start()

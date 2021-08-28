@@ -10,6 +10,7 @@ from servicios.actions import *
 from sync.syncs import actualizacion_remota
 
 from servicios.api.serializers import ServiciosSerializer
+import time
 
 def index(request):
     return render(request, 'portal/index.html')
@@ -102,6 +103,7 @@ def contra(request):
 
 @login_required(login_url='/users/login/')
 def internet(request):
+    empieza = time.time()
     usuario = request.user
     content = {'color_msg': 'danger'} 
     if request.method == 'POST':
@@ -121,6 +123,8 @@ def internet(request):
                 if result['correcto']:                   
                     content['color_msg'] = 'success'                    
                 content['mensaje'] = result['mensaje']
+                termina = time.time() - empieza
+                print(f"FINAL: {termina} sec")
                 return render(request, 'portal/internet.html', content)
             else:
                 content['mensaje'] = 'Contraseña incorrecta.'
@@ -203,10 +207,10 @@ def recarga(request):
             content['color_msg'] = 'success'
             perfil = Profile.objects.get(usuario=usuario)
             content['perfil'] = perfil
-        content['mensaje'] = result['mensaje']
+        content['mensaje'] = result['mensaje']        
         return render(request, 'portal/recarga.html', content)            
         
-    else:     
+    else:        
         return render(request, 'portal/recarga.html', content)
 
 @login_required(login_url='/users/login/')

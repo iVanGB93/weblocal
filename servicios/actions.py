@@ -1,3 +1,4 @@
+from django.core.mail.message import EmailMessage
 from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Recarga, Oper, EstadoServicio
@@ -14,6 +15,10 @@ import requests
 import paramiko
 import routeros_api
 import os
+
+from sync.actions import EmailSending
+
+import time
 
 def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
@@ -110,6 +115,7 @@ def conectar_mikrotik(ip, username, password, usuario, contraseña, perfil, hora
     
 
 def comprar_internet(usuario, tipo, contra, duracion, horas):
+    empieza = time.time()
     result = {'correcto': False}
     online = config('APP_MODE')
     if online == 'online':
@@ -154,7 +160,8 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
             notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet 16 horas activado.")
             notificacion.save()
             code = crearOper(usuario.username, 'internet-16h', costo)
-            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            EmailSending(email).start()
             result['mensaje'] = 'Servicio activado con éxito.'
             result['correcto'] = True
             return result
@@ -192,7 +199,8 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
             notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet 24 horas activado")
             notificacion.save()
             code = crearOper(usuario.username, 'internet-24h', costo)
-            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            EmailSending(email).start()
             result['mensaje'] = 'Servicio activado con éxito.'
             result['correcto'] = True
             return result
@@ -211,22 +219,37 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
             profile.coins = profile.coins - cantidad            
             perfil = config('INTERNET_PERFIL_HORAS')
             resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, horasMK)
+            regresa = time.time() - empieza
+            print(f"REGRESO { regresa } sec")
             if resultado['estado']:    
                 code = crearOper(usuario.username, 'internetHoras', cantidad)
+                regresaope = time.time() - empieza
+                print(f"DEPSUES DE OPE { regresaope } sec")
                 servicio.internet = True
                 servicio.int_horas = horas
                 servicio.int_tipo = 'internetHoras'
                 servicio.int_time = None
                 servicio.sync = False
+                regresaserant = time.time() - empieza
+                print(f"DESPUES DE SER ANTES DE SAVE { regresaserant } sec")
                 servicio.save()
+                regresaser = time.time() - empieza
+                print(f"DEPSUES DE SER { regresaser } sec")
                 profile.sync = False
-                profile.save() 
+                profile.save()
+                regresaperf = time.time() - empieza
+                print(f"DEPSUES DE PER { regresaperf } sec")
                 contenido = f"Internet por { horas} horas activado"
                 notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido=contenido)
                 notificacion.save()
-                send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                regresanot = time.time() - empieza
+                print(f"DEPSUES DE NOT { regresanot } sec")
+                email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                EmailSending(email).start()
                 result['mensaje'] = 'Servicio activado con éxito.'
                 result['correcto'] = True
+                devuelve = time.time() - empieza
+                print(f"DEVUELVE: { devuelve } sec")
                 return result
             else:
                 result['mensaje'] = resultado['mensaje']
@@ -273,7 +296,8 @@ def comprar_jc(usuario):
             notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Joven Club activado")
             notificacion.save()
             code = crearOper(usuario.username, "Joven-Club", 100)
-            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de Joven Club, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de Joven Club, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            EmailSending(email).start()
             result['mensaje'] = 'Servicio activado con éxito.'
             result['correcto'] = True
             return result
@@ -377,7 +401,8 @@ def comprar_emby(usuario):
                     }
             connect = requests.post(url=url, data=json)
             code = crearOper(usuario.username, "Emby", 100)
-            send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+            EmailSending(email).start()
             result['mensaje'] = 'Servicio activado con éxito.'
             result['correcto'] = True
             return result
@@ -411,8 +436,8 @@ def comprar_filezilla(usuario, contraseña):
         servicio.ftp = True
         servicio.ftp_time = timezone.now() + timedelta(days=30)
         code = crearOper(usuario.username, 'FileZilla', 50)
-        #crearLog(usuario, "ActivacionLOG.txt", f'El usuario: { usuario.username } pago por FTP.')
-        send_mail('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])            
+        email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])            
+        EmailSending(email).start()
         servicio.sync = False
         servicio.save()
         notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Filezilla activado")

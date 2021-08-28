@@ -3,9 +3,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Profile, Notificacion
 from django.contrib.auth.models import  User
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from decouple import config
 
+from sync.actions import EmailSending
 
 @receiver(post_save, sender=User)
 def crearProfile(sender, instance, **kwargs):
@@ -17,8 +18,11 @@ def crearProfile(sender, instance, **kwargs):
         profile = Profile(usuario=usuario)
         profile.sync = True
         profile.save()
-        #send_mail('Usuario nuevo', f'El usuario { usuario.username } se ha registrado.', None, ['ivanguachbeltran@gmail.com'])
-        #send_mail(f'Bienvenido { usuario.username } a QbaRed', f'Hola { usuario.username }, usted se ha registrado en QbaRed, le damos todos la bienvenida y esperamos que sea de su agrado nuestra red. Puede informarse en --> https://www.qbared.com/  Saludos', None, [usuario.email,])
+        if config('APP_MODE') != 'online':
+            email = EmailMessage('Usuario nuevo', f'El usuario { usuario.username } se ha registrado.', None, ['ivanguachbeltran@gmail.com'])
+            EmailSending(email).start()
+            email = EmailMessage(f'Bienvenido { usuario.username } a QbaRed', f'Hola { usuario.username }, usted se ha registrado en QbaRed, le damos todos la bienvenida y esperamos que sea de su agrado nuestra red. Puede informarse en --> https://www.qbared.com/  Saludos', None, [usuario.email,])
+            EmailSending(email).start()
 
 @receiver(post_save, sender=Profile)
 def actualizar_profile(sender, instance, **kwargs):
@@ -31,7 +35,8 @@ def actualizar_profile(sender, instance, **kwargs):
                 instance.save()
             else:
                 mensaje = respuesta['mensaje']
-                send_mail(f'Falló al subir el perfil desde local_iVan', f'El perfil del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])    
+                email = EmailMessage(f'Falló al subir el perfil desde local_iVan', f'El perfil del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])    
+                EmailSending(email).start()
 
 @receiver(post_save, sender=Notificacion)
 def actualizar_notificacion(sender, instance, **kwargs):
@@ -44,4 +49,5 @@ def actualizar_notificacion(sender, instance, **kwargs):
                 instance.save()
             else:
                 mensaje = respuesta['mensaje']
-                send_mail(f'Falló al subir una notificacion desde local_iVan', f'La notificacion { instance.contenido } del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])    
+                email = EmailMessage(f'Falló al subir una notificacion desde local_iVan', f'La notificacion { instance.contenido } del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])    
+                EmailSending(email).start()
