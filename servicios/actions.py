@@ -115,7 +115,6 @@ def conectar_mikrotik(ip, username, password, usuario, contraseña, perfil, hora
     
 
 def comprar_internet(usuario, tipo, contra, duracion, horas):
-    empieza = time.time()
     result = {'correcto': False}
     online = config('APP_MODE')
     if online == 'online':
@@ -219,37 +218,23 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
             profile.coins = profile.coins - cantidad            
             perfil = config('INTERNET_PERFIL_HORAS')
             resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, horasMK)
-            regresa = time.time() - empieza
-            print(f"REGRESO { regresa } sec")
             if resultado['estado']:    
                 code = crearOper(usuario.username, 'internetHoras', cantidad)
-                regresaope = time.time() - empieza
-                print(f"DEPSUES DE OPE { regresaope } sec")
                 servicio.internet = True
                 servicio.int_horas = horas
                 servicio.int_tipo = 'internetHoras'
                 servicio.int_time = None
                 servicio.sync = False
-                regresaserant = time.time() - empieza
-                print(f"DESPUES DE SER ANTES DE SAVE { regresaserant } sec")
                 servicio.save()
-                regresaser = time.time() - empieza
-                print(f"DEPSUES DE SER { regresaser } sec")
                 profile.sync = False
                 profile.save()
-                regresaperf = time.time() - empieza
-                print(f"DEPSUES DE PER { regresaperf } sec")
                 contenido = f"Internet por { horas} horas activado"
                 notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido=contenido)
                 notificacion.save()
-                regresanot = time.time() - empieza
-                print(f"DEPSUES DE NOT { regresanot } sec")
                 email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                 EmailSending(email).start()
                 result['mensaje'] = 'Servicio activado con éxito.'
                 result['correcto'] = True
-                devuelve = time.time() - empieza
-                print(f"DEVUELVE: { devuelve } sec")
                 return result
             else:
                 result['mensaje'] = resultado['mensaje']
