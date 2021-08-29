@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from .models import Recarga, Oper, EstadoServicio
 from django.contrib.auth.models import User
 from users.models import Profile, Notificacion
-from django.core.mail import send_mail
 from sync.syncs import actualizacion_remota
 from sync.models import EstadoConexion
 from decouple import config
@@ -215,7 +214,7 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
         horasMK = f'{horas}:00:00'
         user_coins = int(profile.coins)
         if user_coins >= cantidad:
-            profile.coins = profile.coins - cantidad            
+            profile.coins = profile.coins - cantidad    
             perfil = config('INTERNET_PERFIL_HORAS')
             resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, horasMK)
             if resultado['estado']:    

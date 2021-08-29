@@ -6,8 +6,7 @@ from servicios.api.serializers import ServiciosSerializer
 from django.core.mail import EmailMessage
 from decouple import config
 
-from sync.syncs import actualizacion_remota
-from sync.actions import EmailSending
+from sync.actions import EmailSending, UpdateThreadServicio, UpdateThreadOper, UpdateThreadRecarga
 
 @receiver(post_save, sender=User)
 def crearServicios(sender, instance, **kwargs):
@@ -41,61 +40,33 @@ def correoOper(sender, instance, **kwargs):
     if online == 'online':
         if instance.sync == False:
             data = {'code': instance.code, 'tipo': instance.tipo, 'usuario': usuario, 'servicio': servicio, 'cantidad': instance.cantidad, 'codRec': codRec, 'haciaDesde': haciaDesde, 'fecha': fecha}
-            respuesta = actualizacion_remota('nueva_operacion', data)
-            if not respuesta['estado']:
-                mensaje = respuesta['mensaje']
-                email = EmailMessage(f'Falló al subir el servicio', f'La operación de { instance.tipo } del usuario {usuario}, cantidad { cantidad }, no se pudo sincronizar con internet, mensaje: { mensaje }. Fecha: { fecha}.', None, ['ivanguachbeltran@gmail.com'])    
+            UpdateThreadOper(data).start()                    
+            if instance.tipo == 'PAGO':
+                email = EmailMessage(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
                 EmailSending(email).start()
-            else:                
-                if instance.tipo == 'PAGO':
-                    email = EmailMessage(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
-                    EmailSending(email).start()
-                elif instance.tipo == 'RECARGA':
-                    email = EmailMessage(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
-                    EmailSending(email).start()
-                elif instance.tipo == 'ENVIO':
-                    email = EmailMessage(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
-                    EmailSending(email).start()
-                elif instance == 'RECIBO':
-                    email = EmailMessage(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
-                    EmailSending(email).start()
-                instance.sync = True
-                instance.save()
+            elif instance.tipo == 'RECARGA':
+                email = EmailMessage(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                EmailSending(email).start()
+            elif instance.tipo == 'ENVIO':
+                email = EmailMessage(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                EmailSending(email).start()
+            elif instance == 'RECIBO':
+                email = EmailMessage(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com'])
+                EmailSending(email).start()            
 
 @receiver(post_save, sender=EstadoServicio)
 def actualizar_servicios(sender, instance, **kwargs):
     online = config('APP_MODE')
-    if online == 'online':        
+    if online == 'online':
         if instance.sync == False:
             serializer = ServiciosSerializer(instance)
             data=serializer.data
             data['usuario'] = instance.usuario.username
-            respuesta = actualizacion_remota('cambio_servicio', data)
-            if respuesta['estado']:
-                instance.sync = True
-                instance.save()
-            else:
-                mensaje = respuesta['mensaje']
-                email = EmailMessage(f'Falló al subir el servicio', f'El servicio del usuario {instance.usuario.username} no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])    
-                EmailSending(email).start()
+            UpdateThreadServicio(data).start()            
 
 @receiver(post_save, sender=Recarga)
 def actualizar_recarga(sender, instance, **kwargs):
     if config('APP_MODE') == 'online':
         if instance.sync == False:
-            if instance.usuario != None:
-                respuesta = actualizacion_remota('usar_recarga', {'usuario': instance.usuario.username, 'code': instance.code})
-                if respuesta['estado']:
-                    instance.sync = True
-                    instance.save()
-                else:
-                    mensaje = respuesta['mensaje']
-                    email = EmailMessage(f'Falló sync recarga', f'Recarga del usuario {instance.usuario.username} código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])
-                    EmailSending(email).start()
-            else:
-                data = {'code': instance.code, 'cantidad': instance.cantidad, 'fechaHecha': str(instance.fechaHecha)}
-                respuesta = actualizacion_remota('crear_recarga', data)
-                if not respuesta['estado']:                   
-                    mensaje = respuesta['mensaje']
-                    email = EmailMessage(f'Falló sync recarga', f'Crear recarga, código { instance.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com'])
-                    EmailSending(email).start()
+            data = {'code': instance.code, 'cantidad': instance.cantidad, 'fechaHecha': str(instance.fechaHecha)}
+            UpdateThreadRecarga(data).start()

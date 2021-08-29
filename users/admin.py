@@ -5,6 +5,7 @@ from .models import Profile, Notificacion
 class NotificacionAdminConfig(admin.ModelAdmin):
     model = Notificacion
     search_fields = ['usuario__username']
+    list_filter = ('tipo', 'fecha', 'vista', 'sync')
     ordering = ('-fecha',)
     list_display = ('usuario', 'tipo', 'vista', 'sync', 'fecha')
     fieldsets = (
@@ -14,7 +15,7 @@ class NotificacionAdminConfig(admin.ModelAdmin):
 class ProfileAdminConfig(admin.ModelAdmin):
     model = Profile
     search_fields = ['usuario__username']
-    #list_filter = ('is_active', 'is_staff')
+    list_filter = ('sync',)
     ordering = ('-coins',)
     list_display = ('usuario', 'id', 'coins', 'sync')
     fieldsets = (

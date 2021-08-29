@@ -9,6 +9,8 @@ from servicios.models import EstadoServicio, Recarga, Oper
 from users.models import Profile, Notificacion
 from sorteo.models import Sorteo, SorteoDetalle
 
+import time
+
 @login_required(login_url='/users/login/')
 def control(request):
     usuario = User.objects.get(username=request.user)
@@ -214,6 +216,7 @@ def actualizar_servicio(request, id):
 
 @login_required(login_url='/users/login/')
 def control_recargas(request):
+    empieza = time.time()
     if request.method == 'POST':
         if request.POST.get('code'):
             code = request.POST['code']
@@ -241,6 +244,8 @@ def control_recargas(request):
                 recarga.save()      
             mensaje = 'Recargas guardadas'
             content = {'recargas': recargas, 'mensaje': mensaje}
+            termina = time.time() - empieza
+            print(f"DEMORO {termina} sec")
             return render(request, 'sync/control_recargas.html', content)
         else:
             mensaje = 'Algo salio mal con el POST'

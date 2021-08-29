@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from decouple import config
-from .forms import RegisterForm
 from sync.syncs import actualizacion_remota
 from sync.models import EstadoConexion
 

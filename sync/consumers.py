@@ -321,9 +321,9 @@ class SyncWSConsumer(WebsocketConsumer):
         servicio = data['servicio']
         if servicio == 'internet':
             if data.get('horas'):
-                result = comprar_internet(usuario, data['tipo'], data['contraseña'], data['horas'])
+                result = comprar_internet(usuario, data['tipo'], data['contraseña'], data['duracion'], data['horas'])
             else:
-                result = comprar_internet(usuario, data['tipo'], data['contraseña'])
+                result = comprar_internet(usuario, data['tipo'], data['contraseña'], data['duracion'])
         elif servicio == 'jc':
             result = comprar_jc(usuario)
         elif servicio == 'emby':
