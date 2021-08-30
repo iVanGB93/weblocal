@@ -436,17 +436,22 @@ def comprar_filezilla(usuario, contraseña):
 def recargar(code, usuario):
     result = {'correcto': False}
     online = config('APP_MODE')
+    conexion = EstadoConexion.objects.get(id=1)
     if online == 'online':
-        servidor = config('NOMBRE_SERVIDOR')
-        conexion = EstadoConexion.objects.get(servidor=servidor)
         if not conexion.online:
             result['mensaje'] = "Recarga deshabilitada, intente más tarde."
             return result
+    usuario = User.objects.get(username=usuario)
+    profile = Profile.objects.get(usuario=usuario.id)
+    if not profile.sync:
+        result['mensaje'] = "Sincronice su perfil en dashboard para poder recargar."
+        return result
+    if len(code) != 8:
+        result['mensaje'] = 'Escriba 8 dígitos.'
+        return result
     if Recarga.objects.filter(code=code).exists():
         recarga = Recarga.objects.get(code=code)        
-        if recarga.activa:
-            usuario = User.objects.get(username=usuario)
-            profile = Profile.objects.get(usuario=usuario.id)
+        if recarga.activa:            
             cantidad = recarga.cantidad                   
             profile.coins = profile.coins + cantidad
             profile.sync = False                           
@@ -466,55 +471,45 @@ def recargar(code, usuario):
         else:
             result['mensaje'] = 'Recarga usada'
             return result
-    else:
-        data = {'usuario': str(usuario), 'code': code, 'check': True}
+    if online == 'online' and conexion.online:
+        data = {'usuario': usuario.username, 'code': code, 'check': True}
         respuesta = actualizacion_remota('usar_recarga', data=data)
-        if respuesta['conexion']:
+        if respuesta['estado']:
+            cantidad = respuesta['cantidad']               
+            respuesta = actualizacion_remota('usar_recarga', {'usuario': usuario.username, 'code': code})
             if respuesta['estado']:
-                usuario = User.objects.get(username=usuario)
-                profile = Profile.objects.get(usuario=usuario.id)
-                cantidad = respuesta['cantidad']                
-                respuesta = actualizacion_remota('usar_recarga', {'usuario': usuario.username, 'code': code})
-                if respuesta['estado']:
-                    profile.coins = profile.coins + cantidad
-                    profile.sync = False                           
-                    profile.save()
-                    contenido = f"Cuenta recargado con { cantidad } coins"
-                    notificacion = Notificacion(usuario=usuario, tipo="RECARGA", contenido=contenido)
-                    notificacion.save()
-                    oper = Oper(tipo='RECARGA', usuario=usuario, codRec=code, cantidad=cantidad)
-                    oper.save()
-                    result['correcto'] = True
-                    result['mensaje'] = respuesta['mensaje']
-                    return result
-                else:
-                    result['mensaje'] = respuesta['mensaje']
-                    return result
-            else:
-                result['mensaje'] = respuesta['mensaje']
-                return result
-        else:
-            result['mensaje'] = 'Error de conexión, intente más tarde.'
-            return result
+                profile.coins = profile.coins + cantidad
+                profile.sync = False                           
+                profile.save()
+                contenido = f"Cuenta recargado con { cantidad } coins"
+                notificacion = Notificacion(usuario=usuario, tipo="RECARGA", contenido=contenido)
+                notificacion.save()
+                oper = Oper(tipo='RECARGA', usuario=usuario, codRec=code, cantidad=cantidad)
+                oper.save()
+                result['correcto'] = True
+        result['mensaje'] = respuesta['mensaje']
+        return result
 
 def transferir(desde, hacia, cantidad):
     result = {'correcto': False}
     online = config('APP_MODE')
     if online == 'online':
-        servidor = config('NOMBRE_SERVIDOR')
-        conexion = EstadoConexion.objects.get(servidor=servidor)
+        conexion = EstadoConexion.objects.get(id=1)
         if not conexion.online:
             result['mensaje'] = "Transferencia deshabilitada, intente más tarde."
-            return result
-    if User.objects.filter(username=hacia).exists():
+            return result    
+    if User.objects.filter(username=hacia).exists():  
         envia = User.objects.get(username=desde)        
-        enviaProfile = Profile.objects.get(usuario=envia.id)        
+        enviaProfile = Profile.objects.get(usuario=envia.id)
+        recibe = User.objects.get(username=hacia)
+        recibeProfile = Profile.objects.get(usuario=recibe.id)
+        if not enviaProfile.sync or not recibeProfile.sync:
+            result['mensaje'] = "Sincronice ambos perfiles en dashboard para poder transferir"
+            return result   
         coinsDesde = int(enviaProfile.coins) 
         cantidad = int(cantidad)
         if coinsDesde >= cantidad:
-            if cantidad >= 20:
-                recibe = User.objects.get(username=hacia)
-                recibeProfile = Profile.objects.get(usuario=recibe.id)
+            if cantidad >= 20:                
                 recibeProfile.coins = recibeProfile.coins + cantidad
                 enviaProfile.coins = enviaProfile.coins - cantidad 
                 enviaProfile.sync = False     

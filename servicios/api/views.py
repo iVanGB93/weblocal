@@ -27,9 +27,16 @@ class ServiciosView(APIView):
 
 class InternetView(APIView):
 
-    def get(self, queryset=None, **kwargs):        
+    def get(self, queryset=None, **kwargs):
         user = self.kwargs.get('pk')
         usuario = User.objects.get(username=user)
+        servicios = EstadoServicio.objects.get(usuario=usuario.id)
+        servicios.internet = False
+        servicios.int_time = None
+        servicios.int_tipo = None
+        servicios.int_horas = None
+        servicios.sync = False
+        servicios.save()
         return Response(status=status.HTTP_200_OK)
 
     def put(self, request, **kwargs):
