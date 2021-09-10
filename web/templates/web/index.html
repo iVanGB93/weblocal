@@ -22,7 +22,10 @@
           {% if user.is_staff %}
           <li class="nav-item">
             <a class="navtop-link" href="{% url 'sync:control' %}">Control</a>
-          </li>              
+          </li>      
+          <li class="nav-item">
+            <a class="navtop-link" href="{% url 'chat:index' %}">Chat</a>
+          </li>        
           {% endif %}
           <li class="nav-item">
             <a class="navtop-link mx-3" href="https://login.qbared.com">Internet</a>
