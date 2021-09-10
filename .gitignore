@@ -1,5 +1,4 @@
 /env
-/LOG
 /nginx_waitress
 
 /static/admin/

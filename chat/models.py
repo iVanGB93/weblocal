@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-def pk_mensaje():
+""" def pk_mensaje():
     while True:
         pk = 1
         if Mensaje.objects.filter(pk=pk).exists():
@@ -18,10 +18,10 @@ def pk_chat():
             pk = pk + 1
         else:
             break
-    return pk
+    return pk """
 
 class Mensaje(models.Model):
-    id = models.IntegerField(primary_key=True, unique=True, default=pk_mensaje)
+    #id = models.IntegerField(primary_key=True, unique=True, default=pk_mensaje)
     autor = models.ForeignKey(User, on_delete=models.CASCADE)
     contenido = models.TextField()
     fecha = models.DateTimeField(default=timezone.now)
@@ -30,7 +30,7 @@ class Mensaje(models.Model):
         return "Mensaje: " + self.contenido + ", de: " + self.autor.username
 
 class Chat(models.Model):
-    id = models.IntegerField(primary_key=True, unique=True, default=pk_chat)
+    #id = models.IntegerField(primary_key=True, unique=True, default=pk_chat)
     participantes = models.ManyToManyField(User)
     mensajes = models.ManyToManyField(Mensaje)
     grupo = models.BooleanField(default=False)
