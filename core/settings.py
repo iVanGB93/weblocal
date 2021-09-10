@@ -92,11 +92,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         "CLIENT": {
-           "name": 'dblocal',
-           "host": '127.0.0.1',
-           #"username": config('DB_USER'),
-           #"password": config('DB_PASSWORD'),
-           #"authMechanism": "SCRAM-SHA-1",
+           "name": config('DB_NAME'),
+           "host": config('DB_HOST'),
+           "username": config('DB_USER'),
+           "password": config('DB_PASSWORD'),
+           "authMechanism": "SCRAM-SHA-1",
         },     
     }
 }
