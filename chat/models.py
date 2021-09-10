@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 class Mensaje(models.Model):
+    id = models.BigAutoField(primary_key=True)
     autor = models.ForeignKey(User, on_delete=models.CASCADE)
     contenido = models.TextField()
     fecha = models.DateTimeField(default=timezone.now)
@@ -11,6 +12,7 @@ class Mensaje(models.Model):
         return "Mensaje: " + self.contenido + ", de: " + self.autor.username
 
 class Chat(models.Model):
+    id = models.BigAutoField(primary_key=True)
     participantes = models.ManyToManyField(User)
     mensajes = models.ManyToManyField(Mensaje)
     grupo = models.BooleanField(default=False)
