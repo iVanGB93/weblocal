@@ -19,4 +19,3 @@
 *.pyc
 
 __pycache__
-migrations
