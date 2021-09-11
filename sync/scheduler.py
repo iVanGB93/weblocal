@@ -18,8 +18,8 @@ def chequeo_conexion_online():
         conexion.ip_jc = config('IP_JC')
         conexion.ip_emby = config('IP_EMBY')
         conexion.ip_ftp = config('IP_FTP')
-    data = {'identidad': servidor}
-    respuesta = actualizacion_remota('saludo', data)
+    data = {'identidad': servidor, 'internet': conexion.internet, 'jc': conexion.jc, 'emby': conexion.emby, 'ftp': conexion.ftp}
+    respuesta = actualizacion_remota('chequeo_conexion', data)
     if respuesta['estado']:
         print("SERVIDOR ONLINE")
         conexion.online = True
@@ -63,7 +63,6 @@ def chequeo_conexion_servicios():
     conexion.fecha_internet = timezone.now()
     conexion.save()
 
-#chequeo_conexion_online()
 
 
 def chequeo_conexiones():
