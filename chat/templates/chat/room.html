@@ -60,7 +60,7 @@
                 {% for usuario in usuarios %}        
                 {% if usuario != request.user %}
                 <li class="active bounceInDown">
-                    <a href="{% url 'chat:room' usuario.id %}" class="clearfix">
+                    <a href="{% url 'chat:room' usuario.username %}" class="clearfix">
                         <img src="{{ usuario.profile.imagen.url }}" alt="" class="img-circle">
                         <div class="friend-name">	
                             <strong>{{ usuario.username}}</strong>
@@ -96,7 +96,6 @@
 </div>
 {% if chat_id %}
 {{ chat_id|json_script:"chat_id" }}
-{{ request.user.username|json_script:"usuario" }}
 {{ request.user.profile.imagen.url|json_script:"img_src" }}
 {{ img_url|json_script:"img_url" }}
 <script src="{% static 'sorteo/reconnecting-websocket.js' %}"></script> 
@@ -104,9 +103,8 @@
     const chat_id = JSON.parse(document.getElementById('chat_id').textContent);
     const img_src = JSON.parse(document.getElementById('img_src').textContent);
     const img_url = JSON.parse(document.getElementById('img_url').textContent);
-    const usuario = JSON.parse(document.getElementById('usuario').textContent);
 
-    const chatSocket = new ReconnectingWebSocket('wss://qbared.com/ws/chat/' + chat_id + '/');
+    const chatSocket = new ReconnectingWebSocket('ws://127.0.0.1:8000/ws/chat/' + chat_id + '/');
 
     chatSocket.onopen = function(e) {
         console.log("SOCKET CONECTADO");

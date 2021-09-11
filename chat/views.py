@@ -1,19 +1,21 @@
-# chat/views.py
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
 
 from .models import Chat
 
+@login_required(login_url='/users/login/')
 def index(request):
     content = {'usuarios': User.objects.all()}
     return render(request, 'chat/index.html', content)
 
-def room(request, id_usuario=None):
-    if id_usuario == None:
+@login_required(login_url='/users/login/')
+def room(request, username=None):
+    if username == None:
         content = {'usuarios': User.objects.all()}
         return render(request, 'chat/room.html', content)
-    if User.objects.filter(id=id_usuario).exists():
-        usuario2 = User.objects.get(id=id_usuario)
+    if User.objects.filter(username=username).exists():
+        usuario2 = User.objects.get(username=username)
         chats = request.user.chat_set.all()
         existe = False
         for chat in chats:
