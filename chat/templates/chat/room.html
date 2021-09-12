@@ -104,7 +104,7 @@
     const img_src = JSON.parse(document.getElementById('img_src').textContent);
     const img_url = JSON.parse(document.getElementById('img_url').textContent);
 
-    const chatSocket = new ReconnectingWebSocket('ws://127.0.0.1:8000/ws/chat/' + chat_id + '/');
+    const chatSocket = new ReconnectingWebSocket('ws://172.16.0.10:8000/ws/chat/' + chat_id + '/');
 
     chatSocket.onopen = function(e) {
         console.log("SOCKET CONECTADO");
