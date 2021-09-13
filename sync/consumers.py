@@ -9,14 +9,6 @@ from users.models import Profile, Notificacion
 from servicios.actions import *
 from sorteo.actions import crear_participacion
 
-def user_id():
-    while True:
-        id = 1
-        if User.objects.filter(id=id).exists():
-            id = id + 1
-        else:
-            break
-    return id
 
 class SyncWSConsumer(WebsocketConsumer):
     def connect(self):
@@ -72,7 +64,7 @@ class SyncWSConsumer(WebsocketConsumer):
         usuario = data['usuario']
         email = data['email']
         password = data['password']
-        new_user = User(id=user_id(), username=usuario, email=email)
+        new_user = User(username=usuario, email=email)
         new_user.set_password(password)
         new_user.save()
         respuesta['mensaje'] = f'Usuario { usuario } creado con éxito.'
