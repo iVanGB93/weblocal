@@ -6,6 +6,14 @@ from sync.syncs import actualizacion_remota
 from sync.models import EstadoConexion
 from sync.actions import UpdateThreadUsuario
 
+def user_id():
+    while True:
+        id = 1
+        if User.objects.filter(id=id).exists():
+            id = id + 1
+        else:
+            break
+    return id
 
 def entrar(request):
     if request.user.is_authenticated:
@@ -68,7 +76,7 @@ def register(request):
             if respuesta['estado']:
                 content['mensaje'] = respuesta['mensaje']
                 return render(request, 'users/register.html', content)
-        user = User(username=username, email=email)       
+        user = User(id=user_id(), username=username, email=email)
         user.set_password(password)
         user.save()
         new_user = authenticate(request, username=user.username, password=password)        

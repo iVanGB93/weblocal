@@ -52,27 +52,41 @@
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
 <div class="col-12 col-md-10 col-lg-8 col-xl-6 m-auto mt-5 p-3 bg-white">
     <div class="row">
-        <div class="col-md-4 bg-white" style="height: 500px; overflow: auto;">
+        <div class="col-md-4 bg-white">
             <div class=" row border-bottom padding-sm" style="height: 40px;">
                 <p class="text-center">Usuarios</p>
             </div>
-            <ul class="friend-list" style="overflow: auto;">
-                {% for usuario in usuarios %}        
-                {% if usuario != request.user %}
-                <li class="active bounceInDown">
-                    <a href="{% url 'chat:room' usuario.username %}" class="clearfix">
-                        <img src="{{ usuario.profile.imagen.url }}" alt="" class="img-circle">
-                        <div class="friend-name">	
-                            <strong>{{ usuario.username}}</strong>
-                        </div>
-                        <div class="last-message text-muted">Hello, Are you there?</div>
-                        <small class="time text-muted">Just now</small>
-                        <small class="chat-alert label label-danger">1</small>
-                    </a>
-                </li>
-                {% endif %}
-                {% endfor %}                
-            </ul>
+            <div class="searchBox my-2">
+                <div class="col-sm-12 searchBox-inner">
+                  <div class="form-group has-feedback">
+                    <input id="searchText" type="text" class="form-control" name="searchText" placeholder="Buscar">
+                    <span class="glyphicon glyphicon-search form-control-feedback"></span>
+                  </div>
+                </div>
+            </div>
+            <div style="height: 500px; overflow: auto;">
+                <ul class="friend-list" style="overflow: auto;">
+                    {% for usuario in usuarios %}
+                    {% if usuario != request.user %}
+                    <li class="bounceInDown">
+                        <a href="{% url 'chat:room' usuario.username %}" class="clearfix">
+                            <img src="{{ usuario.profile.imagen.url }}" alt="" class="img-circle">
+                            <div class="friend-name">	
+                                <strong>{{ usuario.username}}</strong>
+                            </div>
+                            <div class="last-message text-muted">Hello, Are you there?</div>
+                            {% if not usuario.is_authenticated %}
+                            <small class="time text-muted">{% now "H:m"  %}</small>
+                            {% else %}
+                            <small class="time text-muted">{{ usuario.last_login | date:"P" }}</small>
+                            {% endif %}
+                            <small class="chat-alert label label-danger">0</small>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}                
+                </ul>
+            </div>
         </div>
         <div class="col-md-8 bg-white m-auto">
             {% if chat_id %}
@@ -82,7 +96,7 @@
             </div>
             <div class="chat-box bg-white">
                 <div class="input-group">
-                    <input id="chat-message-input" class="form-control border no-shadow no-rounded" placeholder="Escriba su mensaje...">
+                    <input id="chat-message-input" class="form-control border no-shadow no-rounded mx-2" placeholder="Escriba su mensaje...">
                     <span class="input-group-btn">
                         <button id="chat-message-submit" class="btn btn-success no-rounded" type="button">Enviar</button>
                     </span>
@@ -104,7 +118,7 @@
     const img_src = JSON.parse(document.getElementById('img_src').textContent);
     const img_url = JSON.parse(document.getElementById('img_url').textContent);
 
-    const chatSocket = new ReconnectingWebSocket('wss://qbared.com/ws/chat/' + chat_id + '/');
+    const chatSocket = new ReconnectingWebSocket('ws://127.0.0.1:8000/ws/chat/' + chat_id + '/');
 
     chatSocket.onopen = function(e) {
         console.log("SOCKET CONECTADO");
