@@ -17,8 +17,6 @@ import os
 
 from sync.actions import EmailSending
 
-import time
-
 def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
     nuevaOper = Oper(tipo='PAGO', usuario=userinst, servicio=servicio, cantidad=cantidad)
@@ -113,7 +111,7 @@ def conectar_mikrotik(ip, username, password, usuario, contraseña, perfil, hora
     return result
     
 
-def comprar_internet(usuario, tipo, contra, duracion, horas):
+def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
     result = {'correcto': False}
     online = config('APP_MODE')
     if online == 'online':
@@ -128,29 +126,54 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
         return result
     profile = Profile.objects.get(usuario=usuario)
     if tipo == '16h':
-        if duracion == 'semanal':            
-            user_coins = int(profile.coins)
-            if user_coins < 300:
-                result['mensaje'] = 'No tiene suficientes coins, necesita 300, por favor recargue.'
-                return result
-            else:
-                servicio.int_time = timezone.now() + timedelta(days=7)
-                profile.coins = profile.coins - 300
-                costo = 300
-        if duracion == 'mensual':            
-            user_coins = int(profile.coins)
-            if user_coins < 1200:
-                result['mensaje'] = 'No tiene suficientes coins, necesita 1200, por favor recargue.'
-                return result
-            else:
-                servicio.int_time = timezone.now() + timedelta(days=30)
-                profile.coins = profile.coins - 1200
-                costo = 1200
-        perfil = config('INTERNET_PERFIL_SEMANAL')
+        costo_base = 300
+        if duracion == 'semanal':
+            dias = 7
+            if velocidad == '512kb':
+                costo = costo_base/2 + 30
+                perfil = 'usuarios_512kb_16h'
+            elif velocidad == '1mb':  
+                costo = costo_base
+                perfil = 'usuarios_1mb_16h'
+            elif velocidad == '2mb':        
+                costo = costo_base * 2 
+                perfil = 'usuarios_2mb_16h'
+            elif velocidad == '3mb':      
+                costo = costo_base * 3
+                perfil = 'usuarios_3mb_16h'
+            elif velocidad == '4mb':         
+                costo = costo_base * 4
+                perfil = 'usuarios_4mb_16h'
+        if duracion == 'mensual':    
+            dias = 30        
+            if velocidad == '512kb':
+                costo = (costo_base/2 + 25) * 4
+                perfil = 'usuarios_512kb_16h'
+            elif velocidad == '1mb':         
+                costo = costo_base * 4
+                perfil = 'usuarios_1mb_16h'
+            elif velocidad == '2mb':         
+                costo = costo_base * 2 * 4
+                perfil = 'usuarios_2mb_16h'
+            elif velocidad == '3mb':         
+                costo = costo_base * 3 * 4
+                perfil = 'usuarios_3mb_16h'
+            elif velocidad == '4mb':        
+                costo = costo_base * 4 * 4
+                perfil = 'usuarios_4mb_16h' 
+        user_coins = int(profile.coins)          
+        if user_coins < costo:
+            result['mensaje'] = f'No tiene suficientes coins, necesita { costo }, por favor recargue.'
+            return result
+        else:
+            servicio.int_time = timezone.now() + timedelta(days=dias)
+            profile.coins = profile.coins - costo
         resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, None)
         if resultado['estado']:    
             servicio.internet = True
             servicio.int_tipo = 'internet-16h'
+            servicio.int_duracion = duracion
+            servicio.int_velocidad = velocidad
             servicio.sync = False
             servicio.save()
             profile.sync = False
@@ -167,29 +190,54 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
             result['mensaje'] = resultado['mensaje']
             return result        
     elif tipo == '24h':
+        costo_base = 400
         if duracion == 'semanal':            
-            user_coins = int(profile.coins)
-            if user_coins < 400:
-                result['mensaje'] = 'No tiene suficientes coins, necesita 400, por favor recargue.'
-                return result
-            else:
-                servicio.int_time = timezone.now() + timedelta(days=7)
-                profile.coins = profile.coins - 400
-                costo = 400
+            dias = 7
+            if velocidad == '512kb':
+                costo = costo_base/2 + 50
+                perfil = 'usuarios_512kb_24h'
+            elif velocidad == '1mb':
+                costo = costo_base
+                perfil = 'usuarios_1mb_24h'
+            elif velocidad == '2mb':
+                costo = costo_base * 2
+                perfil = 'usuarios_2mb_24h'
+            elif velocidad == '3mb':
+                costo = costo_base * 3
+                perfil = 'usuarios_3mb_24h'
+            elif velocidad == '4mb':
+                costo = costo_base * 4
+                perfil = 'usuarios_4mb_24h'               
         if duracion == 'mensual':            
-            user_coins = int(profile.coins)
-            if user_coins < 1600:
-                result['mensaje'] = 'No tiene suficientes coins, necesita 1600, por favor recargue.'
-                return result
-            else:
-                servicio.int_time = timezone.now() + timedelta(days=30)
-                profile.coins = profile.coins - 1600
-                costo = 1600
-        perfil = config('INTERNET_PERFIL_SEMANAL')
+            dias = 30
+            if velocidad == '512kb':
+                costo = (costo_base/2 + 50) * 4
+                perfil = 'usuarios_512kb_24h'
+            elif velocidad == '1mb':
+                costo = costo_base * 4
+                perfil = 'usuarios_1mb_24h'
+            elif velocidad == '2mb':
+                costo = costo_base * 2 * 4
+                perfil = 'usuarios_2mb_24h'
+            elif velocidad == '3mb':
+                costo = costo_base * 3 * 4
+                perfil = 'usuarios_3mb_24h'
+            elif velocidad == '4mb':
+                costo = costo_base * 4 * 4
+                perfil = 'usuarios_4mb_24h'
+        user_coins = int(profile.coins)
+        if user_coins < costo:
+            result['mensaje'] = f'No tiene suficientes coins, necesita { costo }, por favor recargue.'
+            return result
+        else:
+            servicio.int_time = timezone.now() + timedelta(days=dias)
+            profile.coins = profile.coins - costo
         resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, None)
         if resultado['estado']:    
             servicio.internet = True  
             servicio.int_tipo = 'internet-24h'
+            servicio.int_duracion = duracion
+            servicio.int_velocidad = velocidad
             servicio.sync = False
             servicio.save()
             profile.sync = False
@@ -210,18 +258,37 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
         if cantidad_horas <5:
             result['mensaje'] = 'Mínimo 5 horas.'
             return result
-        cantidad = cantidad_horas * 10
-        horasMK = f'{horas}:00:00'
+        costo_base = 10
+        if velocidad == '512kb':
+            costo = (costo_base - 2) * cantidad_horas
+            perfil = 'usuarios_512kb_horas'
+        elif velocidad == '1mb':
+            costo = costo_base * cantidad_horas
+            perfil = 'usuarios_1mb_horas'
+        elif velocidad == '2mb':
+            costo = costo_base * 2 * cantidad_horas
+            perfil = 'usuarios_2mb_horas'
+        elif velocidad == '3mb':
+            costo = costo_base * 3 * cantidad_horas
+            perfil = 'usuarios_3mb_horas'
+        elif velocidad == '4mb':
+            costo = costo_base * 4 * cantidad_horas
+            perfil = 'usuarios_4mb_horas'
         user_coins = int(profile.coins)
-        if user_coins >= cantidad:
-            profile.coins = profile.coins - cantidad    
-            perfil = config('INTERNET_PERFIL_HORAS')
+        if user_coins < costo:
+            result['mensaje'] = f'No tiene suficientes coins, necesita { costo }, por favor recargue.'
+            return result
+        else:
+            profile.coins = profile.coins - costo    
+            horasMK = f'{horas}:00:00'
             resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, horasMK)
             if resultado['estado']:    
-                code = crearOper(usuario.username, 'internetHoras', cantidad)
+                code = crearOper(usuario.username, 'internetHoras', costo)
                 servicio.internet = True
                 servicio.int_horas = horas
                 servicio.int_tipo = 'internetHoras'
+                servicio.int_duracion = None
+                servicio.int_velocidad = velocidad
                 servicio.int_time = None
                 servicio.sync = False
                 servicio.save()
@@ -237,10 +304,7 @@ def comprar_internet(usuario, tipo, contra, duracion, horas):
                 return result
             else:
                 result['mensaje'] = resultado['mensaje']
-                return result 
-        else:
-            result['mensaje'] = 'No tiene suficientes coins.'
-            return result        
+                return result             
     else:
         result['mensaje'] = 'Error de solicitud'
         return result
