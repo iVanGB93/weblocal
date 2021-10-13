@@ -107,16 +107,32 @@ def chequeoInternet():
                 profile = Profile.objects.get(usuario=usuario.id)
                 if i.int_auto:                 
                     if i.int_tipo == "internet-16h":
-                        if profile.coins >= 300:
-                            profile.coins = profile.coins - 300
-                            i.int_time = timezone.now() + timedelta(days=7)
-                            profile.sync = False
-                            profile.save()
-                            i.sync = False
-                            i.save()
-                            code = crearOper(usuario.username, "internet-16h", 300)
-                            send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
-                        else:
+                        costo_base = 300
+                        if i.int_duracion == 'semanal':
+                            dias = 7
+                            if i.int_velocidad == '512kb':
+                                costo = costo_base/2 + 30
+                            elif i.int_velocidad == '1mb':  
+                                costo = costo_base
+                            elif i.int_velocidad == '2mb':        
+                                costo = costo_base * 2 
+                            elif i.int_velocidad == '3mb':      
+                                costo = costo_base * 3
+                            elif i.int_velocidad == '4mb':         
+                                costo = costo_base * 4
+                        if i.int_duracion == 'mensual':    
+                            dias = 30        
+                            if i.int_velocidad == '512kb':
+                                costo = (costo_base/2 + 25) * 4
+                            elif i.int_velocidad == '1mb':         
+                                costo = costo_base * 4
+                            elif i.int_velocidad == '2mb':         
+                                costo = costo_base * 2 * 4
+                            elif i.int_velocidad == '3mb':         
+                                costo = costo_base * 3 * 4
+                            elif i.int_velocidad == '4mb':        
+                                costo = costo_base * 4 * 4
+                        if profile.coins < costo:
                             resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
                             if resultado['estado']:
                                 i.internet = False
@@ -127,17 +143,42 @@ def chequeoInternet():
                             else:
                                 mensaje = resultado['mensaje']
                                 send_mail('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
-                    if i.int_tipo == "internet-24h":
-                        if profile.coins >= 400:
-                            profile.coins = profile.coins - 400
-                            i.int_time = timezone.now() + timedelta(days=7)
+                        else:
+                            profile.coins = profile.coins - costo
+                            i.int_time = timezone.now() + timedelta(days=dias)
                             profile.sync = False
                             profile.save()
                             i.sync = False
                             i.save()
-                            code = crearOper(usuario.username, "internet-24h", 400)
+                            code = crearOper(usuario.username, "internet-16h", costo)
                             send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
-                        else:
+                    if i.int_tipo == "internet-24h":
+                        costo_base = 400
+                        if i.int_duracion == 'semanal':            
+                            dias = 7
+                            if i.int_velocidad == '512kb':
+                                costo = costo_base/2 + 50
+                            elif i.int_velocidad == '1mb':
+                                costo = costo_base
+                            elif i.int_velocidad == '2mb':
+                                costo = costo_base * 2
+                            elif i.int_velocidad == '3mb':
+                                costo = costo_base * 3
+                            elif i.int_velocidad == '4mb':
+                                costo = costo_base * 4
+                        if i.int_duracion == 'mensual':            
+                            dias = 30
+                            if i.int_velocidad == '512kb':
+                                costo = (costo_base/2 + 50) * 4
+                            elif i.int_velocidad == '1mb':
+                                costo = costo_base * 4
+                            elif i.int_velocidad == '2mb':
+                                costo = costo_base * 2 * 4
+                            elif i.int_velocidad == '3mb':
+                                costo = costo_base * 3 * 4
+                            elif i.int_velocidad == '4mb':
+                                costo = costo_base * 4 * 4
+                        if profile.coins < costo:
                             resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
                             if resultado['estado']:
                                 i.internet = False
@@ -148,6 +189,15 @@ def chequeoInternet():
                             else:
                                 mensaje = resultado['mensaje']
                                 send_mail('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
+                        else:
+                            profile.coins = profile.coins - costo
+                            i.int_time = timezone.now() + timedelta(days=dias)
+                            profile.sync = False
+                            profile.save()
+                            i.sync = False
+                            i.save()
+                            code = crearOper(usuario.username, "internet-24h", costo)
+                            send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                 else:                    
                     resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
                     if resultado['estado']:
