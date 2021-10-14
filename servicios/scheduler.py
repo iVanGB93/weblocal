@@ -105,7 +105,7 @@ def chequeoInternet():
             if exp <= timezone.now():
                 usuario = User.objects.get(username=i.usuario)
                 profile = Profile.objects.get(usuario=usuario.id)
-                if i.int_auto:                 
+                if i.int_auto and i.int_duracion != None and i.int_velocidad != None:                 
                     if i.int_tipo == "internet-16h":
                         costo_base = 300
                         if i.int_duracion == 'semanal':
