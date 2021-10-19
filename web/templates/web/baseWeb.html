@@ -13,7 +13,9 @@
     <a href="{% url 'web:index' %}" class="logo"> <i class="fab fa-quinscape"></i> QbaRed </a>
 
     <nav class="barra">
+        {% if local %}
         <a href="https://login.qbared.com" class="active">Internet</a>
+        {% endif %}
         <a href="{% url 'forum:index' 'Noticia' %}">Noticias</a>
         <a href="{% url 'sorteo:index' %}">Sorteo</a>
         <a href="{% url 'portal:dashboard' %}">Portal</a>
