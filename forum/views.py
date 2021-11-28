@@ -49,14 +49,14 @@ def index(request, tema):
     return render(request, 'forum/index.html', data)
 
 def detalles(request, tema, slug):
+    if Publicacion.objects.filter(slug=slug).exists():
+        publicacion = Publicacion.objects.get(slug=slug)
+    else:
+        return render(request, 'forum/notFound.html', {"tema": tema})
     encuesta = 'nada'
     color = tema_color(tema)
     voto = 'no'
     comentarios = 'no'
-    if not Publicacion.objects.filter(slug=slug).exists():
-        content = {'color': color, 'tema': tema, 'icon': 'error', 'mensaje': 'No se encuentra este artículo.'}
-        return render(request, 'forum/detalles.html', content)
-    publicacion = Publicacion.objects.get(slug=slug)    
     if Encuesta.objects.filter(publicacion=publicacion).exists():
         encuesta = Encuesta.objects.get(publicacion=publicacion)
         if request.user in encuesta.voto1.all() or request.user in encuesta.voto2.all() or request.user in encuesta.voto3.all() or request.user in encuesta.voto4.all() or request.user in encuesta.voto5.all():

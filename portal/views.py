@@ -112,7 +112,6 @@ def internet(request):
     usuario = request.user
     content = {'icon': 'error'} 
     if request.method == 'POST':
-        print(request.POST)
         tipo = request.POST['tipo']
         duracion = request.POST['duracion']
         velocidad = request.POST['velocidad']
