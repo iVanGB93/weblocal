@@ -1,1 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Mate+SC&family=Rock+Salt&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Mate+SC&family=Rock+Salt&display=swap'); */
+/* rock-salt-regular - latin */
+@font-face {
+    font-family: 'Rock Salt';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../css/fonts/rock-salt-v11-latin-regular.eot'); /* IE9 Compat Modes */
+    src: local(''),
+         url('../css/fonts/rock-salt-v11-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../css/fonts/rock-salt-v11-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+         url('../css/fonts/rock-salt-v11-latin-regular.woff') format('woff'), /* Modern Browsers */
+         url('../css/fonts/rock-salt-v11-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('../css/fonts/rock-salt-v11-latin-regular.svg#RockSalt') format('svg'); /* Legacy iOS */
+}
+  
