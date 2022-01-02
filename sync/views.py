@@ -12,21 +12,45 @@ from sorteo.models import Sorteo, SorteoDetalle
 import time
 
 @login_required(login_url='/users/login/')
-def control(request):
-    usuario = User.objects.get(username=request.user)
-    opers = Oper.objects.filter(usuario=usuario).order_by('-fecha')
-    content = {'notificaciones': False, 'usuario': usuario, 'opers': opers}
-    content['notificaciones'] = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
-    content['notificaciones_nuevas'] = Notificacion.objects.filter(usuario=request.user, vista=False).order_by('-fecha')
+def control(request):    
+    content = {}
     if request.method == 'POST':
         username = request.POST['usuario']
-        if User.objects.filter(username=username).exists():
-            usuario = User.objects.get(username=username)
-            content['usuario'] = usuario
-            content['opers'] = Oper.objects.filter(usuario=usuario).order_by('-fecha')
-        else:
-            content['mensaje'] = f'El usuario { username } no existe.'
+        busqueda = User.objects.filter(username__icontains=username)
+        if len(busqueda) == 0:
+            content["nulo"] = f"No se encontró nada relacionado con " + username        
+        content['usuarios'] = busqueda
     return render(request, 'sync/index.html', content)
+
+@login_required(login_url='/users/login/')
+def detalles(request, id):
+    usuario = User.objects.get(id=id)
+    opers = Oper.objects.filter(usuario=usuario)
+    content = {"usuario": usuario, "opers": opers}
+    return render(request, 'sync/detalle_usuario.html', content)
+
+@login_required(login_url='/users/login/')
+def funcion(request, id, funcion):
+    usuario = User.objects.get(id=id)
+    opers = Oper.objects.filter(usuario=usuario)
+    content = {"usuario": usuario, "opers": opers}
+    if funcion == "des_internet":
+        servicio = EstadoServicio.objects.get(usuario=usuario)
+        servicio.internet = False
+        servicio.int_time = None
+        servicio.int_horas = None
+        servicio.int_auto = False        
+        content['mensaje'] = "Internet desactivado con éxito."    
+    if funcion == "des_emby":
+        servicio = EstadoServicio.objects.get(usuario=usuario)
+        servicio.emby = False
+        servicio.emby_time = None
+        servicio.emby_auto = False        
+        content['mensaje'] = "Emby desactivado con éxito."  
+    content['icon'] = 'success' 
+    servicio.sync = False
+    servicio.save()       
+    return render(request, 'sync/detalle_usuario.html', content)
 
 @login_required(login_url='/users/login/')
 def control_usuarios(request):
