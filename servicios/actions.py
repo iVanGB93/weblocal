@@ -365,8 +365,8 @@ def comprar_emby(usuario):
         if not conexion.online:
             result['mensaje'] = "Compra de servicios deshabilitado, intente más tarde."
             return result
-    profile = Profile.objects.get(usuario=usuario)
     usuario = User.objects.get(username=usuario)
+    profile = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
     if servicio.emby == True:
         result['mensaje'] = 'Ya tiene el servicio activo.'
@@ -470,8 +470,8 @@ def comprar_filezilla(usuario, contraseña):
         if not conexion.online:
             result['mensaje'] = "Compra de servicios deshabilitado, intente más tarde."
             return result
-    profile = Profile.objects.get(usuario=usuario)
     usuario = User.objects.get(username=usuario)
+    profile = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
     if servicio.ftp == True:
         result['mensaje'] = 'Ya tiene el servicio activo.'
