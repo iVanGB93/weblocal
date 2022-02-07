@@ -1,5 +1,4 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from django.core.mail import send_mail
 from django.utils import timezone
 from .models import EstadoServicio, Oper
 from users.models import Profile
@@ -11,6 +10,10 @@ import xml.etree.ElementTree
 import subprocess
 import routeros_api
 import os
+from django.core.mail.message import EmailMessage
+
+from sync.actions import EmailSending
+
 
 def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
@@ -139,10 +142,12 @@ def chequeoInternet():
                                 i.time = None
                                 i.sync = False
                                 i.save()
-                                send_mail('QbaRed - Rechazo de pago', f'No se pudo reanudar su servicio { i.int_tipo }, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
+                                email = EmailMessage('QbaRed - Rechazo de pago', f'No se pudo reanudar su servicio { i.int_tipo }, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
+                                EmailSending(email).start()
                             else:
                                 mensaje = resultado['mensaje']
-                                send_mail('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
+                                email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo } a { usuario.username }, MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com', 'javymk9026@gmail.com'])
+                                EmailSending(email).start()
                         else:
                             profile.coins = profile.coins - costo
                             i.int_time = timezone.now() + timedelta(days=dias)
@@ -151,7 +156,8 @@ def chequeoInternet():
                             i.sync = False
                             i.save()
                             code = crearOper(usuario.username, "internet-16h", costo)
-                            send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                            email = EmailMessage('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                            EmailSending(email).start()
                     if i.int_tipo == "internet-24h":
                         costo_base = 400
                         if i.int_duracion == 'semanal':            
@@ -185,10 +191,12 @@ def chequeoInternet():
                                 i.int_time = None
                                 i.sync = False
                                 i.save()
-                                send_mail('QbaRed - Rechazo de pago', f'No se pudo reanudar su servicio { i.int_tipo }, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
+                                email = EmailMessage('QbaRed - Rechazo de pago', f'No se pudo reanudar su servicio { i.int_tipo }, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
+                                EmailSending(email).start()
                             else:
                                 mensaje = resultado['mensaje']
-                                send_mail('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
+                                email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com', 'javymk9026@gmail.com'])
+                                EmailSending(email).start()
                         else:
                             profile.coins = profile.coins - costo
                             i.int_time = timezone.now() + timedelta(days=dias)
@@ -197,7 +205,8 @@ def chequeoInternet():
                             i.sync = False
                             i.save()
                             code = crearOper(usuario.username, "internet-24h", costo)
-                            send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                            email = EmailMessage('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                            EmailSending(email).start()
                 else:                    
                     resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
                     if resultado['estado']:
@@ -205,10 +214,12 @@ def chequeoInternet():
                         i.int_time = None
                         i.sync = False
                         i.save()
-                        send_mail('QbaRed - Tiempo agotado', f'Se termino el tiempo del { i.int_tipo }, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])    
+                        email = EmailMessage('QbaRed - Tiempo agotado', f'Se termino el tiempo del { i.int_tipo }, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])    
+                        EmailSending(email).start()
                     else:
                         mensaje = resultado['mensaje']
-                        send_mail('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
+                        email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }, MENSAJE: { mensaje }', None, [usuario.email])
+                        EmailSending(email).start()
 
 def chequeo():    
     emb = EstadoServicio.objects.filter(emby=True)
@@ -232,27 +243,32 @@ def chequeo():
                         e.sync = False
                         e.save()
                         code = crearOper(usuario.username, "Emby", 100)
-                        send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio emby, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                        email = EmailMessage('QbaRed - Pago confirmado', f'Se ha reanudado su servicio emby, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                        EmailSending(email).start()
                     else:
-                        send_mail('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio emby, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])                       
+                        email = EmailMessage('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio emby, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])                       
+                        EmailSending(email).start()
                         connect = requests.delete(url=url)
-                        if connect.status_code == 200:
+                        if connect.status_code == 204:
                             e.emby = False
                             e.emby_time = None
                             e.sync = False
                             e.save()
                         else:           
-                            send_mail(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, ['ivanguachbeltran@gmail.com'])
+                            email = EmailMessage(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, ['ivanguachbeltran@gmail.com', 'javymk9026@gmail.com'])
+                            EmailSending(email).start()
                 else:
-                    send_mail('QbaRed - Tiempo agotado', 'Se terminó el tiempo de su servicio emby, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])
+                    email = EmailMessage('QbaRed - Tiempo agotado', 'Se terminó el tiempo de su servicio emby, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])
+                    EmailSending(email).start()
                     connect = requests.delete(url=url)
-                    if connect.status_code == 200:
+                    if connect.status_code == 204:
                         e.emby = False
                         e.emby_time = None
                         e.sync = False
                         e.save()
                     else:                                 
-                        send_mail(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, ['ivanguachbeltran@gmail.com'])
+                        email = EmailMessage(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, ['ivanguachbeltran@gmail.com', 'javymk9026@gmail.com'])
+                        EmailSending(email).start()
     for j in jclub:   
         exp = j.jc_time
         if exp:
@@ -268,7 +284,8 @@ def chequeo():
                         j.sync = False
                         j.save()
                         code = crearOper(usuario.username, "Joven Club", 100)
-                        send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio JovenClub, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                        email = EmailMessage('QbaRed - Pago confirmado', f'Se ha reanudado su servicio JovenClub, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                        EmailSending(email).start()
                     else:
                         resultado = conectar_mikrotik(config('MK2_IP'), config('MK2_USER'), config('MK2_PASSWORD'), usuario.username, 'joven-club')
                         if resultado['estado']:
@@ -276,10 +293,12 @@ def chequeo():
                             j.jc_time = None
                             j.sync = False
                             j.save()
-                            send_mail('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio JovenClub, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
+                            email = EmailMessage('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio JovenClub, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
+                            EmailSending(email).start()
                         else:
                             mensaje = resultado['mensaje']
-                            send_mail('Error al quitar servicio', f'No se pudo quitar el servicio Joven Club, MENSAJE: { mensaje }', None, [usuario.email])
+                            email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio Joven Club, MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com', 'javymk9026@gmail.com'])
+                            EmailSending(email).start()
                 else:
                     resultado = conectar_mikrotik(config('MK2_IP'), config('MK2_USER'), config('MK2_PASSWORD'), usuario.username, 'joven-club')
                     if resultado['estado']:
@@ -287,7 +306,8 @@ def chequeo():
                         j.jc_time = None
                         j.sync = False
                         j.save()
-                        send_mail('QbaRed - Tiempo agotado', 'Se termino el tiempo de su servicio Joven Club, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])
+                        email = EmailMessage('QbaRed - Tiempo agotado', 'Se termino el tiempo de su servicio Joven Club, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])
+                        EmailSending(email).start()
     for f in filezilla:   
         exp = f.ftp_time       
         if exp:
@@ -303,14 +323,16 @@ def chequeo():
                         f.sync = False
                         f.save()
                         code = crearOper(usuario.username, "FileZilla", 50)
-                        send_mail('QbaRed - Pago confirmado', f'Se ha reanudado su servicio FileZilla, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                        email = EmailMessage('QbaRed - Pago confirmado', f'Se ha reanudado su servicio FileZilla, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                        EmailSending(email).start()
                     else:
                         quitarFTP(usuario.username)                          
                         f.ftp = False
                         f.ftp_time = None
                         f.sync = False
                         f.save() 
-                        send_mail('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio FileZilla, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                        email = EmailMessage('QbaRed - Rechazo de pago', 'No se pudo reanudar su servicio FileZilla, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
+                        EmailSending(email).start()
                 else:
                     quitarFTP(usuario.username)                          
                     f.ftp = False

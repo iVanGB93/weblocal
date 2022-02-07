@@ -115,9 +115,10 @@ def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
     result = {'correcto': False}
     online = config('APP_MODE')
     if online == 'online':
-        conexion = EstadoConexion.objects.get(id=1)
+        servidor = config('NOMBRE_SERVIDOR')
+        conexion = EstadoConexion.objects.get(servidor=servidor)
         if not conexion.online:
-            result['mensaje'] = "Compra de servicios deshabilitado, intente más tarde."
+            result['mensaje'] = "Sistema sin conexión, intente más tarde."
             return result
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
@@ -316,7 +317,7 @@ def comprar_jc(usuario):
         servidor = config('NOMBRE_SERVIDOR')
         conexion = EstadoConexion.objects.get(servidor=servidor)
         if not conexion.online:
-            result['mensaje'] = "Compra de servicios deshabilitado, intente más tarde."
+            result['mensaje'] = "Sistema sin conexión, intente más tarde."
             return result
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
@@ -363,7 +364,7 @@ def comprar_emby(usuario):
         servidor = config('NOMBRE_SERVIDOR')
         conexion = EstadoConexion.objects.get(servidor=servidor)
         if not conexion.online:
-            result['mensaje'] = "Compra de servicios deshabilitado, intente más tarde."
+            result['mensaje'] = "Sistema sin conexión, intente más tarde."
             return result
     usuario = User.objects.get(username=usuario)
     profile = Profile.objects.get(usuario=usuario)
@@ -377,85 +378,89 @@ def comprar_emby(usuario):
         emby_api_key = config('EMBY_API_KEY')
         url = f'{ emby_ip }/Users/New?api_key={ emby_api_key }'
         json = {'Name': usuario.username}
-        connect = requests.post(url=url, data=json)
-        resp = connect.json()
-        usuarioID = resp['Id']
-        if connect.status_code == 200:
-            profile.sync = False
-            profile.save()
-            servicio.emby = True
-            servicio.emby_id = usuarioID
-            servicio.emby_time = timezone.now() + timedelta(days=30)
-            servicio.sync = False
-            servicio.save()
-            notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Emby activado")
-            notificacion.save()
-            url = f'{ emby_ip }/Users/{ usuarioID}/Configuration?api_key={ emby_api_key }'
-            json = {
-                        "PlayDefaultAudioTrack": True,
-                        "DisplayMissingEpisodes": False,
-                        "GroupedFolders": [],
-                        "SubtitleMode": "Default",
-                        "DisplayCollectionsView": False,
-                        "EnableLocalPassword": False,
-                        "OrderedViews": [],
-                        "LatestItemsExcludes": [],
-                        "MyMediaExcludes": [],
-                        "HidePlayedInLatest": True,
-                        "RememberAudioSelections": True,
-                        "RememberSubtitleSelections": True,
-                        "EnableNextEpisodeAutoPlay": True
-                    }
+        try:
             connect = requests.post(url=url, data=json)
-            url = f'{ emby_ip }/Users/{ usuarioID}/Policy?api_key={ emby_api_key }'
-            json = {
-                        "IsAdministrator": False,
-                        "IsHidden": True,
-                        "IsHiddenRemotely": True,
-                        "IsDisabled": False,
-                        "BlockedTags": [],
-                        "IsTagBlockingModeInclusive": False,
-                        "EnableUserPreferenceAccess": True,
-                        "AccessSchedules": [],
-                        "BlockUnratedItems": [],
-                        "EnableRemoteControlOfOtherUsers": False,
-                        "EnableSharedDeviceControl": False,
-                        "EnableRemoteAccess": False,
-                        "EnableLiveTvManagement": False,
-                        "EnableLiveTvAccess": False,
-                        "EnableMediaPlayback": True,
-                        "EnableAudioPlaybackTranscoding": True,
-                        "EnableVideoPlaybackTranscoding": True,
-                        "EnablePlaybackRemuxing": True,
-                        "EnableContentDeletion": False,
-                        "EnableContentDeletionFromFolders": [],
-                        "EnableContentDownloading": False,
-                        "EnableSubtitleDownloading": True,
-                        "EnableSubtitleManagement": False,
-                        "EnableSyncTranscoding": False,
-                        "EnableMediaConversion": False,
-                        "EnabledDevices": [],
-                        "EnableAllDevices": True,
-                        "EnabledChannels": [],
-                        "EnableAllChannels": True,
-                        "EnabledFolders": [],
-                        "EnableAllFolders": True,
-                        "InvalidLoginAttemptCount": 0,
-                        "EnablePublicSharing": False,
-                        "RemoteClientBitrateLimit": 0,
-                        "AuthenticationProviderId": "Emby.Server.Implementations.Library.DefaultAuthenticationProvider",
-                        "ExcludedSubFolders": [],
-                        "SimultaneousStreamLimit": 1
-                    }
-            connect = requests.post(url=url, data=json)
-            code = crearOper(usuario.username, "Emby", 100)
-            email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
-            EmailSending(email).start()
-            result['mensaje'] = 'Servicio activado con éxito.'
-            result['correcto'] = True
-            return result
-        else:
-            result['mensaje'] = 'Error en el servidor Emby.'
+            resp = connect.json()
+            usuarioID = resp['Id']
+            if connect.status_code == 200:
+                profile.sync = False
+                profile.save()
+                servicio.emby = True
+                servicio.emby_id = usuarioID
+                servicio.emby_time = timezone.now() + timedelta(days=30)
+                servicio.sync = False
+                servicio.save()
+                notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Emby activado")
+                notificacion.save()
+                url = f'{ emby_ip }/Users/{ usuarioID}/Configuration?api_key={ emby_api_key }'
+                json = {
+                            "PlayDefaultAudioTrack": True,
+                            "DisplayMissingEpisodes": False,
+                            "GroupedFolders": [],
+                            "SubtitleMode": "Default",
+                            "DisplayCollectionsView": False,
+                            "EnableLocalPassword": False,
+                            "OrderedViews": [],
+                            "LatestItemsExcludes": [],
+                            "MyMediaExcludes": [],
+                            "HidePlayedInLatest": True,
+                            "RememberAudioSelections": True,
+                            "RememberSubtitleSelections": True,
+                            "EnableNextEpisodeAutoPlay": True
+                        }
+                connect = requests.post(url=url, data=json)
+                url = f'{ emby_ip }/Users/{ usuarioID}/Policy?api_key={ emby_api_key }'
+                json = {
+                            "IsAdministrator": False,
+                            "IsHidden": True,
+                            "IsHiddenRemotely": True,
+                            "IsDisabled": False,
+                            "BlockedTags": [],
+                            "IsTagBlockingModeInclusive": False,
+                            "EnableUserPreferenceAccess": True,
+                            "AccessSchedules": [],
+                            "BlockUnratedItems": [],
+                            "EnableRemoteControlOfOtherUsers": False,
+                            "EnableSharedDeviceControl": False,
+                            "EnableRemoteAccess": False,
+                            "EnableLiveTvManagement": False,
+                            "EnableLiveTvAccess": False,
+                            "EnableMediaPlayback": True,
+                            "EnableAudioPlaybackTranscoding": True,
+                            "EnableVideoPlaybackTranscoding": True,
+                            "EnablePlaybackRemuxing": True,
+                            "EnableContentDeletion": False,
+                            "EnableContentDeletionFromFolders": [],
+                            "EnableContentDownloading": False,
+                            "EnableSubtitleDownloading": True,
+                            "EnableSubtitleManagement": False,
+                            "EnableSyncTranscoding": False,
+                            "EnableMediaConversion": False,
+                            "EnabledDevices": [],
+                            "EnableAllDevices": True,
+                            "EnabledChannels": [],
+                            "EnableAllChannels": True,
+                            "EnabledFolders": [],
+                            "EnableAllFolders": True,
+                            "InvalidLoginAttemptCount": 0,
+                            "EnablePublicSharing": False,
+                            "RemoteClientBitrateLimit": 0,
+                            "AuthenticationProviderId": "Emby.Server.Implementations.Library.DefaultAuthenticationProvider",
+                            "ExcludedSubFolders": [],
+                            "SimultaneousStreamLimit": 1
+                        }
+                connect = requests.post(url=url, data=json)
+                code = crearOper(usuario.username, "Emby", 100)
+                email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
+                EmailSending(email).start()
+                result['mensaje'] = 'Servicio activado con éxito.'
+                result['correcto'] = True
+                return result
+            else:
+                result['mensaje'] = 'Error en el servidor Emby.'
+                return result
+        except:
+            result['mensaje'] = 'Ocurrió un error durante la activación del emby.'
             return result
     else:
         result['mensaje'] = 'No tiene suficientes coins.'
@@ -468,7 +473,7 @@ def comprar_filezilla(usuario, contraseña):
         servidor = config('NOMBRE_SERVIDOR')
         conexion = EstadoConexion.objects.get(servidor=servidor)
         if not conexion.online:
-            result['mensaje'] = "Compra de servicios deshabilitado, intente más tarde."
+            result['mensaje'] = "Sistema sin conexión, intente más tarde."
             return result
     usuario = User.objects.get(username=usuario)
     profile = Profile.objects.get(usuario=usuario)
@@ -503,7 +508,7 @@ def recargar(code, usuario):
     conexion = EstadoConexion.objects.get(id=1)
     if online == 'online':
         if not conexion.online:
-            result['mensaje'] = "Recarga deshabilitada, intente más tarde."
+            result['mensaje'] = "Sistema sin conexión, intente más tarde."
             return result
     usuario = User.objects.get(username=usuario)
     profile = Profile.objects.get(usuario=usuario.id)
@@ -560,7 +565,7 @@ def transferir(desde, hacia, cantidad):
     if online == 'online':
         conexion = EstadoConexion.objects.get(id=1)
         if not conexion.online:
-            result['mensaje'] = "Transferencia deshabilitada, intente más tarde."
+            result['mensaje'] = "Sistema sin conexión, intente más tarde."
             return result    
     if User.objects.filter(username=hacia).exists():  
         envia = User.objects.get(username=desde)        
