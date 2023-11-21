@@ -8,6 +8,8 @@ from decouple import config
 
 from sync.actions import EmailSending, UpdateThreadServicio, UpdateThreadOper, UpdateThreadRecarga
 
+emailAlerts = config('EMAIL_ALERTS', cast=lambda x: x.split(','))
+
 @receiver(post_save, sender=User)
 def crearServicios(sender, instance, **kwargs):
     usuario = instance.username
@@ -42,16 +44,16 @@ def correoOper(sender, instance, **kwargs):
             data = {'code': instance.code, 'tipo': instance.tipo, 'usuario': usuario, 'servicio': servicio, 'cantidad': instance.cantidad, 'codRec': codRec, 'haciaDesde': haciaDesde, 'fecha': fecha}
             UpdateThreadOper(data).start()                    
             if instance.tipo == 'PAGO':
-                email = EmailMessage(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com', 'brianglez2017@gmail.com'])
+                email = EmailMessage(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, emailAlerts)
                 EmailSending(email).start()
             elif instance.tipo == 'RECARGA':
-                email = EmailMessage(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com', 'brianglez2017@gmail.com'])
+                email = EmailMessage(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, emailAlerts)
                 EmailSending(email).start()
             elif instance.tipo == 'ENVIO':
-                email = EmailMessage(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com', 'brianglez2017@gmail.com'])
+                email = EmailMessage(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, emailAlerts)
                 EmailSending(email).start()
             elif instance == 'RECIBO':
-                email = EmailMessage(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, ['ivanguachbeltran@gmail.com', 'brianglez2017@gmail.com'])
+                email = EmailMessage(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, emailAlerts)
                 EmailSending(email).start()            
 
 @receiver(post_save, sender=EstadoServicio)
