@@ -9,6 +9,7 @@ from servicios.models import EstadoServicio, Recarga, Oper
 from users.models import Profile, Notificacion
 from sorteo.models import Sorteo, SorteoDetalle
 import datetime
+import requests
 
 import time
 
@@ -34,21 +35,30 @@ def detalles(request, id):
 def funcion(request, id, funcion):
     usuario = User.objects.get(id=id)
     opers = Oper.objects.filter(usuario=usuario)
-    content = {"usuario": usuario, "opers": opers}
+    servicio = EstadoServicio.objects.get(usuario=usuario)
+    content = {"usuario": usuario, "opers": opers, "icon": "success"}
     if funcion == "des_internet":
-        servicio = EstadoServicio.objects.get(usuario=usuario)
         servicio.internet = False
         servicio.int_time = None
         servicio.int_horas = None
         servicio.int_auto = False        
         content['mensaje'] = "Internet desactivado con éxito."    
     if funcion == "des_emby":
-        servicio = EstadoServicio.objects.get(usuario=usuario)
         servicio.emby = False
         servicio.emby_time = None
         servicio.emby_auto = False        
         content['mensaje'] = "Emby desactivado con éxito."
-    content['icon'] = 'success'
+    if funcion == "get_emby_id":
+        emby_ip = config('EMBY_IP')            
+        emby_api_key = config('EMBY_API_KEY')            
+        url = f'{ emby_ip }/Users/Query?NameStartsWithOrGreater={ usuario.username }&api_key={ emby_api_key }'
+        connect = requests.get(url=url)
+        if connect.status_code == 200:
+            response = connect.json()["Items"][0]
+            content['mensaje'] = f'Usuario: { response["Name"]} & ID: {response["Id"]}'
+        else:
+            content['icon'] = 'error'
+            content['mensaje'] = 'Error'
     servicio.sync = False
     servicio.save()       
     return render(request, 'sync/detalle_usuario.html', content)
@@ -419,7 +429,7 @@ def control_finanzas(request):
     operaciones = Oper.objects.filter(fecha__range=[start, end])
     opers = []
     earnings = 0
-    spended = days * 600
+    spended = days * 800
     for oper in operaciones:
         if oper.tipo == 'PAGO':
             if oper.fecha.day == days:
