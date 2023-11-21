@@ -14,6 +14,8 @@ from django.core.mail.message import EmailMessage
 
 from sync.actions import EmailSending
 
+emailAlerts = config('EMAIL_ALERTS', cast=lambda x: x.split(','))
+
 
 def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
@@ -146,7 +148,7 @@ def chequeoInternet():
                                 EmailSending(email).start()
                             else:
                                 mensaje = resultado['mensaje']
-                                email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }  del usuario { usuario.username }, MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com', 'brianglez2017@gmail.com'])
+                                email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }  del usuario { usuario.username }, MENSAJE: { mensaje }', None, emailAlerts)
                                 EmailSending(email).start()
                         else:
                             profile.coins = profile.coins - costo
@@ -195,7 +197,7 @@ def chequeoInternet():
                                 EmailSending(email).start()
                             else:
                                 mensaje = resultado['mensaje']
-                                email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo } del usuario { usuario.username }, MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com', 'brianglez2017@gmail.com'])
+                                email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo } del usuario { usuario.username }, MENSAJE: { mensaje }', None, emailAlerts)
                                 EmailSending(email).start()
                         else:
                             profile.coins = profile.coins - costo
@@ -255,7 +257,7 @@ def chequeo():
                             e.sync = False
                             e.save()
                         else:           
-                            email = EmailMessage(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, ['ivanguachbeltran@gmail.com', 'brianglez2017@gmail.com'])
+                            email = EmailMessage(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, emailAlerts)
                             EmailSending(email).start()
                 else:
                     email = EmailMessage('QbaRed - Tiempo agotado', 'Se terminó el tiempo de su servicio emby, para volver a usarlo vaya a nuestro portal del usuario. Saludos QbaRed.', None, [usuario.email])
@@ -267,7 +269,7 @@ def chequeo():
                         e.sync = False
                         e.save()
                     else:                                 
-                        email = EmailMessage(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, ['ivanguachbeltran@gmail.com', 'brianglez2017@gmail.com'])
+                        email = EmailMessage(f'Quitar Emby a { usuario.username }', f'Tiempo acabado y no se desactiva su cuenta.', None, emailAlerts)
                         EmailSending(email).start()
     for j in jclub:   
         exp = j.jc_time
@@ -297,7 +299,7 @@ def chequeo():
                             EmailSending(email).start()
                         else:
                             mensaje = resultado['mensaje']
-                            email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio Joven Club, MENSAJE: { mensaje }', None, ['ivanguachbeltran@gmail.com', 'brianglez2017@gmail.com'])
+                            email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio Joven Club, MENSAJE: { mensaje }', None, emailAlerts)
                             EmailSending(email).start()
                 else:
                     resultado = conectar_mikrotik(config('MK2_IP'), config('MK2_USER'), config('MK2_PASSWORD'), usuario.username, 'joven-club')
