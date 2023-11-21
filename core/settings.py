@@ -12,7 +12,7 @@ ADMINS = [('iVan', 'ivanguachbeltran@gmail.com')]
 
 ALLOWED_HOSTS = ['*']
 
-SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -94,9 +94,7 @@ DATABASES = {
         "CLIENT": {
            "name": config('DB_NAME'),
            "host": config('DB_HOST'),
-           "username": config('DB_USER'),
-           "password": config('DB_PASSWORD'),
-           "authMechanism": "SCRAM-SHA-1",
+           
         },     
     }
 }
