@@ -6,19 +6,24 @@ from django.utils import timezone
 from .syncs import actualizacion_remota
 from .models import EstadoConexion
 
-def chequeo_conexion_online():
-    print("CHEQUEANDO SI ESTA ONLINE EL SERVER")
-    servidor = config('NOMBRE_SERVIDOR')
-    ip_online = config('IP_ONLINE')
+def get_or_create_conexion_status():
     if EstadoConexion.objects.filter(id=1).exists():
         conexion = EstadoConexion.objects.get(id=1)
     else:
+        servidor = config('NOMBRE_SERVIDOR')
+        ip_online = config('IP_ONLINE')
         conexion = EstadoConexion(id=1, servidor=servidor, ip_online=ip_online)
         conexion.ip_internet = config('IP_INTERNET')
         conexion.ip_jc = config('IP_JC')
         conexion.ip_emby = config('IP_EMBY')
         conexion.ip_ftp = config('IP_FTP')
-    data = {'identidad': servidor, 'internet': conexion.internet, 'jc': conexion.jc, 'emby': conexion.emby, 'ftp': conexion.ftp}
+        conexion.save()
+    return conexion
+
+def chequeo_conexion_online():
+    print("CHEQUEANDO SI ESTA ONLINE EL SERVER")
+    conexion = get_or_create_conexion_status()
+    data = {'identidad': conexion.servidor, 'internet': conexion.internet, 'jc': conexion.jc, 'emby': conexion.emby, 'ftp': conexion.ftp}
     respuesta = actualizacion_remota('chequeo_conexion', data)
     if respuesta['estado']:
         print("SERVIDOR ONLINE")

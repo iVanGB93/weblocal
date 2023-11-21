@@ -1,16 +1,16 @@
 from django.shortcuts import render
-from sync.models import EstadoConexion
+from sync.scheduler import get_or_create_conexion_status
 
 def index(request):
     content = {'local': False}
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = get_or_create_conexion_status()
     if hasattr(conexion, 'ip_online'):
         content['local'] = True
     return render(request, 'web/index.html', content)
 
 def ts(request):
     content = {'local': False}
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = get_or_create_conexion_status()
     if hasattr(conexion, 'ip_online'):
         content['local'] = True
     return render(request, 'web/ts.html', content)
@@ -20,7 +20,7 @@ def ftp(request):
 
 def emby(request):
     content = {'local': False}
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = get_or_create_conexion_status()
     if hasattr(conexion, 'ip_online'):
         content['local'] = True
     return render(request, 'web/emby.html', content)

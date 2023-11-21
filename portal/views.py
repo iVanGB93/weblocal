@@ -6,14 +6,16 @@ from users.models import Profile, Notificacion
 from servicios.models import EstadoServicio, Oper
 from sorteo.models import SorteoDetalle
 from servicios.actions import *
+from sync.scheduler import get_or_create_conexion_status
 from sync.syncs import actualizacion_remota
 
 from servicios.api.serializers import ServiciosSerializer
 
+
 @login_required(login_url='/users/login/')
 def dashboard(request):
     sorteos = SorteoDetalle.objects.all()
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = get_or_create_conexion_status()
     content = {'conexion': conexion, 'sorteos': sorteos}
     return render(request, 'portal/dashboard.html', content)
 
@@ -21,7 +23,7 @@ def dashboard(request):
 def perfil(request):
     content = {'icon': 'error'}
     usuario = User.objects.get(username=request.user)
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = get_or_create_conexion_status()
     if request.method == 'POST':
         if request.FILES.get('imagen'):
             perfil = Profile.objects.get(usuario=usuario)
@@ -80,7 +82,7 @@ def contra(request):
             if request.POST['nueva'] == request.POST['confirme']:
                 if len(request.POST['nueva']) >= 8:
                     nueva = request.POST['nueva']
-                    conexion = EstadoConexion.objects.get(id=1)
+                    conexion = get_or_create_conexion_status()
                     if config('APP_MODE') == 'online':
                         if conexion.online:
                             data = {'usuario': usuario.username, 'contraseña': nueva}
@@ -226,7 +228,7 @@ def operaciones(request):
 
 @login_required(login_url='/users/login/')
 def cambiar_auto(request, id):
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = get_or_create_conexion_status()
     usuario = request.user
     servicio = EstadoServicio.objects.get(usuario=usuario)
     content = {'servicio': servicio, 'icon': 'success'}
@@ -284,7 +286,7 @@ def cambiar_auto(request, id):
     
 @login_required(login_url='/users/login/')
 def sync_servicio(request, id):
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = get_or_create_conexion_status()
     content = {'icon': 'error'}
     if conexion.online:
         usuario = request.user
@@ -325,7 +327,7 @@ def guardar_servicio(request):
 @login_required(login_url='/users/login/')
 def sync_perfil(request):    
     usuario = User.objects.get(username=request.user)
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = get_or_create_conexion_status()
     sorteos = SorteoDetalle.objects.all()
     content = {'sorteos': sorteos, 'conexion': conexion, 'icon': 'error'}
     if request.method == 'POST':
