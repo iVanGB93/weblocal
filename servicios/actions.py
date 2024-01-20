@@ -360,7 +360,7 @@ def comprar_jc(usuario):
 def comprar_emby(usuario):
     result = {'correcto': False}
     online = config('APP_MODE')
-    embyPrice = config('EMBY_PRICE')
+    embyPrice = int(config('EMBY_PRICE'))
     if online == 'online':
         servidor = config('NOMBRE_SERVIDOR')
         conexion = EstadoConexion.objects.get(servidor=servidor)
