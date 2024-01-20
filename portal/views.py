@@ -152,7 +152,8 @@ def jovenclub(request):
 @login_required(login_url='/users/login/')
 def emby(request):
     usuario = request.user
-    content = {'icon': 'error'} 
+    embyPrice = config('EMBY_PRICE')
+    content = {'icon': 'error', 'embyPrice': embyPrice} 
     if request.method == 'POST':
         contra = request.POST['contra']
         if usuario.check_password(contra):
