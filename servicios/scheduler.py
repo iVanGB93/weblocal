@@ -111,62 +111,11 @@ def chequeoInternet():
                 usuario = User.objects.get(username=i.usuario)
                 profile = Profile.objects.get(usuario=usuario.id)
                 if i.int_auto and i.int_duracion != None and i.int_velocidad != None:                 
-                    if i.int_tipo == "internet-16h":
-                        costo_base = 300
-                        if i.int_duracion == 'semanal':
-                            dias = 7
-                            if i.int_velocidad == '512kb':
-                                costo = costo_base/2 + 30
-                            elif i.int_velocidad == '1mb':  
-                                costo = costo_base
-                            elif i.int_velocidad == '2mb':        
-                                costo = costo_base * 2 
-                            elif i.int_velocidad == '3mb':      
-                                costo = costo_base * 3
-                            elif i.int_velocidad == '4mb':         
-                                costo = costo_base * 4
-                        if i.int_duracion == 'mensual':    
-                            dias = 30        
-                            if i.int_velocidad == '512kb':
-                                costo = (costo_base/2 + 25) * 4
-                            elif i.int_velocidad == '1mb':         
-                                costo = costo_base * 4
-                            elif i.int_velocidad == '2mb':         
-                                costo = costo_base * 2 * 4
-                            elif i.int_velocidad == '3mb':         
-                                costo = costo_base * 3 * 4
-                            elif i.int_velocidad == '4mb':        
-                                costo = costo_base * 4 * 4
-                        if profile.coins < costo:
-                            resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, 'internet')                   
-                            if resultado['estado']:
-                                i.internet = False
-                                i.time = None
-                                i.sync = False
-                                i.save()
-                                email = EmailMessage('QbaRed - Rechazo de pago', f'No se pudo reanudar su servicio { i.int_tipo }, no tiene suficientes coins, por favor recargue. Saludos QbaRed.', None, [usuario.email])
-                                EmailSending(email).start()
-                            else:
-                                mensaje = resultado['mensaje']
-                                email = EmailMessage('Error al quitar servicio', f'No se pudo quitar el servicio { i.int_tipo }  del usuario { usuario.username }, MENSAJE: { mensaje }', None, emailAlerts)
-                                EmailSending(email).start()
-                        else:
-                            profile.coins = profile.coins - costo
-                            i.int_time = timezone.now() + timedelta(days=dias)
-                            profile.sync = False
-                            profile.save()
-                            i.sync = False
-                            i.save()
-                            code = crearOper(usuario.username, "internet-16h", costo)
-                            email = EmailMessage('QbaRed - Pago confirmado', f'Se ha reanudado su servicio { i.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
-                            EmailSending(email).start()
                     if i.int_tipo == "internet-24h":
-                        costo_base = 400
+                        costo_base = int(config('INTERNET_PRICE_SEMANAL'))
                         if i.int_duracion == 'semanal':            
                             dias = 7
-                            if i.int_velocidad == '512kb':
-                                costo = costo_base/2 + 50
-                            elif i.int_velocidad == '1mb':
+                            if i.int_velocidad == '1mb':
                                 costo = costo_base
                             elif i.int_velocidad == '2mb':
                                 costo = costo_base * 2
@@ -176,9 +125,7 @@ def chequeoInternet():
                                 costo = costo_base * 4
                         if i.int_duracion == 'mensual':            
                             dias = 30
-                            if i.int_velocidad == '512kb':
-                                costo = (costo_base/2 + 50) * 4
-                            elif i.int_velocidad == '1mb':
+                            if i.int_velocidad == '1mb':
                                 costo = costo_base * 4
                             elif i.int_velocidad == '2mb':
                                 costo = costo_base * 2 * 4

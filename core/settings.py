@@ -10,7 +10,9 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ADMINS = [('iVan', 'ivanguachbeltran@gmail.com')]
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda x: x.split(','))
+#ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda x: x.split(','))
+
+ALLOWED_HOSTS = ['*']
 
 SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
 
