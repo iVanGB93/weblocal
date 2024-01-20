@@ -360,6 +360,7 @@ def comprar_jc(usuario):
 def comprar_emby(usuario):
     result = {'correcto': False}
     online = config('APP_MODE')
+    embyPrice = config('EMBY_PRICE')
     if online == 'online':
         servidor = config('NOMBRE_SERVIDOR')
         conexion = EstadoConexion.objects.get(servidor=servidor)
@@ -372,8 +373,8 @@ def comprar_emby(usuario):
     if servicio.emby == True:
         result['mensaje'] = 'Ya tiene el servicio activo.'
         return result
-    if profile.coins >= 100:
-        profile.coins = profile.coins - 100
+    if profile.coins >= embyPrice:
+        profile.coins = profile.coins - embyPrice
         emby_ip = config('EMBY_IP')
         emby_api_key = config('EMBY_API_KEY')
         url = f'{ emby_ip }/Users/New?api_key={ emby_api_key }'
@@ -450,7 +451,7 @@ def comprar_emby(usuario):
                             "SimultaneousStreamLimit": 1
                         }
                 connect = requests.post(url=url, data=json)
-                code = crearOper(usuario.username, "Emby", 100)
+                code = crearOper(usuario.username, "Emby", embyPrice)
                 email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                 EmailSending(email).start()
                 result['mensaje'] = 'Servicio activado con éxito.'

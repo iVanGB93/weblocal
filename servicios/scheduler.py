@@ -227,24 +227,25 @@ def chequeo():
     emb = EstadoServicio.objects.filter(emby=True)
     jclub = EstadoServicio.objects.filter(jc=True)
     filezilla = EstadoServicio.objects.filter(ftp=True)    
-    for e in emb: 
+    for e in emb:
         exp = e.emby_time
         if exp:
             if exp <= timezone.now():
                 usuario = User.objects.get(username=e.usuario)
                 profile = Profile.objects.get(usuario=usuario.id)
                 emby_ip = config('EMBY_IP')            
-                emby_api_key = config('EMBY_API_KEY')            
+                emby_api_key = config('EMBY_API_KEY')
+                embyPrice = config('EMBY_PRICE')         
                 url = f'{ emby_ip }/Users/{ e.emby_id }?api_key={ emby_api_key }' 
                 if e.emby_auto:                    
-                    if profile.coins >= 100:
-                        profile.coins = profile.coins - 100
+                    if profile.coins >= embyPrice:
+                        profile.coins = profile.coins - embyPrice
                         profile.sync = False
                         profile.save()
                         e.emby_time = timezone.now() + timedelta(days=30)
                         e.sync = False
                         e.save()
-                        code = crearOper(usuario.username, "Emby", 100)
+                        code = crearOper(usuario.username, "Emby", embyPrice)
                         email = EmailMessage('QbaRed - Pago confirmado', f'Se ha reanudado su servicio emby, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
                         EmailSending(email).start()
                     else:
