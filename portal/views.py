@@ -171,7 +171,8 @@ def emby(request):
 @login_required(login_url='/users/login/')
 def filezilla(request):
     usuario = request.user
-    content = {'icon': 'error'}
+    ftpPrice = config('FTP_PRICE')
+    content = {'icon': 'error', 'ftpPrice': ftpPrice}
     if request.method == 'POST':
         contra = request.POST['contra']        
         if usuario.check_password(contra):                    
