@@ -470,6 +470,7 @@ def comprar_emby(usuario):
 def comprar_filezilla(usuario, contraseña):
     result = {'correcto': False}
     online = config('APP_MODE')
+    ftpPrice = int(config('FTP_PRICE'))
     if online == 'online':
         servidor = config('NOMBRE_SERVIDOR')
         conexion = EstadoConexion.objects.get(servidor=servidor)
@@ -482,14 +483,14 @@ def comprar_filezilla(usuario, contraseña):
     if servicio.ftp == True:
         result['mensaje'] = 'Ya tiene el servicio activo.'
         return result
-    if profile.coins >= 50:
-        profile.coins = profile.coins - 50
+    if profile.coins >= ftpPrice:
+        profile.coins = profile.coins - ftpPrice
         activarFTP(usuario, contraseña, group='usuarios')
         profile.sync = False
         profile.save()
         servicio.ftp = True
         servicio.ftp_time = timezone.now() + timedelta(days=30)
-        code = crearOper(usuario.username, 'FileZilla', 50)
+        code = crearOper(usuario.username, 'FileZilla', ftpPrice)
         email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])            
         EmailSending(email).start()
         servicio.sync = False

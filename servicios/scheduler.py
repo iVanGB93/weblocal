@@ -235,7 +235,7 @@ def chequeo():
                 profile = Profile.objects.get(usuario=usuario.id)
                 emby_ip = config('EMBY_IP')            
                 emby_api_key = config('EMBY_API_KEY')
-                embyPrice = config('EMBY_PRICE')         
+                embyPrice = int(config('EMBY_PRICE'))         
                 url = f'{ emby_ip }/Users/{ e.emby_id }?api_key={ emby_api_key }' 
                 if e.emby_auto:                    
                     if profile.coins >= embyPrice:
@@ -316,16 +316,17 @@ def chequeo():
         if exp:
             if exp <= timezone.now():
                 usuario = User.objects.get(username=f.usuario)
-                profile = Profile.objects.get(usuario=usuario.id)                
+                profile = Profile.objects.get(usuario=usuario.id)
+                ftpPrice = int(config('FTP_PRICE'))          
                 if f.ftp_auto:
-                    if profile.coins >= 50:
-                        profile.coins = profile.coins - 50
+                    if profile.coins >= ftpPrice:
+                        profile.coins = profile.coins - ftpPrice
                         profile.sync = False
                         profile.save()
                         f.ftp_time = timezone.now() + timedelta(days=30)
                         f.sync = False
                         f.save()
-                        code = crearOper(usuario.username, "FileZilla", 50)
+                        code = crearOper(usuario.username, "FileZilla", ftpPrice)
                         email = EmailMessage('QbaRed - Pago confirmado', f'Se ha reanudado su servicio FileZilla, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', 'RedCentroHabanaCuba@gmail.com', [usuario.email])
                         EmailSending(email).start()
                     else:
