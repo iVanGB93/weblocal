@@ -112,13 +112,15 @@ def contra(request):
 @login_required(login_url='/users/login/')
 def internet(request):
     usuario = request.user
-    content = {'icon': 'error'} 
+    internetSemanalPrice = config('INTERNET_PRICE_SEMANAL')
+    internetHorasPrice = config('INTERNET_PRICE_HORAS')
+    content = {'icon': 'error', 'internetSemanalPrice': internetSemanalPrice, 'internetHorasPrice': internetHorasPrice}
     if request.method == 'POST':
         tipo = request.POST['tipo']
         duracion = request.POST['duracion']
         velocidad = request.POST['velocidad']
         horas = request.POST['cantidad_horas']
-        contra = request.POST['contra']        
+        contra = request.POST['contra']     
         if usuario.check_password(contra):
             result = comprar_internet(usuario, tipo, contra, duracion, horas, velocidad)
             if result['correcto']:        

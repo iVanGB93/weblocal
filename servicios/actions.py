@@ -126,78 +126,11 @@ def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
         result['mensaje'] = 'Ya tiene el servicio activo.'
         return result
     profile = Profile.objects.get(usuario=usuario)
-    if tipo == '16h':
-        costo_base = 300
-        if duracion == 'semanal':
+    if tipo == '24h':
+        costo_base = int(config('INTERNET_PRICE_SEMANAL'))
+        if duracion == 'semanal':          
             dias = 7
-            if velocidad == '512kb':
-                costo = costo_base/2 + 30
-                perfil = 'usuarios_512kb_16h'
-            elif velocidad == '1mb':  
-                costo = costo_base
-                perfil = 'usuarios_1mb_16h'
-            elif velocidad == '2mb':        
-                costo = costo_base * 2 
-                perfil = 'usuarios_2mb_16h'
-            elif velocidad == '3mb':      
-                costo = costo_base * 3
-                perfil = 'usuarios_3mb_16h'
-            elif velocidad == '4mb':         
-                costo = costo_base * 4
-                perfil = 'usuarios_4mb_16h'
-        if duracion == 'mensual':    
-            dias = 30        
-            if velocidad == '512kb':
-                costo = (costo_base/2 + 25) * 4
-                perfil = 'usuarios_512kb_16h'
-            elif velocidad == '1mb':         
-                costo = costo_base * 4
-                perfil = 'usuarios_1mb_16h'
-            elif velocidad == '2mb':         
-                costo = costo_base * 2 * 4
-                perfil = 'usuarios_2mb_16h'
-            elif velocidad == '3mb':         
-                costo = costo_base * 3 * 4
-                perfil = 'usuarios_3mb_16h'
-            elif velocidad == '4mb':        
-                costo = costo_base * 4 * 4
-                perfil = 'usuarios_4mb_16h' 
-        user_coins = int(profile.coins)          
-        if user_coins < costo:
-            result['mensaje'] = f'No tiene suficientes coins, necesita { costo }, por favor recargue.'
-            return result
-        else:
-            servicio.int_time = timezone.now() + timedelta(days=dias)
-            profile.coins = profile.coins - costo
-        resultado = conectar_mikrotik(config('MK1_IP'), config('MK1_USER'), config('MK1_PASSWORD'), usuario.username, contra, perfil, None)
-        if resultado['estado']:    
-            servicio.internet = True
-            servicio.int_tipo = 'internet-16h'
-            servicio.int_duracion = duracion
-            servicio.int_velocidad = velocidad
-            servicio.sync = False
-            servicio.save()
-            profile.sync = False
-            profile.save()
-            notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet 16 horas activado.")
-            notificacion.save()
-            code = crearOper(usuario.username, 'internet-16h', costo)
-            email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
-            EmailSending(email).start()
-            result['mensaje'] = 'Servicio activado con éxito.'
-            result['correcto'] = True
-            return result
-        else:
-            result['mensaje'] = resultado['mensaje']
-            return result        
-    elif tipo == '24h':
-        costo_base = 400
-        if duracion == 'semanal':            
-            dias = 7
-            if velocidad == '512kb':
-                costo = costo_base/2 + 50
-                perfil = 'usuarios_512kb_24h'
-            elif velocidad == '1mb':
+            if velocidad == '1mb':
                 costo = costo_base
                 perfil = 'usuarios_1mb_24h'
             elif velocidad == '2mb':
@@ -211,10 +144,7 @@ def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
                 perfil = 'usuarios_4mb_24h'               
         if duracion == 'mensual':            
             dias = 30
-            if velocidad == '512kb':
-                costo = (costo_base/2 + 50) * 4
-                perfil = 'usuarios_512kb_24h'
-            elif velocidad == '1mb':
+            if velocidad == '1mb':
                 costo = costo_base * 4
                 perfil = 'usuarios_1mb_24h'
             elif velocidad == '2mb':
@@ -254,16 +184,13 @@ def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
         else:
             result['mensaje'] = resultado['mensaje']
             return result
-    elif tipo == 'horas':        
+    elif tipo == 'horas':
         cantidad_horas = int(horas)
         if cantidad_horas <5:
             result['mensaje'] = 'Mínimo 5 horas.'
             return result
-        costo_base = 10
-        if velocidad == '512kb':
-            costo = (costo_base - 2) * cantidad_horas
-            perfil = 'usuarios_512kb_horas'
-        elif velocidad == '1mb':
+        costo_base = int(config('INTERNET_PRICE_HORAS'))
+        if velocidad == '1mb':
             costo = costo_base * cantidad_horas
             perfil = 'usuarios_1mb_horas'
         elif velocidad == '2mb':
