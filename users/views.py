@@ -21,7 +21,8 @@ def entrar(request):
             else:
                 content = {'mensaje': "Contraseña Incorrecta", 'icon': 'error'}
                 return render(request, 'users/login.html', content)            
-        else:            
+        else:
+            #chequear el servidor online     
             content = {'mensaje': "Usuario no existe", 'icon': 'error'}
             return render(request, 'users/login.html', content)
     else:
