@@ -27,7 +27,7 @@ class SyncWSConsumer(WebsocketConsumer):
 
     def usuario_existe(self, data):
         respuesta = {'estado': False}
-        usuario = data['usuario']
+        usuario = data.get('usuario', 'que intenta buscar')
         if User.objects.filter(username=usuario).exists():
             return True
         else:
@@ -36,7 +36,7 @@ class SyncWSConsumer(WebsocketConsumer):
 
     def saludo(self, data):
         respuesta = {'estado': False}
-        celula = data['identidad']
+        celula = data.get('identidad', 'sin nombre :-(')
         print(f'{ celula } se ha conectado')
         respuesta['estado'] = True
         respuesta['mensaje'] = f'Bienvenido {celula}, está conectado!!!'
@@ -44,9 +44,12 @@ class SyncWSConsumer(WebsocketConsumer):
 
     def check_usuario(self, data):
         respuesta = {'estado': False}
-        usuario = data['usuario']
         if self.usuario_existe(data):
             respuesta['estado'] = True
+            usuario = data['usuario']
+            user = User.objects.get(username=usuario)
+            respuesta['username'] = user.username
+            respuesta['email'] = user.email
             respuesta['mensaje'] = f'El usuario { usuario } esta registrado.'
             self.responder(respuesta)
 
@@ -135,8 +138,8 @@ class SyncWSConsumer(WebsocketConsumer):
     
     def coger_perfil(self, data):
         respuesta = {'estado': False}
-        usuario = data['usuario']
         if self.usuario_existe(data):
+            usuario = data['usuario']
             usuario_local = User.objects.get(username=usuario)
             if Profile.objects.filter(usuario=usuario_local).exists:
                 perfil = Profile.objects.get(usuario=usuario_local)

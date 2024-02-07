@@ -58,17 +58,14 @@ def correoOper(sender, instance, **kwargs):
 
 @receiver(post_save, sender=EstadoServicio)
 def actualizar_servicios(sender, instance, **kwargs):
-    online = config('APP_MODE')
-    if online == 'online':
-        if instance.sync == False:
-            serializer = ServiciosSerializer(instance)
-            data=serializer.data
-            data['usuario'] = instance.usuario.username
-            UpdateThreadServicio(data).start()            
+    if instance.sync == False:
+        serializer = ServiciosSerializer(instance)
+        data=serializer.data
+        data['usuario'] = instance.usuario.username
+        UpdateThreadServicio(data).start()            
 
 @receiver(post_save, sender=Recarga)
 def actualizar_recarga(sender, instance, **kwargs):
-    if config('APP_MODE') == 'online':
-        if instance.sync == False:
-            data = {'code': instance.code, 'cantidad': instance.cantidad, 'fechaHecha': str(instance.fechaHecha)}
-            UpdateThreadRecarga(data).start()
+    if instance.sync == False:
+        data = {'code': instance.code, 'cantidad': instance.cantidad, 'fechaHecha': str(instance.fechaHecha)}
+        UpdateThreadRecarga(data).start()

@@ -113,15 +113,12 @@ def conectar_mikrotik(ip, username, password, usuario, contraseña, perfil, hora
 
 def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
     result = {'correcto': False}
-    online = config('APP_MODE')
-    if online == 'online':
-        servidor = config('NOMBRE_SERVIDOR')
-        conexion = EstadoConexion.objects.get(servidor=servidor)
-        if not conexion.online:
-            result['mensaje'] = "Sistema sin conexión, intente más tarde."
-            return result
+    conexion = EstadoConexion.objects.get(id=1)
+    if not conexion.online:
+        result['mensaje'] = "Sistema sin conexión, intente más tarde."
+        return result
     usuario = User.objects.get(username=usuario)
-    servicio = EstadoServicio.objects.get(usuario=usuario.id)
+    servicio = EstadoServicio.objects.get(usuario=usuario)
     if servicio.internet == True:
         result['mensaje'] = 'Ya tiene el servicio activo.'
         return result
@@ -239,13 +236,11 @@ def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
 
 def comprar_jc(usuario):
     result = {'correcto': False}
-    online = config('APP_MODE')
-    if online == 'online':
-        servidor = config('NOMBRE_SERVIDOR')
-        conexion = EstadoConexion.objects.get(servidor=servidor)
-        if not conexion.online:
-            result['mensaje'] = "Sistema sin conexión, intente más tarde."
-            return result
+    servidor = config('NOMBRE_SERVIDOR')
+    conexion = EstadoConexion.objects.get(servidor=servidor)
+    if not conexion.online:
+        result['mensaje'] = "Sistema sin conexión, intente más tarde."
+        return result
     usuario = User.objects.get(username=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
     if servicio.jc == True:
@@ -286,14 +281,12 @@ def comprar_jc(usuario):
 
 def comprar_emby(usuario):
     result = {'correcto': False}
-    online = config('APP_MODE')
     embyPrice = int(config('EMBY_PRICE'))
-    if online == 'online':
-        servidor = config('NOMBRE_SERVIDOR')
-        conexion = EstadoConexion.objects.get(servidor=servidor)
-        if not conexion.online:
-            result['mensaje'] = "Sistema sin conexión, intente más tarde."
-            return result
+    servidor = config('NOMBRE_SERVIDOR')
+    conexion = EstadoConexion.objects.get(servidor=servidor)
+    if not conexion.online:
+        result['mensaje'] = "Sistema sin conexión, intente más tarde."
+        return result
     usuario = User.objects.get(username=usuario)
     profile = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario.id)
@@ -433,14 +426,12 @@ def comprar_filezilla(usuario, contraseña):
 
 def recargar(code, usuario):
     result = {'correcto': False}
-    online = config('APP_MODE')
     conexion = EstadoConexion.objects.get(id=1)
-    if online == 'online':
-        if not conexion.online:
-            result['mensaje'] = "Sistema sin conexión, intente más tarde."
-            return result
+    if not conexion.online:
+        result['mensaje'] = "Sistema sin conexión, intente más tarde."
+        return result
     usuario = User.objects.get(username=usuario)
-    profile = Profile.objects.get(usuario=usuario.id)
+    profile = Profile.objects.get(usuario=usuario)
     if not profile.sync:
         result['mensaje'] = "Sincronice su perfil en dashboard para poder recargar."
         return result
@@ -449,10 +440,10 @@ def recargar(code, usuario):
         return result
     if Recarga.objects.filter(code=code).exists():
         recarga = Recarga.objects.get(code=code)        
-        if recarga.activa:            
-            cantidad = recarga.cantidad                   
+        if recarga.activa:
+            cantidad = recarga.cantidad       
             profile.coins = profile.coins + cantidad
-            profile.sync = False                           
+            profile.sync = False
             profile.save()
             recarga.activa = False
             recarga.fechaUso = timezone.now()
@@ -469,7 +460,7 @@ def recargar(code, usuario):
         else:
             result['mensaje'] = 'Recarga usada'
             return result
-    if online == 'online' and conexion.online:
+    if conexion.online:
         data = {'usuario': usuario.username, 'code': code, 'check': True}
         respuesta = actualizacion_remota('usar_recarga', data=data)
         if respuesta['estado']:
@@ -490,12 +481,10 @@ def recargar(code, usuario):
 
 def transferir(desde, hacia, cantidad):
     result = {'correcto': False}
-    online = config('APP_MODE')
-    if online == 'online':
-        conexion = EstadoConexion.objects.get(id=1)
-        if not conexion.online:
-            result['mensaje'] = "Sistema sin conexión, intente más tarde."
-            return result    
+    conexion = EstadoConexion.objects.get(id=1)
+    if not conexion.online:
+        result['mensaje'] = "Sistema sin conexión, intente más tarde."
+        return result    
     if User.objects.filter(username=hacia).exists():  
         envia = User.objects.get(username=desde)        
         enviaProfile = Profile.objects.get(usuario=envia.id)

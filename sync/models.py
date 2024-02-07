@@ -3,7 +3,7 @@ from django.db import models
 class EstadoConexion(models.Model):
     servidor = models.CharField(max_length=25)
     online = models.BooleanField(default=False)
-    ip_online = models.GenericIPAddressField(blank=True, null=True)
+    ip_online = models.CharField(max_length=30, help_text="ip:port", blank=True, null=True)
     internet = models.BooleanField(default=False)
     ip_internet = models.GenericIPAddressField(blank=True, null=True)
     fecha_internet = models.DateTimeField(blank=True, null=True)

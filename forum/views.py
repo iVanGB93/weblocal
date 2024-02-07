@@ -41,7 +41,10 @@ def color_tema(color):
 
 def index(request, tema):
     publicaciones = Publicacion.objects.filter(tema=tema).order_by('-fecha')
-    publicacion = Publicacion.objects.get(id=16)
+    if Publicacion.objects.filter(id=16).exists():
+        publicacion = Publicacion.objects.get(id=16)
+    else:
+        publicacion = {"tema": "Noticia"}
     recientes = Publicacion.objects.all().order_by('-fecha')[:10]
     populares = Publicacion.objects.all().order_by('-visitas')[:10]
     color = tema_color(tema)

@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from decouple import config
 import json
 
-from servicios.actions import comprar_internet
+from servicios.actions import *
 
 class ServiciosView(APIView):    
 
@@ -24,6 +24,23 @@ class ServiciosView(APIView):
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self, request, **kwargs):
+        respuesta = {'estado': False}
+        user = self.kwargs.get('pk')
+        usuario = User.objects.get(username=user)
+        servicios = EstadoServicio.objects.get(usuario=usuario)
+        request.data['usuario'] = usuario.id
+        request.data['id'] = servicios.id
+        serializer = ServiciosSerializer(servicios, data=request.data)
+        if serializer.is_valid():
+            serializer.update(servicios, serializer.validated_data)
+            respuesta['estado'] = True
+            respuesta['mensaje'] = 'Servicios actualizados con exito'
+            return Response(status=status.HTTP_200_OK, data=respuesta)
+        else:
+            respuesta['mensaje'] = serializer.error
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=respuesta)
 
 class InternetView(APIView):
 
@@ -47,7 +64,8 @@ class InternetView(APIView):
         contra = request.data['contra']
         duracion = request.data['duracion']
         horas = request.data['horas']
-        result = comprar_internet(usuario, tipo, contra, duracion, horas)
+        velocidad = request.data['velocidad']
+        result = comprar_internet(usuario, tipo, contra, duracion, horas, velocidad)
         if result['correcto']:
             respuesta['estado'] = True                
             respuesta['color_msg'] = 'success'                    
@@ -57,30 +75,37 @@ class InternetView(APIView):
 class JovenClubView(APIView):
 
     def put(self, request, **kwargs):
+        respuesta = {'estado': False}
         user = self.kwargs.get('pk')
-        usuario = User.objects.get(username=user)
-        profile = Profile.objects.get(usuario=usuario.id)
-        servicio = EstadoServicio.objects.get(usuario=usuario.id)
-        datos= request.data
-        
+        result = comprar_jc(user)
+        if result['correcto']:
+            respuesta['estado'] = True
+        respuesta['mensaje'] = result['mensaje']
+        return Response(data=respuesta, status=status.HTTP_200_OK)
 
 class EmbyView(APIView):
 
     def put(self, request, **kwargs):
+        respuesta = {'estado': False}
         user = self.kwargs.get('pk')
-        usuario = User.objects.get(username=user)
-        profile = Profile.objects.get(usuario=usuario.id)
-        servicio = EstadoServicio.objects.get(usuario=usuario.id)
-        datos= request.data
+        result = comprar_emby(user)
+        if result['correcto']:
+            respuesta['estado'] = True
+        respuesta['mensaje'] = result['mensaje']
+        return Response(data=respuesta, status=status.HTTP_200_OK)
         
 class FileZillaView(APIView):
 
     def put(self, request, **kwargs):
+        respuesta = {'estado': False}
         user = self.kwargs.get('pk')
-        usuario = User.objects.get(username=user)
-        profile = Profile.objects.get(usuario=usuario.id)
-        servicio = EstadoServicio.objects.get(usuario=usuario.id)
-        datos= request.data
+        contra = request.data['contraseña']
+        result = comprar_filezilla(user, contra)
+        print(result)
+        if result['correcto']:
+            respuesta['estado'] = True
+        respuesta['mensaje'] = result['mensaje']
+        return Response(data=respuesta, status=status.HTTP_200_OK)
        
 
 class OperView(APIView):  
@@ -97,10 +122,23 @@ class OperView(APIView):
 
 class RecargaView(APIView):
 
-    def post(self, request, format=None, **kwargs):
+    def put(self, request, format=None, **kwargs):
+        respuesta = {'estado': False}
         code = self.kwargs.get('pk')
-        username = request.data['usuario']       
-        
+        username = request.data['usuario']
+        if Recarga.objects.filter(code=code):
+            recarga = Recarga.objects.get(code=code)
+            recarga.activa = False
+            recarga.usuario = User.objects.get(username=username)
+            recarga.fechaUso = timezone.now()
+            recarga.sync = True  
+            recarga.save()
+            respuesta['estado'] = True
+            respuesta['mensaje'] = 'La recarga se guardo correctamente'
+            return Response(status=status.HTTP_200_OK, data=respuesta)
+        else:
+            respuesta['mensaje'] = 'La recarga no se encontro'
+            return Response(status=status.HTTP_200_OK, data=respuesta)
 
 class TransferView(APIView):
 

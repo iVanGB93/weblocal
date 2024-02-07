@@ -16,7 +16,6 @@ from sync.actions import EmailSending
 
 emailAlerts = config('EMAIL_ALERTS', cast=lambda x: x.split(','))
 
-
 def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
     nuevaOper = Oper(tipo='PAGO', usuario=userinst, servicio=servicio, cantidad=cantidad)
