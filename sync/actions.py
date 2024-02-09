@@ -116,7 +116,7 @@ class UpdateThreadUsuario(threading.Thread):
 
     def run(self):
         usuario = self.data['usuario']
-        respuesta =  actualizacion_remota('nuevo_usuario', {'usuario': usuario, 'email': self.data['email'], 'password': self.data['password']})
+        respuesta =  actualizacion_remota('nuevo_usuario', self.data)
         if not respuesta['estado']:           
                 mensaje = respuesta['mensaje']
                 email = EmailMessage(f'Falló al subir usuario nuevo', f'Crear usuario {usuario}, no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, emailAlerts)

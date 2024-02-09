@@ -83,8 +83,11 @@ def register(request):
         user = User(username=username, email=email)
         user.set_password(password)
         user.save()
+        profile = Profile.objects.get(usuario=user)
+        profile.subnet = config('NOMBRE_SERVIDOR')
+        profile.save()
         new_user = authenticate(request, username=user.username, password=password)        
-        UpdateThreadUsuario({'usuario':user.username, 'email': user.email, 'password': password}).start()
+        UpdateThreadUsuario({'usuario':user.username, 'email': user.email, 'password': password, 'subnet': profile.subnet}).start()
         login(request, new_user)
         return redirect('web:index')                  
     else:        
