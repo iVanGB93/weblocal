@@ -15,7 +15,7 @@ import paramiko
 import routeros_api
 import os
 
-from sync.actions import EmailSending
+from sync.actions import DynamicEmailSending
 
 def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
@@ -173,8 +173,9 @@ def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
             notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Internet 24 horas activado")
             notificacion.save()
             code = crearOper(usuario.username, 'internet-24h', costo)
-            email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro { servicio.int_tipo }, esperamos que disfrute su tiempo y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
-            EmailSending(email).start()
+            end_time = servicio.int_time.strftime('%B %d, a las %H:%M ')
+            data = {'to': usuario.email, 'template_id': 'd-a9864607981c4305aedaf3d5277aa19b', 'dynamicdata': {'first_name': usuario.username, 'service': 'internet', 'end_time': end_time, 'code': code}}
+            DynamicEmailSending(data).start()
             result['mensaje'] = 'Servicio activado con éxito.'
             result['correcto'] = True
             return result
@@ -222,8 +223,9 @@ def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
                 contenido = f"Internet por { horas} horas activado"
                 notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido=contenido)
                 notificacion.save()
-                email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro internet por horas, esperamos que disfrute sus { horas} horas y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
-                EmailSending(email).start()
+                end_time = f'que consuma sus {horas} horas'
+                data = {'to': usuario.email, 'template_id': 'd-a9864607981c4305aedaf3d5277aa19b', 'dynamicdata': {'first_name': usuario.username, 'service': 'internet', 'end_time': end_time, 'code': code}}
+                DynamicEmailSending(data).start()
                 result['mensaje'] = 'Servicio activado con éxito.'
                 result['correcto'] = True
                 return result
@@ -237,6 +239,7 @@ def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
 def comprar_jc(usuario):
     result = {'correcto': False}
     servidor = config('NOMBRE_SERVIDOR')
+    jc_price = int(config('JC_PRICE'))
     conexion = EstadoConexion.objects.get(servidor=servidor)
     if not conexion.online:
         result['mensaje'] = "Sistema sin conexión, intente más tarde."
@@ -250,8 +253,8 @@ def comprar_jc(usuario):
         result['mensaje'] = 'Debe tener los servicios sincronizados para comprar.'
         return result
     profile = Profile.objects.get(usuario=usuario)
-    if profile.coins >= 100:
-        profile.coins = profile.coins - 100
+    if profile.coins >= jc_price:
+        profile.coins = profile.coins - jc_price
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
@@ -266,9 +269,10 @@ def comprar_jc(usuario):
             servicio.save()
             notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Joven Club activado")
             notificacion.save()
-            code = crearOper(usuario.username, "Joven-Club", 100)
-            email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de Joven Club, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
-            EmailSending(email).start()
+            code = crearOper(usuario.username, "Joven-Club", jc_price)
+            end_time = servicio.int_time.strftime('%B %d, a las %H:%M ')
+            data = {'to': usuario.email, 'template_id': 'd-a9864607981c4305aedaf3d5277aa19b', 'dynamicdata': {'first_name': usuario.username, 'service': 'Joven Club', 'end_time': end_time, 'code': code}}
+            DynamicEmailSending(data).start()
             result['mensaje'] = 'Servicio activado con éxito.'
             result['correcto'] = True
             return result
@@ -372,8 +376,9 @@ def comprar_emby(usuario):
                         }
                 connect = requests.post(url=url, data=json)
                 code = crearOper(usuario.username, "Emby", embyPrice)
-                email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio Emby, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])
-                EmailSending(email).start()
+                end_time = servicio.int_time.strftime('%B %d, a las %H:%M ')
+                data = {'to': usuario.email, 'template_id': 'd-a9864607981c4305aedaf3d5277aa19b', 'dynamicdata': {'first_name': usuario.username, 'service': 'emby', 'end_time': end_time, 'code': code}}
+                DynamicEmailSending(data).start()
                 result['mensaje'] = 'Servicio activado con éxito.'
                 result['correcto'] = True
                 return result
@@ -411,8 +416,9 @@ def comprar_filezilla(usuario, contraseña):
         servicio.ftp = True
         servicio.ftp_time = timezone.now() + timedelta(days=30)
         code = crearOper(usuario.username, 'FileZilla', ftpPrice)
-        email = EmailMessage('QbaRed - Pago confirmado', f'Gracias por utilizar nuestro servicio de FileZilla, esperamos que disfrute sus 30 dias y que no tenga mucho tufe la red ;-) Utilice este código para el sorteo mensual: "{ code }". Saludos QbaRed.', None, [usuario.email])            
-        EmailSending(email).start()
+        end_time = servicio.int_time.strftime('%B %d, a las %H:%M ')
+        data = {'to': usuario.email, 'template_id': 'd-a9864607981c4305aedaf3d5277aa19b', 'dynamicdata': {'first_name': usuario.username, 'service': 'filezilla', 'end_time': end_time, 'code': code}}
+        DynamicEmailSending(data).start()
         servicio.sync = False
         servicio.save()
         notificacion = Notificacion(usuario=usuario, tipo="PAGO", contenido="Filezilla activado")

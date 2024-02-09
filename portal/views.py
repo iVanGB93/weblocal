@@ -136,7 +136,8 @@ def internet(request):
 @login_required(login_url='/users/login/')
 def jovenclub(request):
     usuario = request.user
-    content = {'icon': 'error'} 
+    jcPrice = config('JC_PRICE')
+    content = {'icon': 'error', 'jcPrice': jcPrice} 
     if request.method == 'POST':
         contra = request.POST['contra']
         if usuario.check_password(contra):
