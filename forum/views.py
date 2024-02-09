@@ -123,7 +123,6 @@ def detalles(request, tema, slug):
 
 @login_required(login_url='/users/login/')
 def crear(request, tema):
-    print(request)
     color = tema_color(tema)
     voto = 'no'
     comentarios = 'no'
@@ -135,17 +134,15 @@ def crear(request, tema):
         if Publicacion.objects.filter(titulo=titulo).exists():
             content['mensaje'] =  'Existe una publicación con este título'
             return render(request, 'forum/crear.html', content)
-        online = config('APP_MODE')
-        if online == 'online':
-            conexion = EstadoConexion.objects.get(id=1)
-            if conexion.online:
-                resultado = actualizacion_remota('sync_publicacion', {'check': True, 'titulo': titulo})
-                if resultado['estado']:
-                    content['mensaje'] =  resultado['mensaje']
-                    return render(request, 'forum/crear.html', content)
-            else:
-                content['mensaje'] =  'Publicaciones deshabilitadas en este momento, intente más tarde.'
+        conexion = EstadoConexion.objects.get(id=1)
+        if conexion.online:
+            resultado = actualizacion_remota('sync_publicacion', {'check': True, 'titulo': titulo})
+            if resultado['estado']:
+                content['mensaje'] =  resultado['mensaje']
                 return render(request, 'forum/crear.html', content)
+        else:
+            content['mensaje'] =  'Publicaciones deshabilitadas en este momento, intente más tarde.'
+            return render(request, 'forum/crear.html', content)
         contenido = request.POST['contenido']       
         nueva = Publicacion(autor=usuario, tema=tema, titulo=titulo, contenido=contenido)
         if request.FILES.get('imagen1'):
@@ -205,17 +202,15 @@ def editar(request, tema, slug):
                     mensaje = 'Existe una publicación con este título'
                     content['mensaje'] =  mensaje
                     return render(request, 'forum/editar.html', content)
-                online = config('APP_MODE')
-                if online == 'online':
-                    conexion = EstadoConexion.objects.get(id=1)
-                    if conexion.online:
-                        resultado = actualizacion_remota('sync_publicacion', {'check': True, 'titulo': titulo})
-                        if resultado['estado']:
-                            content['mensaje'] =  resultado['mensaje']
-                            return render(request, 'forum/crear.html', content)
-                    else:
-                        content['mensaje'] =  'Publicaciones deshabilitadas en este momento, intente más tarde.'
+                conexion = EstadoConexion.objects.get(id=1)
+                if conexion.online:
+                    resultado = actualizacion_remota('sync_publicacion', {'check': True, 'titulo': titulo})
+                    if resultado['estado']:
+                        content['mensaje'] =  resultado['mensaje']
                         return render(request, 'forum/crear.html', content)
+                else:
+                    content['mensaje'] =  'Publicaciones deshabilitadas en este momento, intente más tarde.'
+                    return render(request, 'forum/crear.html', content)
                 publicacion.titulo = titulo
         if request.POST['contenido'] != '':
             publicacion.contenido = request.POST['contenido']
