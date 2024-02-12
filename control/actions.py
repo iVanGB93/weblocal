@@ -93,7 +93,6 @@ def get_service_income(pays):
 
 def get_gross_income(year, month, day):
     all_pays = get_pays(year, month, day)
-    month = MonthIncome.objects.get(month=month)
     total = 0
     for pay in all_pays:
         total = total + pay.cantidad

@@ -124,7 +124,10 @@ class UpdateThreadRecarga(threading.Thread):
                 EmailSending(email).start()
         else:
             respuesta = actualizacion_remota('crear_recarga', self.data)
-            if not respuesta['estado']:                 
+            if respuesta['estado']:
+                recarga.sync = True
+                recarga.save()
+            else:
                 mensaje = respuesta['mensaje']
                 email = EmailMessage(f'Falló al subir la recarga', f'Crear recarga, código { recarga.code } no se pudo sincronizar con internet. MENSAJE: { mensaje }', None, emailAlerts)
                 EmailSending(email).start()

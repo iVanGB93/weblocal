@@ -65,5 +65,5 @@ def actualizar_servicios(sender, instance, **kwargs):
 @receiver(post_save, sender=Recarga)
 def actualizar_recarga(sender, instance, **kwargs):
     if instance.sync == False:
-        data = {'code': instance.code, 'cantidad': instance.cantidad, 'fechaHecha': str(instance.fechaHecha)}
+        data = {'code': instance.code, 'cantidad': instance.cantidad, 'fechaHecha': str(instance.fechaHecha), 'creator': instance.creator}
         UpdateThreadRecarga(data).start()
