@@ -25,7 +25,11 @@ def crearProfile(sender, instance, **kwargs):
 @receiver(post_save, sender=Profile)
 def actualizar_profile(sender, instance, **kwargs):
     if instance.sync == False:
+<<<<<<< HEAD
         data = {'usuario': instance.usuario.username, 'coins': instance.coins, 'subnet': instance.subnet}
+=======
+        data = {'usuario': instance.usuario.username, 'coins': instance.coins}
+>>>>>>> 80a4b5a6569e8b8542b1930dcb0b5d4eb50b8b64
         UpdateThreadPerfil(data).start()            
 
 @receiver(post_save, sender=Notificacion)
