@@ -38,23 +38,21 @@ def correoOper(sender, instance, **kwargs):
         haciaDesde = 'None'
     cantidad = instance.cantidad
     fecha = str(instance.fecha)
-    online = config('APP_MODE')
-    if online == 'online':
-        if instance.sync == False:
-            data = {'code': instance.code, 'tipo': instance.tipo, 'usuario': usuario, 'servicio': servicio, 'cantidad': instance.cantidad, 'codRec': codRec, 'haciaDesde': haciaDesde, 'fecha': fecha}
-            UpdateThreadOper(data).start()                    
-            if instance.tipo == 'PAGO':
-                email = EmailMessage(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, emailAlerts)
-                EmailSending(email).start()
-            elif instance.tipo == 'RECARGA':
-                email = EmailMessage(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, emailAlerts)
-                EmailSending(email).start()
-            elif instance.tipo == 'ENVIO':
-                email = EmailMessage(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, emailAlerts)
-                EmailSending(email).start()
-            elif instance == 'RECIBO':
-                email = EmailMessage(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, emailAlerts)
-                EmailSending(email).start()            
+    if instance.sync == False:
+        data = {'code': instance.code, 'tipo': instance.tipo, 'usuario': usuario, 'servicio': servicio, 'cantidad': instance.cantidad, 'codRec': codRec, 'haciaDesde': haciaDesde, 'fecha': fecha}
+        UpdateThreadOper(data).start()                    
+        if instance.tipo == 'PAGO':
+            email = EmailMessage(f'Pago Realizado -- { usuario }', f'El usuario { usuario } pagó { cantidad } por { servicio }. Fecha: { fecha}', None, emailAlerts)
+            EmailSending(email).start()
+        elif instance.tipo == 'RECARGA':
+            email = EmailMessage(f'{ usuario } ha recargado', f'El usuario { usuario } agregó { cantidad } a su cuenta. Código: { instance.codRec }. Fecha: { fecha}', None, emailAlerts)
+            EmailSending(email).start()
+        elif instance.tipo == 'ENVIO':
+            email = EmailMessage(f'{ usuario } realizó un envio', f'El usuario { usuario } envió { cantidad } a { instance.haciaDesde }. Fecha: { fecha}', None, emailAlerts)
+            EmailSending(email).start()
+        elif instance == 'RECIBO':
+            email = EmailMessage(f'{ usuario } ha recibido', f'El usuario { usuario } recibió { cantidad } de { instance.haciaDesde }. Fecha: { fecha}', None, emailAlerts)
+            EmailSending(email).start()            
 
 @receiver(post_save, sender=EstadoServicio)
 def actualizar_servicios(sender, instance, **kwargs):
