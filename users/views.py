@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from decouple import config
-from .models import Profile
+from users.models import Profile
+from sync.models import EstadoConexion
 from servicios.models import EstadoServicio
 from sync.syncs import actualizacion_remota
-from sync.models import EstadoConexion
 from sync.actions import UpdateThreadUsuario
+from .actions import check_user
+from decouple import config
 
 
 def entrar(request):
@@ -25,14 +26,15 @@ def entrar(request):
                 content['mensaje'] = "Contraseña Incorrecta"
                 return render(request, 'users/login.html', content)            
         else:
-            check_user = actualizacion_remota('check_usuario', {'usuario': username})
-            if not check_user['conexion']:
-                content['mensaje'] = "Servidor sin conexion, intente mas tarde."
-                return render(request, 'users/login.html', content)
-            if check_user['estado']:
-                content['mensaje'] = "Su usuario no se encuentra en la local."
-                send_username = username
-                return redirect('users:pullUser', user=send_username)
+            if config('NOMBRE_SERVIDOR') != 'core_ONLINE':
+                check_user = actualizacion_remota('check_usuario', {'usuario': username})
+                if not check_user['conexion']:
+                    content['mensaje'] = "Servidor sin conexion, intente mas tarde."
+                    return render(request, 'users/login.html', content)
+                if check_user['estado']:
+                    content['mensaje'] = "Su usuario no se encuentra en la local."
+                    send_username = username
+                    return redirect('users:pullUser', user=send_username)
             else:
                 content['mensaje'] = "Usuario no existe"
                 return render(request, 'users/login.html', content)
@@ -44,7 +46,10 @@ def register(request):
         return redirect ('web:index')
     content = {'icon': 'error'}
     if request.method == 'POST':
-        conexion = EstadoConexion.objects.get(servidor=config('NOMBRE_SERVIDOR'))
+        if config('NOMBRE_SERVIDOR') == 'core_ONLINE':
+            conexion = EstadoConexion.objects.get(servidor=request.POST['subnet'])
+        else:
+            conexion = EstadoConexion.objects.get(servidor=config('NOMBRE_SERVIDOR'))
         if not conexion.online:
             content['mensaje'] = "Registro deshabilitado, intente más tarde."
             return render(request, 'users/register.html', content)
@@ -64,33 +69,25 @@ def register(request):
         if User.objects.filter(email=email).exists():
             content['mensaje'] = "Correo en uso."
             return render(request, 'users/register.html', content)
-        check_user = actualizacion_remota('check_usuario', {'usuario': username})
-        if check_user['conexion']:
-            if check_user['estado']:
-                content['mensaje'] = check_user['mensaje']
-                return render(request, 'users/register.html', content)
+        remoteUser = check_user(username, email)
+        if remoteUser['state']:
+            user = User(username=username, email=email)
+            user.set_password(password)
+            user.save()
+            new_user = authenticate(request, username=user.username, password=password)
+            profile = Profile.objects.get(usuario=user)
+            if config('NOMBRE_SERVIDOR') == 'core_ONLINE':
+                profile.subnet = request.POST['subnet']
+            else:
+                profile.subnet = config('NOMBRE_SERVIDOR')
+            profile.save()
+            UpdateThreadUsuario({'usuario':user.username, 'email': user.email, 'password': password, 'subnet': profile.subnet}).start()
+            login(request, new_user)
+            return redirect('web:index')
         else:
-            content['mensaje'] = "Registro deshabilitado, intente más tarde."
-            return render(request, 'users/register.html', content)
-        check_email = actualizacion_remota('check_email', {'email': email})
-        if check_email['conexion']:
-            if check_email['estado']:
-                content['mensaje'] = check_email['mensaje']
-                return render(request, 'users/register.html', content)
-        else:
-            content['mensaje'] = "Registro deshabilitado, intente más tarde."
-            return render(request, 'users/register.html', content)
-        user = User(username=username, email=email)
-        user.set_password(password)
-        user.save()
-        profile = Profile.objects.get(usuario=user)
-        profile.subnet = config('NOMBRE_SERVIDOR')
-        profile.save()
-        new_user = authenticate(request, username=user.username, password=password)        
-        UpdateThreadUsuario({'usuario':user.username, 'email': user.email, 'password': password, 'subnet': profile.subnet}).start()
-        login(request, new_user)
-        return redirect('web:index')                  
-    else:        
+            content['mensaje'] = remoteUser['message']
+            return render(request, 'users/register.html', content)                          
+    else:
         return render(request, 'users/register.html')
     
 def salir(request):

@@ -2,10 +2,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Profile, Notificacion
 from django.contrib.auth.models import  User
-from django.core.mail import EmailMessage
 from decouple import config
 
-from sync.actions import EmailSending, UpdateThreadPerfil, UpdateThreadNotificacion
+from sync.actions import EmailSending, UpdateThreadPerfil, UpdateThreadNotificacion, DynamicEmailSending
 
 emailAlerts = config('EMAIL_ALERTS', cast=lambda x: x.split(','))
 
@@ -17,10 +16,11 @@ def crearProfile(sender, instance, **kwargs):
         profile = Profile(usuario=usuario)
         profile.sync = True
         profile.save()
-        """ email = EmailMessage('Usuario nuevo', f'El usuario { usuario.username } se ha registrado.', None, emailAlerts)
-        EmailSending(email).start()
-        email = EmailMessage(f'Bienvenido { usuario.username } a QbaRed', f'Hola { usuario.username }, usted se ha registrado en QbaRed, le damos todos la bienvenida y esperamos que sea de su agrado nuestra red. Puede informarse en --> https://www.qbared.com/  Saludos', None, [usuario.email,])
-        EmailSending(email).start() """
+        if config('NOMBRE_SERVIDOR') == 'core_ONLINE':
+            data = {'subjet': 'Usuario nuevo', 'content': f'El usuario { usuario.username } se ha registrado en { profile.subnet }.', 'to': emailAlerts}
+            EmailSending(data).start()
+            data = {'to': usuario.email, 'template_id': 'd-e48acff5ca9f407b88de9fc53f6c83a8', 'dynamicdata': {'first_name': usuario.username}}
+            DynamicEmailSending(data).start()
 
 @receiver(post_save, sender=Profile)
 def actualizar_profile(sender, instance, **kwargs):
