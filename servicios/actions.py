@@ -17,6 +17,9 @@ import os
 
 from sync.actions import DynamicEmailSending
 
+servidor = config('NOMBRE_SERVIDOR')
+
+
 def crearOper(usuario, servicio, cantidad):
     userinst = User.objects.get(username=usuario)           
     nuevaOper = Oper(tipo='PAGO', usuario=userinst, servicio=servicio, cantidad=cantidad)
@@ -113,7 +116,7 @@ def conectar_mikrotik(ip, username, password, usuario, contraseña, perfil, hora
 
 def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
     result = {'correcto': False}
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = EstadoConexion.objects.get(servidor=servidor)
     if not conexion.online:
         result['mensaje'] = "Sistema sin conexión, intente más tarde."
         return result
@@ -238,7 +241,6 @@ def comprar_internet(usuario, tipo, contra, duracion, horas, velocidad):
 
 def comprar_jc(usuario):
     result = {'correcto': False}
-    servidor = config('NOMBRE_SERVIDOR')
     jc_price = int(config('JC_PRICE'))
     conexion = EstadoConexion.objects.get(servidor=servidor)
     if not conexion.online:
@@ -286,7 +288,6 @@ def comprar_jc(usuario):
 def comprar_emby(usuario):
     result = {'correcto': False}
     embyPrice = int(config('EMBY_PRICE'))
-    servidor = config('NOMBRE_SERVIDOR')
     conexion = EstadoConexion.objects.get(servidor=servidor)
     if not conexion.online:
         result['mensaje'] = "Sistema sin conexión, intente más tarde."
@@ -394,14 +395,11 @@ def comprar_emby(usuario):
 
 def comprar_filezilla(usuario, contraseña):
     result = {'correcto': False}
-    online = config('APP_MODE')
     ftpPrice = int(config('FTP_PRICE'))
-    if online == 'online':
-        servidor = config('NOMBRE_SERVIDOR')
-        conexion = EstadoConexion.objects.get(servidor=servidor)
-        if not conexion.online:
-            result['mensaje'] = "Sistema sin conexión, intente más tarde."
-            return result
+    conexion = EstadoConexion.objects.get(servidor=servidor)
+    if not conexion.online:
+        result['mensaje'] = "Sistema sin conexión, intente más tarde."
+        return result
     usuario = User.objects.get(username=usuario)
     profile = Profile.objects.get(usuario=usuario)
     servicio = EstadoServicio.objects.get(usuario=usuario)
@@ -432,7 +430,7 @@ def comprar_filezilla(usuario, contraseña):
 
 def recargar(code, usuario):
     result = {'correcto': False}
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = EstadoConexion.objects.get(servidor=servidor)
     if not conexion.online:
         result['mensaje'] = "Sistema sin conexión, intente más tarde."
         return result
@@ -445,7 +443,7 @@ def recargar(code, usuario):
         result['mensaje'] = 'Escriba 8 dígitos.'
         return result
     if Recarga.objects.filter(code=code).exists():
-        recarga = Recarga.objects.get(code=code)        
+        recarga = Recarga.objects.get(code=code)
         if recarga.activa:
             cantidad = recarga.cantidad       
             profile.coins = profile.coins + cantidad
@@ -454,6 +452,7 @@ def recargar(code, usuario):
             recarga.activa = False
             recarga.fechaUso = timezone.now()
             recarga.usuario = usuario
+            recarga.sync = False
             recarga.save()
             contenido = f"Cuenta recargado con { cantidad } coins"
             notificacion = Notificacion(usuario=usuario, tipo="RECARGA", contenido=contenido)
@@ -464,17 +463,17 @@ def recargar(code, usuario):
             result['mensaje'] = 'Cuenta Recargada con éxito'
             return result
         else:
-            result['mensaje'] = 'Recarga usada'
+            result['mensaje'] = 'Esta recarga ya fue usada'
             return result
-    if conexion.online:
+    else:
         data = {'usuario': usuario.username, 'code': code, 'check': True}
         respuesta = actualizacion_remota('usar_recarga', data=data)
         if respuesta['estado']:
-            cantidad = respuesta['cantidad']               
+            cantidad = respuesta['cantidad']            
             respuesta = actualizacion_remota('usar_recarga', {'usuario': usuario.username, 'code': code})
             if respuesta['estado']:
                 profile.coins = profile.coins + cantidad
-                profile.sync = False                           
+                profile.sync = False                      
                 profile.save()
                 contenido = f"Cuenta recargado con { cantidad } coins"
                 notificacion = Notificacion(usuario=usuario, tipo="RECARGA", contenido=contenido)
@@ -487,15 +486,15 @@ def recargar(code, usuario):
 
 def transferir(desde, hacia, cantidad):
     result = {'correcto': False}
-    conexion = EstadoConexion.objects.get(id=1)
+    conexion = EstadoConexion.objects.get(servidor=servidor)
     if not conexion.online:
         result['mensaje'] = "Sistema sin conexión, intente más tarde."
         return result    
-    if User.objects.filter(username=hacia).exists():  
-        envia = User.objects.get(username=desde)        
-        enviaProfile = Profile.objects.get(usuario=envia.id)
+    if User.objects.filter(username=hacia).exists():
+        envia = User.objects.get(username=desde)
+        enviaProfile = Profile.objects.get(usuario=envia)
         recibe = User.objects.get(username=hacia)
-        recibeProfile = Profile.objects.get(usuario=recibe.id)
+        recibeProfile = Profile.objects.get(usuario=recibe)
         if not enviaProfile.sync or not recibeProfile.sync:
             result['mensaje'] = "Sincronice ambos perfiles en dashboard para poder transferir"
             return result   
@@ -505,7 +504,7 @@ def transferir(desde, hacia, cantidad):
             if cantidad >= 20:                
                 recibeProfile.coins = recibeProfile.coins + cantidad
                 enviaProfile.coins = enviaProfile.coins - cantidad 
-                enviaProfile.sync = False     
+                enviaProfile.sync = False 
                 enviaProfile.save()
                 recibeProfile.sync = False
                 recibeProfile.save()

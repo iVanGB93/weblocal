@@ -119,6 +119,31 @@ class OperView(APIView):
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self, request, format=None, **kwargs):
+        code = self.kwargs.get('pk')
+        if Oper.objects.filter(code=code):
+            oper = Oper.objects.get(code=code)
+            oper.sync = True
+            oper.save()
+            return Response(status=status.HTTP_200_OK)
+        usuario = User.objects.get(username=request.data['usuario'])
+        if request.data['servicio'] == 'None':
+            servicio = None
+        else:
+            servicio = request.data['servicio']
+        if request.data['codRec'] == 'None':
+            codRec = None
+        else:
+            codRec = request.data['codRec']
+        if request.data['haciaDesde'] == 'None':
+            haciaDesde = None
+        else:
+            haciaDesde = request.data['haciaDesde']
+        oper = Oper(code=code, tipo=request.data['tipo'], usuario=usuario, servicio=servicio, codRec=codRec, cantidad=request.data['cantidad'], haciaDesde=haciaDesde, fecha=request.data['fecha'])
+        oper.sync = True
+        oper.save()
+        return Response(status=status.HTTP_200_OK)
 
 class RecargaView(APIView):
 
@@ -131,7 +156,7 @@ class RecargaView(APIView):
             recarga.activa = False
             recarga.usuario = User.objects.get(username=username)
             recarga.fechaUso = timezone.now()
-            recarga.sync = True  
+            recarga.sync = True
             recarga.save()
             respuesta['estado'] = True
             respuesta['mensaje'] = 'La recarga se guardo correctamente'

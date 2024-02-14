@@ -258,7 +258,8 @@ def control_recargas(request):
                 data = {'usuario': request.user.username, 'check': True, 'code': code}
                 respuesta = actualizacion_remota('usar_recarga', data)
                 if respuesta['estado']:
-                    recarga = {'mensaje': respuesta['mensaje'], 'code': respuesta['code'], 'cantidad': respuesta['cantidad'], 'activa': respuesta['activa'], 'usuario': respuesta['usuario'], 'fecha': respuesta['fecha'], 'creador': respuesta['creator'], 'icon': 'success'}
+                    usuario = respuesta.get('usuario', 'NO USADA POR NADIE AUN')
+                    recarga = {'mensaje': respuesta['mensaje'], 'code': respuesta['code'], 'cantidad': respuesta['cantidad'], 'activa': respuesta['activa'], 'usuario': usuario, 'fecha': respuesta['fecha'], 'creador': respuesta['creator'], 'icon': 'success'}
                     mensaje = respuesta['mensaje']
                     content = {'mensaje': mensaje, 'recarga': recarga}
                     return render(request, 'control/control_recargas.html', content)

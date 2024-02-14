@@ -14,9 +14,7 @@ emailAlerts = config('EMAIL_ALERTS', cast=lambda x: x.split(','))
 def crearServicios(sender, instance, **kwargs):
     usuario = instance.username
     usuario = User.objects.get(username=usuario)
-    if EstadoServicio.objects.filter(usuario=usuario).exists():
-        pass
-    else:        
+    if not EstadoServicio.objects.filter(usuario=usuario).exists():
         servicios = EstadoServicio(usuario=usuario)
         servicios.sync = True
         servicios.save()
