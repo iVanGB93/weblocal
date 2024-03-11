@@ -414,7 +414,7 @@ def comprar_filezilla(usuario, contraseña):
         servicio.ftp = True
         servicio.ftp_time = timezone.now() + timedelta(days=30)
         code = crearOper(usuario.username, 'FileZilla', ftpPrice)
-        end_time = servicio.int_time.strftime('%B %d, a las %H:%M ')
+        end_time = servicio.ftp_time.strftime('%B %d, a las %H:%M ')
         data = {'to': usuario.email, 'template_id': 'd-a9864607981c4305aedaf3d5277aa19b', 'dynamicdata': {'first_name': usuario.username, 'service': 'filezilla', 'end_time': end_time, 'code': code}}
         DynamicEmailSending(data).start()
         servicio.sync = False

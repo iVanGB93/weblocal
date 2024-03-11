@@ -43,26 +43,25 @@ def perfil(request):
         usuario.email = email
         usuario.first_name = request.POST['first_name']
         usuario.last_name = request.POST['last_name']
-        if config('APP_MODE') == 'online':
-            if conexion.online:
-                respuesta = actualizacion_remota('check_email', {'email': email})
-                if respuesta['estado']:
-                    if User.objects.filter(email=email).exists():
-                        dueño = User.objects.get(email=email)
-                        if dueño.username != usuario.username:
-                            content['mensaje'] = respuesta['mensaje']
-                            return render(request, 'portal/perfil.html', content)                     
-                    else:
-                        content['mensaje'] = 'Usuario local no encontrado, notifique a la administración del error'
-                        return render(request, 'portal/perfil.html', content)
-                data = {'usuario': usuario.username, 'email': usuario.email, 'first_name': usuario.first_name, 'last_name': usuario.last_name}       
-                respuesta = actualizacion_remota('cambio_usuario', data)          
-                if not respuesta['estado']:                
-                    content['mensaje'] = respuesta['mensaje']
-                    return render(request, 'portal/perfil.html', content)  
-            else:
-                content['mensaje'] = 'No disponible en este momento, intente más tarde.'
-                return render(request, 'portal/perfil.html', content)
+        if conexion.online:
+            respuesta = actualizacion_remota('check_email', {'email': email})
+            if respuesta['estado']:
+                if User.objects.filter(email=email).exists():
+                    dueño = User.objects.get(email=email)
+                    if dueño.username != usuario.username:
+                        content['mensaje'] = respuesta['mensaje']
+                        return render(request, 'portal/perfil.html', content)                     
+                else:
+                    content['mensaje'] = 'Usuario local no encontrado, notifique a la administración del error'
+                    return render(request, 'portal/perfil.html', content)
+            data = {'usuario': usuario.username, 'email': usuario.email, 'first_name': usuario.first_name, 'last_name': usuario.last_name}       
+            respuesta = actualizacion_remota('cambio_usuario', data)          
+            if not respuesta['estado']:                
+                content['mensaje'] = respuesta['mensaje']
+                return render(request, 'portal/perfil.html', content)  
+        else:
+            content['mensaje'] = 'No disponible en este momento, intente más tarde.'
+            return render(request, 'portal/perfil.html', content)
         notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido="Detalles de perfil editados")
         notificacion.save()
         usuario.save()
@@ -83,13 +82,12 @@ def contra(request):
                 if len(request.POST['nueva']) >= 8:
                     nueva = request.POST['nueva']
                     conexion = get_or_create_conexion_status()
-                    if config('APP_MODE') == 'online':
-                        if conexion.online:
-                            data = {'usuario': usuario.username, 'contraseña': nueva}
-                            respuesta = actualizacion_remota('nueva_contraseña', data)
-                            if not respuesta['estado']:
-                                content['mensaje'] = respuesta['mensaje']
-                                return render(request, 'portal/cambiarcontra.html', content)
+                    if conexion.online:
+                        data = {'usuario': usuario.username, 'contraseña': nueva}
+                        respuesta = actualizacion_remota('nueva_contraseña', data)
+                        if not respuesta['estado']:
+                            content['mensaje'] = respuesta['mensaje']
+                            return render(request, 'portal/cambiarcontra.html', content)
                     usuario.set_password(nueva)
                     notificacion = Notificacion(usuario=usuario, tipo="REGISTRO", contenido="Contraseña de usuario cambiada")
                     notificacion.save()
